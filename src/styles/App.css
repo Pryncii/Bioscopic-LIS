@@ -1,0 +1,35 @@
+.btn-primary {
+    background-color: rgb(19, 33, 83);
+    border: 0px;
+    margin: 10px;
+}
+
+.btn-primary:hover {
+    background-color: rgba(19, 33, 83, 0.8);
+}
+
+.form-control:not(:read-only),
+.form-control:not(:read-only):focus~label::after,
+.form-control:not(:read-only):not(:placeholder-shown)~label::after,
+.form-select,
+.form-select:focus~label::after,
+.form-select:not(:placeholder-shown)~label::after,
+input[type="number"].form-control:read-only,
+input[type="number"].form-control:read-only~label::after {
+    background-color: rgb(230, 233, 243);
+}
+
+/*   ----------   MODAL CSS   ----------    */
+
+.modal-header {
+    background-color: rgb(19, 33, 83);
+    color: #ffffff;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(3);
+}
+
+.modal-header .btn-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
