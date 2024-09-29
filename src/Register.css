@@ -5,6 +5,10 @@ body {
     background-color: #FFF8F3;
 }
 
+.bg {
+    background: #0D1D58;
+}
+
 .btn-primary {
     --bs-btn-bg: #0D1D58;
     --bs-btn-border-color: #0D1D58;
@@ -69,4 +73,8 @@ a:hover {
     justify-content: space-between;
 }
 
+.title{font-weight: bold;}
+
 .spacer { margin: 40px 50px 40px 50px; }
+
+img {width: 50%}
