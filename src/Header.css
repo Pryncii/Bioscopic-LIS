@@ -1,19 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+.header-logo-pic {
+    height: 40px; 
+    margin-left: 20px;
+}
 
-.headerLogoPic, .headerUserPic { height: 40px; }
-.headerLogoPic { margin-left: 20px; }
-.headerUserPic { border-radius: 100%; }
-
-.headerBar {
+.header-bar {
     align-items: center;
     background-color: #0D1D58;
-    color: white;
+    color: #FFF8F3;
     display: flex;
     font-family: "Inter";
     justify-content: space-between;
-    height: 60px;
+    height: auto;
     padding: 10px;
+    width: 100%;
 }
+
+.nav-link, .nav-link:focus { color: #FFF8F3; }
+.nav-link:hover { color: #A1B1C7; }
 
 nav ul { 
     align-items: center;
@@ -31,7 +34,7 @@ li {
 }
   
 a {
-    color: white;
+    color: #FFF8F3;
     text-decoration: none; /* Remove underline from links */
 }
   
