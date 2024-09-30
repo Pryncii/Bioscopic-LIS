@@ -20,28 +20,28 @@ function Home() {
       dateCompleted: ''
     },
     {
-        requestId: 'REQ123',
-        patientId: 'PAT001',
-        name: 'John Doe',
-        tests: 'CBC, Urinalysis',
-        requestStatus: 'In Progress',
-        barColor: 'ip', // This would be a CSS class to style the status color
-        remarks: 'Urgent',
-        paymentStatus: 'Paid',
-        dateRequested: '2024-09-25',
-        dateCompleted: ''
+      requestId: 'REQ123',
+      patientId: 'PAT001',
+      name: 'John Doe',
+      tests: 'CBC, Urinalysis',
+      requestStatus: 'In Progress',
+      barColor: 'ip', // This would be a CSS class to style the status color
+      remarks: 'Urgent',
+      paymentStatus: 'Paid',
+      dateRequested: '2024-09-25',
+      dateCompleted: ''
     },
     {
-        requestId: 'REQ124',
-        patientId: 'PAT002',
-        name: 'Jane Smith',
-        tests: 'FBS, Cholesterol',
-        requestStatus: 'Completed',
-        barColor: 'c',
-        remarks: 'Normal',
-        paymentStatus: 'Paid',
-        dateRequested: '2024-09-24',
-        dateCompleted: '2024-09-26'
+      requestId: 'REQ124',
+      patientId: 'PAT002',
+      name: 'Jane Smith',
+      tests: 'FBS, Cholesterol',
+      requestStatus: 'Completed',
+      barColor: 'c',
+      remarks: 'Normal',
+      paymentStatus: 'Paid',
+      dateRequested: '2024-09-24',
+      dateCompleted: '2024-09-26'
     },
     {},{}
   ];
