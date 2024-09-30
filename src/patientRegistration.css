@@ -1,0 +1,36 @@
+.main-content { margin: 50px; }
+.reg-content { margin: 20px 50px 0px 50px; }
+._title > h1, .item-label, .item-container, .reg-btn { font-family: "Inter"; }
+._title, .item-label { color: #0D1D58; }
+.reg-items, .input-item { width: 100%; }
+.two-col { width: 50%; }
+.item-container { padding: 10px; }
+tr { height: 30px; }
+body { background-color: #FFF8F3 !important; }
+.reg-btn { margin: 30px; }
+
+.item-label {
+    justify-content: left;
+    padding-left: 10px;
+    padding-top: 20px;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+}
+
+.input-item {
+    background-color: #DDDFE3;
+    border-radius: 5px;
+    border-width: 0px;
+    padding: 15px;
+}
+
+.checkbox-flex { display: flex; }
+.checkbox-item { 
+    margin-right: 10px;
+    color: #58595d;
+    padding: 5px
+    
+ }
