@@ -1,7 +1,7 @@
 .main-content { margin: 50px; }
 .reg-content { margin: 20px 50px 0px 50px; }
 ._title > h1, .item-label, .item-container, .reg-btn { font-family: "Inter"; }
-._title, .item-label { color: #0D1D58; }
+._title, .item-label { color: white}
 .reg-items, .input-item { width: 100%; }
 .two-col { width: 50%; }
 .item-container { padding: 10px; }

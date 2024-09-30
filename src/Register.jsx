@@ -62,7 +62,7 @@ function Register() {
                     </div>
                     <div className="mb-3">
                         <label className="form-label">Sex</label>
-                        <select className="form-select" name="sex"value={formData.sex} onChange={handleChange}>
+                        <select className="form-select" name="sex" value={formData.sex} onChange={handleChange}>
                             <option value="M">Male</option>
                             <option value="F">Female</option>
                         </select>
