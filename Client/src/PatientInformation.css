@@ -1,0 +1,29 @@
+.hundredspace, .patient-row { width: 100%; }
+.fiftyspace { width: 50%; }
+.twentyfivespace { width: 25%; }
+
+.fiftyspace, .hundredspace, .twentyfivespace{
+    color: #0D1D58;
+    align-content: center;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.patient-row {
+    display: flex;
+    flex-direction: row;
+    height: 33%;
+    font-size: 20px;
+}
+
+.patient-input-item {
+    background-color: #DDDFE3;
+    border-radius: 5px;
+    border-width: 0px;
+    padding-left: 10px;
+    width: 100%;
+}
