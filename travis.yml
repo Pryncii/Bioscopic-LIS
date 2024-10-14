@@ -1,0 +1,37 @@
+language: node_js
+node_js:
+  - "16"
+
+# Define environments for both front-end and back-end
+env:
+  global:
+    - FRONTEND_DIR=Client
+    - BACKEND_DIR=Server
+
+services:
+  - mongodb  # Add MongoDB service for the back-end
+
+before_script:
+  # Set up MongoDB connection environment variables, if needed
+  - sleep 15  # Give MongoDB service time to start
+  - mongo mydb --eval 'db.createCollection("test");'  # Example to create a test DB
+
+# Install dependencies for both front-end and back-end
+install:
+  - cd $FRONTEND_DIR
+  - npm install
+  - cd ../$BACKEND_DIR
+  - npm install
+
+# Build and test both front-end and back-end
+script:
+  - cd ../$FRONTEND_DIR
+  - npm run build
+  - npm run lint
+
+  - cd ../$BACKEND_DIR
+  - npm run test
+
+cache:
+  directories:
+    - $HOME/.npm
