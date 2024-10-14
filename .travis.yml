@@ -2,6 +2,15 @@ language: node_js
 node_js:
   - "16"
 
+# Only build on pull requests or the main branch
+branches:
+  only:
+    - main
+    - develop
+
+# Build only on pull requests, not on every commit
+if: type = pull_request
+
 # Define environments for both front-end and back-end
 env:
   global:
