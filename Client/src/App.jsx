@@ -2,10 +2,11 @@ import Home from './Home.jsx'
 import PatientRequest from './PatientRequest.jsx'
 import ViewPatients from './ViewPatients.jsx'
 import ViewPatientHistory from './ViewPatientHistory.jsx'
-import Header from './Header.jsx'
+import PatientRegistration from './PatientRegistration.jsx'
 import Register from './Register.jsx'
 import Login from './Login.jsx'
 import {useEffect, useState} from 'react'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
   const [data, setData] = useState({}); // To store all the fetched data
@@ -25,12 +26,25 @@ function App() {
   }, []);
   return (
     <>
-      <Login />
+      <Router>
+      <div>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/addpatient" element={<PatientRegistration />} />
+          <Route path="/request" element={<PatientRequest />} />
+          <Route path="/patients" element={<ViewPatientHistory />} />
+          <Route path="/patienthistory" element={<ViewPatients />} />
+        </Routes>
+      </div>
+    </Router>
+      {/*
       <div>
         <h1>Fetched Data</h1>
-        {/* Display the data in your preferred format */}
         <pre>{JSON.stringify(data, null, 2)}</pre>
       </div>
+      */}
   
     </>
   )
