@@ -4,6 +4,7 @@ import './Register.css'
 import logo2 from './assets/logo2.png'
 import { Checkbox } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -24,6 +25,11 @@ function Login() {
         e.preventDefault();
         // Process form data (e.g., send to backend)
         console.log("Form data submitted: ", formData);
+    };
+    const navigate = useNavigate();
+
+    const loginHome = () => {
+        navigate('/home'); // This navigates to a specific route
     };
     return (
     <div className="d-flex align-items-center vh-100">
@@ -58,7 +64,7 @@ function Login() {
                         onChange={handleChange}/>
                     </div>
                 <div class="d-flex align-items-center flex-column mb-3 ">
-                    <button type="submit" class="btn btn-primary btn-lg mb-3">LOGIN</button>
+                    <button onClick = {loginHome} type="submit" class="btn btn-primary btn-lg mb-3">LOGIN</button>
                     <div className = "mb-3">
                     <FormControlLabel control = {<Checkbox />} label = "Remember Me" /> 
                         <a href = "/"> Forgot password? </a>
@@ -66,7 +72,7 @@ function Login() {
                     
                     <div className = "mb-3">
                         Don't have an account yet? 
-                        <a href = "/"> Register </a>
+                        <a href = "/register"> Register </a>
                     </div>
                 </div>
             </form>
