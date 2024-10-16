@@ -43,10 +43,10 @@ deploy:
   provider: script
   skip_cleanup: true
   script: >-
-    curl -v -X POST $RENDER_DEPLOY \
+    echo $RENDER_DEPLOY curl -v -X POST $RENDER_DEPLOY \
      -H "Authorization: Bearer $RENDER_API_KEY" \
      -H "Content-Type: application/json" \
-     -d '{"branch":"main"}' # specify your branch if different
+     -d '{"branch":"main"}'
   on:
     branch: main
 
