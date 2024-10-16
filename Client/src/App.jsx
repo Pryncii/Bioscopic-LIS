@@ -29,13 +29,13 @@ function App() {
       <Router>
       <div>
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/addpatient" element={<PatientRegistration />} />
-          <Route path="/request" element={<PatientRequest />} />
-          <Route path="/patients" element={<ViewPatientHistory />} />
-          <Route path="/patienthistory" element={<ViewPatients />} />
+          <Route path="/Bioscopic-LIS" element={<Login />} />
+          <Route path="/Bioscopic-LIS/home" element={<Home />} />
+          <Route path="/Bioscopic-LIS/register" element={<Register />} />
+          <Route path="/Bioscopic-LIS/addpatient" element={<PatientRegistration />} />
+          <Route path="/Bioscopic-LIS/request" element={<PatientRequest />} />
+          <Route path="/Bioscopic-LIS/patients" element={<ViewPatientHistory />} />
+          <Route path="/Bioscopic-LIS/patienthistory" element={<ViewPatients />} />
         </Routes>
       </div>
     </Router>
