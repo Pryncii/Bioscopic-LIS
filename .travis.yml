@@ -34,7 +34,7 @@ install:
 
 # Build and test both front-end and back-end
 script:
-  - cd ../$FRONTEND_DIR
+  - cd $FRONTEND_DIR
   - npm run build
 
   - cd ../$BACKEND_DIR

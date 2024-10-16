@@ -6,7 +6,7 @@
   "homepage": "https://pryncii.github.io/Bioscopic-LIS",
   "scripts": {
     "dev": "vite",
-    "start": "vite",
+    "start": "vite preview",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
