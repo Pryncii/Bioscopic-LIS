@@ -41,6 +41,7 @@ script:
 
 deploy:
   provider: script
+  skip_cleanup: true
   script: >-
     curl -X POST $RENDER_DEPLOY \
      -H "Authorization: Bearer $RENDER_API_KEY" \
