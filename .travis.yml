@@ -9,7 +9,7 @@ branches:
     - develop
 
 # Build only on pull requests, not on every commit
-if: type = pull_request
+# if: type = pull_request
 
 # Define environments for both front-end and back-end
 env:
@@ -18,12 +18,12 @@ env:
     - BACKEND_DIR=Server
 
 services:
-  - mongodb  # Add MongoDB service for the back-end
+  - mongodb # Add MongoDB service for the back-end
 
 before_script:
   # Set up MongoDB connection environment variables, if needed
-  - sleep 15  # Give MongoDB service time to start
-  - mongo mydb --eval 'db.createCollection("test");'  # Example to create a test DB
+  - sleep 15 # Give MongoDB service time to start
+  - mongo mydb --eval 'db.createCollection("test");' # Example to create a test DB
 
 # Install dependencies for both front-end and back-end
 install:
@@ -38,6 +38,17 @@ script:
   - npm run build
 
   - cd ../$BACKEND_DIR
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: >-
+    echo $RENDER_DEPLOY curl -v -X POST $RENDER_DEPLOY \
+     -H "Authorization: Bearer $RENDER_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"branch":"main"}'
+  on:
+    branch: main
 
 cache:
   directories:

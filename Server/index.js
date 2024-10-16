@@ -17,7 +17,10 @@ const {
     // Models to query a specific category
     allTestModel
 } = appdata;
+
 const app = express()
+const port = process.env.PORT || 3000;
+
 app.use(express.json())
 app.use(cors())
 connectDB()
@@ -51,7 +54,7 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
+app.listen(port, () => {
     console.log('app is running');
 })
 
