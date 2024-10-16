@@ -9,7 +9,7 @@ branches:
     - develop
 
 # Build only on pull requests, not on every commit
-if: type = pull_request
+# if: type = pull_request
 
 # Define environments for both front-end and back-end
 env:
@@ -18,12 +18,12 @@ env:
     - BACKEND_DIR=Server
 
 services:
-  - mongodb  # Add MongoDB service for the back-end
+  - mongodb # Add MongoDB service for the back-end
 
 before_script:
   # Set up MongoDB connection environment variables, if needed
-  - sleep 15  # Give MongoDB service time to start
-  - mongo mydb --eval 'db.createCollection("test");'  # Example to create a test DB
+  - sleep 15 # Give MongoDB service time to start
+  - mongo mydb --eval 'db.createCollection("test");' # Example to create a test DB
 
 # Install dependencies for both front-end and back-end
 install:
@@ -38,11 +38,11 @@ script:
   - npm run build
 
   - cd ../$BACKEND_DIR
-  
+
 deploy:
   provider: pages
   skip_cleanup: true
-  github_token: $GITHUB_TOKEN  # Set in the Travis CI dashboard or repo settings
+  github_token: $GITHUB_TOKEN # Set in the Travis CI dashboard or repo settings
   on:
     branch: main
 
