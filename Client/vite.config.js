@@ -4,5 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/Bioscopic-LIS/"
+  base: "/Bioscopic-LIS/",
+  build: {
+    outDir: 'build', // Ensure this matches your deploy script
+  },
 })
