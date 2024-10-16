@@ -38,6 +38,13 @@ script:
   - npm run build
 
   - cd ../$BACKEND_DIR
+  
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN  # Set in the Travis CI dashboard or repo settings
+  on:
+    branch: gh-pages
 
 cache:
   directories:
