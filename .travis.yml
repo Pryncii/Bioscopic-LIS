@@ -38,13 +38,14 @@ script:
   - npm run build
 
   - cd ../$BACKEND_DIR
-  
+
 deploy:
   provider: script
-  script: curl -X POST $RENDER_DEPLOY \
-    -H "Authorization: Bearer $RENDER_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d '{"branch":"main"}' # specify your branch if different
+  script: >-
+    curl -X POST $RENDER_DEPLOY \
+     -H "Authorization: Bearer $RENDER_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"branch":"main"}' # specify your branch if different
   on:
     branch: main
 
