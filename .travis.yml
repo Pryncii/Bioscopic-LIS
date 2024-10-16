@@ -42,8 +42,8 @@ script:
 deploy:
   provider: pages
   skip_cleanup: true
+  local_dir: dist
   github_token: $GITHUB_TOKEN # Set in the Travis CI dashboard or repo settings
-  local_dir: build
   on:
     branch: main
 
