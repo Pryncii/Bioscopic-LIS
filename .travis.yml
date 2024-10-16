@@ -40,10 +40,11 @@ script:
   - cd ../$BACKEND_DIR
   
 deploy:
-  provider: pages
-  skip_cleanup: true
-  github_token: $GITHUB_TOKEN # Set in the Travis CI dashboard or repo settings
-  local_dir: Client/dist
+  provider: script
+  script: curl -X POST $RENDER_DEPLOY \
+    -H "Authorization: Bearer $RENDER_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d '{"branch":"main"}' # specify your branch if different
   on:
     branch: main
 
