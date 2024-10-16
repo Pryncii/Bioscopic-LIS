@@ -43,6 +43,7 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GITHUB_TOKEN # Set in the Travis CI dashboard or repo settings
+  local_dir: client/dist
   on:
     branch: main
 
