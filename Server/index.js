@@ -54,7 +54,6 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log('app is running');
-})
-
+app.listen(port, '0.0.0.0', () => {
+    console.log(`App is running on port ${port}`);
+});
