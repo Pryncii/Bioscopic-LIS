@@ -11,11 +11,15 @@ branches:
 
 # Conditional build triggers
 
+# Trigger build on pushes to feature branches
+# Trigger build on pull requests to develop
+# Trigger build on pushes to develop
+# Trigger build on pushes to release
 if: |
-  (type = push AND branch =~ /^feature-\S+$/) OR \  # Trigger build on pushes to feature branches
-  (type = pull_request AND branch = develop) OR \   # Trigger build on pull requests to develop
-  (type = push AND branch = develop) OR \           # Trigger build on pushes to develop
-  (type = push AND branch = release)                # Trigger build on pushes to release
+  (type = push AND branch =~ /^feature-\S+$/) OR \  
+  (type = pull_request AND branch = develop) OR \   
+  (type = push AND branch = develop) OR \           
+  (type = push AND branch = release)
 
 # Define environments for both front-end and back-end
 env:
