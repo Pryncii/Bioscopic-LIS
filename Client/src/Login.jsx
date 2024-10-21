@@ -29,7 +29,7 @@ function Login() {
     const navigate = useNavigate();
 
     const loginHome = () => {
-        navigate('/Bioscopic-LIS/home'); // This navigates to a specific route
+        navigate('/home'); // This navigates to a specific route
     };
     return (
     <div className="d-flex align-items-center vh-100">
@@ -67,12 +67,12 @@ function Login() {
                     <button onClick = {loginHome} type="submit" class="btn btn-primary btn-lg mb-3">LOGIN</button>
                     <div className = "mb-3">
                     <FormControlLabel control = {<Checkbox />} label = "Remember Me" /> 
-                        <a href = "/Bioscopic-LIS/"> Forgot password? </a>
+                        <a href = "/"> Forgot password? </a>
                     </div>
                     
                     <div className = "mb-3">
                         Don't have an account yet? 
-                        <a href = "/Bioscopic-LIS/register"> Register </a>
+                        <a href = "register"> Register </a>
                     </div>
                 </div>
             </form>

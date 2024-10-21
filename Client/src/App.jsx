@@ -9,21 +9,21 @@ import {useEffect, useState} from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
-  //const [data, setData] = useState({}); // To store all the fetched data
+  const [data, setData] = useState({}); // To store all the fetched data
 
-  //useEffect(() => {
-  //  const fetchData = async () => {
-  //    try {
-  //      const res = await fetch('http://localhost:3000');
-  //      const jsonData = await res.json();
-  //      setData(jsonData); // Save all data to state
-  //      console.log(jsonData); // Log to check if data is fetched correctly
-  //    } catch (error) {
-  //      console.error('Error fetching data:', error);
-  //    }
-  //  };
-  //  fetchData();
-  //}, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('http://localhost:3000');
+        const jsonData = await res.json();
+        setData(jsonData); // Save all data to state
+        console.log(jsonData); // Log to check if data is fetched correctly
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
   return (
     <>
       <Router>
