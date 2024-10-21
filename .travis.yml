@@ -59,6 +59,7 @@ deploy:
      -d '{"branch":"develop"}'
   on:
     branch: develop
+    condition: $TRAVIS_TEST_RESULT = 0 # Only deploy if tests pass
 
 cache:
   directories:
