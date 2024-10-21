@@ -54,7 +54,7 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
+app.listen(3000, () => {
     console.log('app is running');
 })
 
