@@ -56,9 +56,9 @@ deploy:
     echo $RENDER_DEPLOY curl -v -X POST $RENDER_DEPLOY \
      -H "Authorization: Bearer $RENDER_API_KEY" \
      -H "Content-Type: application/json" \
-     -d '{"branch":"main"}'
+     -d '{"branch":"develop"}'
   on:
-    branch: main
+    branch: develop
 
 cache:
   directories:
