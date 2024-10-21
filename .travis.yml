@@ -5,11 +5,17 @@ node_js:
 # Only build on pull requests or the main branch
 branches:
   only:
-    - main
-    - develop
+    - /^feature-\S+$/ # Matches any branch starting with "feature-" followed by a description
+    - develop # Build on the develop branch
+    - release # Build on the release branch
 
-# Build only on pull requests, not on every commit
-# if: type = pull_request
+# Conditional build triggers
+if:
+  Condition:
+    - type IN (push) AND branch =~ /^feature-\S+$/ # Trigger build on commits to feature-[description] branches
+    - type IN (pull_request) AND branch = develop # Trigger build on pull requests to develop
+    - type IN (push) AND branch = develop # Trigger build on merge to develop
+    - type IN (push) AND branch = release # Trigger build on merge to release
 
 # Define environments for both front-end and back-end
 env:
