@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import './Register.css'
+import './styles/Register.css'
 import logo2 from './assets/logo2.png'
 import { Checkbox } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
