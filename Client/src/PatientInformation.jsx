@@ -1,4 +1,4 @@
-import './PatientInformation.css';
+import './styles/PatientInformation.css';
 
 function PatientInformation({ data }) {
     return(

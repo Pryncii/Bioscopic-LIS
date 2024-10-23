@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import './Register.css'
+import './styles/Register.css'
 import Header from './Header.jsx'
 
 function PatientRegistration() {
