@@ -38,28 +38,28 @@ function TableHome({ data }) {
                 </tr>
             </thead>
             <tbody>
-                {Array.isArray(data) && data.length > 0 ? (
+                {data.length > 0 ? (
                     data.map((item, index) => (
-                        <tr key={index}>
-                            <td className="item-container number"><h6>{index + 1}</h6></td>
-                            <td className="item-container"><h6>{item.requestId}</h6></td>
-                            <td className="item-container"><h6>{item.patientId}</h6></td>
-                            <td className="item-container"><h6>{item.name}</h6></td>
-                            <td className="item-container"><h6>{item.tests}</h6></td>
-                            <td className="item-container status" role="button">
-                                <a data-bs-toggle="modal" data-bs-target="#statusModal">
-                                    <h6 className={`status-item ${item.barColor}`}>{item.requestStatus}</h6>
-                                </a>
-                            </td>
-                            <td className="item-container" role="button" data-bs-toggle="modal" data-bs-target="#statusModal">
-                                <h6>{item.remarks}</h6>
-                            </td>
-                            <td className="item-container id-item" role="button" data-bs-toggle="modal" data-bs-target="#statusModal">
-                                <h6>{item.paymentStatus}</h6>
-                            </td>
-                            <td className="item-container date"><h6>{item.dateRequested}</h6></td>
-                            <td className="item-container date"><h6>{item.dateCompleted}</h6></td>
-                        </tr>
+                    <tr key={index}>
+                        <td className="item-container number"><h6>{index + 1}</h6></td>
+                        <td className="item-container"><h6>{item.requestID}</h6></td>
+                        <td className="item-container"><h6>{item.patientID}</h6></td>
+                        <td className="item-container"><h6>{item.name}</h6></td>
+                        <td className="item-container"><h6>{item.tests}</h6></td>
+                        <td className="item-container status" role="button">
+                            <a data-bs-toggle="modal" data-bs-target="#statusModal">
+                            <h6 className={`status-item ${item.barColor}`}>{item.requestStatus}</h6>
+                            </a>
+                        </td>
+                        <td className="item-container" role="button" data-bs-toggle="modal" data-bs-target="#statusModal">
+                            <h6>{item.remarks}</h6>
+                        </td>
+                        <td className="item-container id-item" role="button" data-bs-toggle="modal" data-bs-target="#statusModal">
+                            <h6>{item.paymentStatus}</h6>
+                        </td>
+                        <td className="item-container date"><h6>{item.dateRequested}</h6></td>
+                        <td className="item-container date"><h6>{item.dateCompleted}</h6></td>
+                    </tr>
                     ))
                 ) : (
                     <tr>
