@@ -1,7 +1,7 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const app = require('./index'); // Your Express app
+const {app, server} = require('./index'); // Your Express app
 const { appdata } = require("./models/data");
 const {
     userModel,
@@ -26,6 +26,7 @@ beforeAll(async () => {
 afterAll(async () => {
     await mongoose.disconnect();
     await mongoServer.stop();
+    server.close();
 });
 
 describe('GET /patients', () => {

@@ -130,9 +130,8 @@ app.get('/patients', async (req, res) => {
     }
 });
 
-app.listen(port, function(){
-    console.log('Listening at port '+port);
-  });
+const server = app.listen(port, () => {
+    console.log(`Listening at port ${port}`);
+});
 
-
-module.exports = app;
+module.exports = {app, server};
