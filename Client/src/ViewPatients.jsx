@@ -2,7 +2,6 @@ import Header from './Header.jsx'
 import DateTime from './DateTime.jsx'
 import SearchPatient from './SearchPatient.jsx'
 import TablePatient from './TablePatient.jsx'
-import TableButtons from './TableButtons.jsx'
 import {useEffect, useState} from 'react'
 
 function ViewPatients() {
