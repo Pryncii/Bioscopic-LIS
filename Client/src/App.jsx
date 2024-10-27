@@ -26,7 +26,7 @@ function App() {
   }, []);
   return (
     <>
-      <Router>
+    <Router>
       <div>
         <Routes>
           <Route path="/" element={<Login />} />
@@ -39,12 +39,12 @@ function App() {
         </Routes>
       </div>
     </Router>
-      {/*
-      <div>
-        <h1>Fetched Data</h1>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      </div>
-      */}
+      {
+      // <div>
+      //   <h1>Fetched Data</h1>
+      //   <pre>{JSON.stringify(data, null, 2)}</pre>
+      // </div>
+      }
   
     </>
   )
