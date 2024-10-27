@@ -48,6 +48,7 @@ script:
   - npm run build
 
   - cd ../$BACKEND_DIR
+  - npm test
 
 deploy:
   provider: script

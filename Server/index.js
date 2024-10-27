@@ -95,11 +95,13 @@ app.get('/patients', async (req, res) => {
 
             // Add the patient data along with the latest dateEnd if found
             if (latestRequest) {
-                const formattedDate = new Date(latestRequest.dateEnd).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                });
+                const formattedDate = latestRequest.dateEnd
+                    ? new Date(latestRequest.dateEnd).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })
+                    : "N/A";
                 patientData[i].push({
                     patientID: patient.patientID,
                     name: patient.name,
@@ -131,3 +133,6 @@ app.get('/patients', async (req, res) => {
 app.listen(port, function(){
     console.log('Listening at port '+port);
   });
+
+
+module.exports = app;
