@@ -53,3 +53,5 @@
     justify-content: space-between;
     align-items: center;
 }
+
+.home-table { table-layout: fixed; }

@@ -40,10 +40,10 @@ function App() {
       </div>
     </Router>
       {
-      <div>
-        <h1>Fetched Data</h1>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      </div>
+      // <div>
+      //   <h1>Fetched Data</h1>
+      //   <pre>{JSON.stringify(data, null, 2)}</pre>
+      // </div>
       }
   
     </>
