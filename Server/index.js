@@ -121,6 +121,49 @@ app.get('/requests', async (req, res) => {
     }
 });
 
+app.put("/api/requests/:requestID", async (req, res) => {
+  const { requestID } = req.params;
+  const { status, payStatus, remarks } = req.body;
+
+  try {
+    console.log("Received PUT request to update requestID:", requestID);
+    console.log("New data:", { status, payStatus, remarks });
+
+    // Get the current date and time
+    const currentDate = new Date();
+
+    // Prepare the update data
+    const updateData = {
+      status,
+      payStatus,
+      remarks,
+    };
+
+    // If the status is 'Completed', set dateEnd to the current date
+    if (status === "Completed") {
+      updateData.dateEnd = currentDate; // Add dateEnd to the update data
+    }
+
+    const updatedRequest = await requestModel.findOneAndUpdate(
+      { requestID: parseInt(requestID) }, // Ensure requestID matches the schema type
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      console.log("Request not found in database.");
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    console.log("Request updated successfully:", updatedRequest);
+    res.json(updatedRequest);
+  } catch (error) {
+    console.error("Error updating request:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
 
 app.listen(port, function(){
     console.log('Listening at port '+port);
