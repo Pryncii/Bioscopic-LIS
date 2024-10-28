@@ -8,18 +8,22 @@ import {useEffect, useState} from 'react'
 function Home() {
   const [data, setData] = useState({});
 
+  const fetchData = async (params = {}) => {
+    try {
+      const query = new URLSearchParams(params).toString();
+      const res = await fetch(`http://localhost:4000/requests?${query}`);
+      const jsonData = await res.json();
+      setData(jsonData);
+      setCurrentPage(1);
+      console.log(jsonData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  // Fetch initial data on component mount
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('http://localhost:4000/requests');
-        const jsonData = await res.json();
-        setData(jsonData); // Save all data to state
-        console.log(jsonData); // Log to check if data is fetched correctly
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
+    fetchData(); // Call fetchData without parameters to get all data initially
   }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +50,7 @@ function Home() {
         <h1 className='_title'>Requested/Ongoing Lab Tests</h1>
         <DateTime/>
       </div>
-      <SearchHome/>
+      <SearchHome onSearch={(params) => fetchData(params)} />
       <div className='table-body'>
         <TableHome data={data[currentPage - 1] || []} />
         <div className="button-page">
