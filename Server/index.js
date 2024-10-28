@@ -86,42 +86,40 @@ app.get('/requests', async (req, res) => {
             });
         }
 
-        if (req.query.lowerdatest !== undefined || req.query.upperdatest !== undefined || req.query.lowerdateen !== undefined || req.query.upperdateen !== undefined) {
-            const dateRangeQuerySt = {};
-            const dateRangeQueryEn = {};
+        const dateRangeQuerySt = {};
+        const dateRangeQueryEn = {};
 
-            if (req.query.lowerdatest !== undefined) {
-                const lowerDateSt = new Date(req.query.lowerdatest);
-                dateRangeQuerySt["$gte"] = lowerDateSt;
-                //console.log("LowerDatST " + lowerDateSt);
-            }
+        if (req.query.lowerdatest !== '2000-01-01' && req.query.lowerdatest !== undefined) {
+            const lowerDateSt = new Date(req.query.lowerdatest);
+            dateRangeQuerySt["$gte"] = lowerDateSt;
+            //console.log("LowerDatST " + lowerDateSt);
+        }
 
-            if (req.query.upperdatest !== undefined) {
-                const upperDateSt = new Date(req.query.upperdatest);
-                dateRangeQuerySt["$lte"] = upperDateSt;
-                //console.log("UpperDateST " + upperDateSt);
-            }
+        if (req.query.upperdatest !== '2100-12-31' && req.query.upperdatest !== undefined) {
+            const upperDateSt = new Date(req.query.upperdatest);
+            dateRangeQuerySt["$lte"] = upperDateSt;
+            //console.log("UpperDateST " + upperDateSt);
+        }
 
-            if (Object.keys(dateRangeQuerySt).length > 0) {
-                searchQuery.$and.push({ dateStart: dateRangeQuerySt });
-            }
+        if (req.query.lowerdateen !== '2000-01-01' && req.query.lowerdateen !== undefined) {
+            const lowerDateEn = new Date(req.query.lowerdateen);
+            dateRangeQueryEn["$gte"] = lowerDateEn;
+            //console.log("LowerDateEN " + lowerDateEn);
+        }
 
-            if (req.query.lowerdateen !== undefined) {
-                const lowerDateEn = new Date(req.query.lowerdateen);
-                dateRangeQueryEn["$gte"] = lowerDateEn;
-                //console.log("LowerDateEN " + lowerDateEn);
-            }
+        if (req.query.upperdateen !== '2100-12-31' && req.query.upperdateen !== undefined) {
+            const upperDateEn = new Date(req.query.upperdateen);
+            dateRangeQueryEn["$lte"] = upperDateEn;
+            //console.log("UpperDateEN " + upperDateEn);
+            //console.log("");
+        }
 
-            if (req.query.upperdateen !== undefined) {
-                const upperDateEn = new Date(req.query.upperdateen);
-                dateRangeQueryEn["$lte"] = upperDateEn;
-                //console.log("UpperDateEN " + upperDateEn);
-                //console.log("");
-            }
+        if (Object.keys(dateRangeQuerySt).length > 0) {
+            searchQuery.$and.push({ dateStart: dateRangeQuerySt });
+        }
 
-            if (Object.keys(dateRangeQueryEn).length > 0) {
-                searchQuery.$and.push({ dateEnd: dateRangeQueryEn });
-            }
+        if (Object.keys(dateRangeQueryEn).length > 0) {
+            searchQuery.$and.push({ dateEnd: dateRangeQueryEn });
         }
 
         // Check if category is defined and non-empty
