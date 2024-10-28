@@ -61,42 +61,41 @@ app.get('/patients', async (req, res) => {
         const requests = await requestModel.find();
         let patientData = [[]];
 
-// Iterate over each patient
+        // Iterate over each patient
         let i = 0;
         for (const patient of patients) {
             // Filter requests for the current patient
             const patientRequests = requests.filter(request => request.patientID === patient.patientID);
-            
-            // Find the latest dateEnd among the requests for this patient
+
+            // Find the latest dateStart among the requests for this patient
             const latestRequest = patientRequests.reduce((latest, current) => {
-                const currentDateEnd = current.dateEnd;
-            
-                // Skip current if dateEnd is 'N/A' or not a valid date
-                if (currentDateEnd === 'N/A' || isNaN(new Date(currentDateEnd))) {
+                const currentDateStart = current.dateStart;
+
+                // Skip current if dateStart is 'N/A' or not a valid date
+                if (currentDateStart === 'N/A' || isNaN(new Date(currentDateStart))) {
                     return latest; // Skip this entry
                 }
-            
+
                 // If latest is null, set current as the latest
                 if (!latest) {
                     return current;
                 }
-            
-                const latestDateEnd = latest.dateEnd;
-            
-                // Skip latest if its dateEnd is 'N/A' or not a valid date
-                if (latestDateEnd === 'N/A' || isNaN(new Date(latestDateEnd))) {
+
+                const latestDateStart = latest.dateStart;
+
+                // Skip latest if its dateStart is 'N/A' or not a valid date
+                if (latestDateStart === 'N/A' || isNaN(new Date(latestDateStart))) {
                     return current; // If latest is invalid, return current
                 }
-            
+
                 // Both dates are valid, compare them
-                return new Date(currentDateEnd) > new Date(latestDateEnd) ? current : latest;
-            }, null);            
+                return new Date(currentDateStart) > new Date(latestDateStart) ? current : latest;
+            }, null);
 
-
-            // Add the patient data along with the latest dateEnd if found
+            // Add the patient data along with the latest dateStart if found
             if (latestRequest) {
-                const formattedDate = latestRequest.dateEnd
-                    ? new Date(latestRequest.dateEnd).toLocaleDateString('en-US', {
+                const formattedDate = latestRequest.dateStart
+                    ? new Date(latestRequest.dateStart).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -129,6 +128,7 @@ app.get('/patients', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
 
 const server = app.listen(port, () => {
     console.log(`Listening at port ${port}`);

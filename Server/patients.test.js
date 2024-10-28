@@ -36,7 +36,7 @@ describe('GET /patients', () => {
         await requestModel.deleteMany();
     });
 
-    it('should return patients with the most recent valid dateEnd', async () => {
+    it('should return patients with the most recent valid dateStart', async () => {
         // Mock patients and requests data
         await patientModel.insertMany([
             { patientID: 1, name: 'Patient A', remarks: 'Remark A' },
@@ -44,11 +44,11 @@ describe('GET /patients', () => {
         ]);
 
         await requestModel.insertMany([
-            { patientID: 1, dateEnd: '2024-01-01' },
-            { patientID: 1, dateEnd: '2024-01-15' }, // Latest valid date for Patient A
-            { patientID: 1, dateEnd: null },        // Invalid date
-            { patientID: 2, dateEnd: null },
-            { patientID: 2, dateEnd: '2024-02-01' }  // Latest valid date for Patient B
+            { patientID: 1, dateStart: '2024-01-01' },
+            { patientID: 1, dateStart: '2024-01-15' }, // Latest valid date for Patient A
+            { patientID: 1, dateStart: null },        // Invalid date
+            { patientID: 2, dateStart: null },
+            { patientID: 2, dateStart: '2024-02-01' }  // Latest valid date for Patient B
         ]);
 
         const response = await request(app).get('/patients');
@@ -63,7 +63,7 @@ describe('GET /patients', () => {
 
     it('should handle patients with only "N/A" or invalid dates by setting latestDate to "N/A"', async () => {
         await patientModel.create({ patientID: 3, name: 'Patient C', remarks: 'Remark C' });
-        await requestModel.create({ patientID: 3, dateEnd: null });
+        await requestModel.create({ patientID: 3, dateStart: null });
 
         const response = await request(app).get('/patients');
         expect(response.status).toBe(200);
@@ -84,7 +84,7 @@ describe('GET /patients', () => {
         await patientModel.insertMany(patients);
         const requests = Array.from({ length: 6 }, (_, i) => ({
             patientID: i + 1,
-            dateEnd: `2024-01-${i + 10}` // Each patient has a unique date
+            dateStart: `2024-01-${i + 10}` // Each patient has a unique date
         }));
 
         await requestModel.insertMany(requests);
