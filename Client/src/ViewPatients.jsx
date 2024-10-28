@@ -77,12 +77,6 @@ function ViewPatients() {
                 </button>
             </div>
         </div>
-         {
-      <div>
-        <h1>Fetched Data</h1>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      </div>
-      }
         </>
     );
 }
