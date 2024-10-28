@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - 16
+  - 22
 
 # Only build on pull requests or the main branch
 branches:
