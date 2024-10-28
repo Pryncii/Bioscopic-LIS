@@ -1,9 +1,10 @@
 // mongodb+srv://princebuencamino:LIS092901@lis.1ioj1.mongodb.net/?retryWrites=true&w=majority&appName=LIS
 
-const express = require ('express')
+const express = require('express')
 const connectDB = require('./db.js')
 const { appdata } = require("./models/data");
 const cors = require('cors')
+const bcrypt = require('bcrypt')
 const {
     userModel,
     patientModel,
@@ -99,7 +100,7 @@ app.get('/patients', async (req, res) => {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
-                      })
+                    })
                     : "N/A";
                 patientData[i].push({
                     patientID: patient.patientID,
@@ -115,7 +116,7 @@ app.get('/patients', async (req, res) => {
                     remarks: patient.remarks,
                 });
             }
-            if(patientData[i].length == 5){
+            if (patientData[i].length == 5) {
                 i++;
                 patientData[i] = [];
             }
@@ -129,9 +130,35 @@ app.get('/patients', async (req, res) => {
     }
 });
 
+app.post('/register', async (req, res) => {
+    const { firstName, middleName, lastName, sex, phoneNumber, username, email, password, prc } = req.body;
+
+    try {
+        const existingUser = await userModel.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists!' });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new userModel({
+            name: `${lastName}, ${firstName} ${middleName}`,
+            username,
+            email,
+            phoneNo: phoneNumber,
+            sex,
+            password: hashedPassword,
+            prcno: prc,
+            isMedtech: !!prc
+        });
+        await newUser.save();
+        res.status(201).json({ message: 'User registered successfully!' });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+});
 
 const server = app.listen(port, () => {
     console.log(`Listening at port ${port}`);
 });
 
-module.exports = {app, server};
+module.exports = { app, server };
