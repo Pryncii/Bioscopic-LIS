@@ -23,7 +23,7 @@ beforeAll(async () => {
     });
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
-}, 10000);
+}, 50000);
 
 afterAll(async () => {
     await mongoose.disconnect();
