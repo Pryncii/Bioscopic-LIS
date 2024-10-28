@@ -23,12 +23,16 @@ beforeAll(async () => {
     });
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
-});
+}, 10000);
 
 afterAll(async () => {
     await mongoose.disconnect();
-    await mongoServer.stop();
-    server.close();
+    if (mongoServer) {
+        await mongoServer.stop();
+    }
+    if (server) {  // Ensure server is defined
+        server.close();
+    }
 });
 
 describe('GET /patients', () => {
