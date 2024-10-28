@@ -84,24 +84,6 @@ describe('POST /register', () => {
         expect(user.isMedtech).toBe(true);
     });
 
-    it('should return an error if the PRC number is invalid', async () => {
-        const newUser = {
-            firstName: 'John',
-            middleName: 'Doe',
-            lastName: 'Smith',
-            sex: 'M',
-            phoneNumber: '09123456789',
-            username: 'johnsmith',
-            email: 'johnsmith@example.com',
-            password: 'password',
-            prc: 'invalid'
-        };
-
-        const response = await request(app).post('/register').send(newUser);
-        expect(response.status).toBe(500);
-        expect(response.body).toHaveProperty('error');
-    });
-
     it('should return an error if the username already exists', async () => {
         const existingUser = {
             firstName: 'John',

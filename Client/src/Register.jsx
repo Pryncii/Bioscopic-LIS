@@ -192,11 +192,13 @@ function Register() {
                     <Form.Group className="mb-3">
                         <Form.Label>PRC License No. (Optional)</Form.Label>
                         <Form.Control
-                            type="text"
+                            type="number"
                             name="prc"
                             value={formData.prc}
                             onChange={handleChange}
+                            min="1"
                         />
+                        <Form.Control.Feedback type="invalid">Please provide a valid PRC License Number.</Form.Control.Feedback>
                     </Form.Group>
                     <div className="d-flex justify-content-center mb-3">
                         <Button type="submit" className="btn btn-primary btn-lg">REGISTER</Button>
