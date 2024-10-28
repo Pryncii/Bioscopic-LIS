@@ -1,4 +1,4 @@
-import ModalShowPDF from "./modalShowPDF.jsx";
+import ModalShowPDF from "./ModalShowPDF.jsx";
 
 import { useState, useRef } from "react";
 import PropTypes from "prop-types";
