@@ -1,6 +1,8 @@
 language: node_js
 node_js:
-  - 22
+  - 18
+
+dist: focal
 
 # Only build on pull requests or the main branch
 branches:
