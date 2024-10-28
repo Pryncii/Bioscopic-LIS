@@ -1,6 +1,6 @@
-import ModalShowPDF from "./ModalShowPDF.jsx";
+import ModalShowPDF from "./modalShowPDF.jsx";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -11,16 +11,44 @@ import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
 
 function ModalEditRequest(props) {
-  console.log(props)
-
   const [show, setShow] = useState(props.show); // Initialize based on props
+  const [testOptions, setTestOptions] = useState([]); // State to hold users from MongoDB
+  
+  useEffect(() => {
+    const fetchTestOptions = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/testoptions');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setTestOptions(data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    fetchTestOptions();
+  }, []);
   const handleClose = () => {
     setShow(false);
     props.handleClose(); // Call the passed in handleClose function from parent
   };
 
-  const list_tests = props.tests.map((test) => (
+  const tests = [];
+  const splitTests = props.tests.split(", ");
+  for (let i = 0; i < splitTests.length; i++) {
+    const matchingTest = testOptions.find(test => test.name === splitTests[i]);
+    if (matchingTest) {
+      tests.push({ name: splitTests[i], isText: false, options: matchingTest.options});
+    } else {
+      tests.push({ name: splitTests[i], isText: true});
+    }
+  }
+
+  const listTests = tests.map((test) => (
     <div key={test.id}>
       <Row>
         <Col>
@@ -48,21 +76,21 @@ function ModalEditRequest(props) {
     </div>
   ));
 
-  const midpoint = Math.ceil(list_tests.length / 2);
-  const test_col1 = list_tests.slice(0, midpoint);
-  const test_col2 = list_tests.slice(midpoint);
+  const midpoint = Math.ceil(listTests.length / 2);
+  const test_col1 = listTests.slice(0, midpoint);
+  const test_col2 = listTests.slice(midpoint);
 
-  const list_med_techs = props.med_techs.map((med_tech, index) => (
-    <option key={index} value={med_tech.name}>
-      {med_tech.name}
+  const listMedTechs = props.medTechs.map((medTech, index) => (
+    <option key={index} value={medTech.name}>
+      {medTech.name}
     </option>
   ));
 
   const inputRef = useRef(null);
 
   function handleMedTechChange(event) {
-    const med_tech = props.med_techs.find((medtech) => medtech.name === event.target.value);
-    inputRef.current.value = med_tech.prcno;
+    const medTech = props.medTechs.find((medtech) => medtech.name === event.target.value);
+    inputRef.current.value = medTech.prcno;
   }
 
   return (
@@ -91,11 +119,11 @@ function ModalEditRequest(props) {
           </Container>
           <FloatingLabel label="Med Tech">
             <Form.Select onChange={handleMedTechChange}>
-              {list_med_techs}
+              {listMedTechs}
             </Form.Select>
           </FloatingLabel>
           <FloatingLabel label="PRC No" className="my-3">
-            <Form.Control type="number" value={props.med_techs[0].prcno} ref={inputRef} readOnly />
+            <Form.Control type="number" value={props.medTechs[0].prcno} ref={inputRef} readOnly />
           </FloatingLabel>
         </div>
       </Modal.Body>
@@ -108,28 +136,19 @@ function ModalEditRequest(props) {
 }
 
 ModalEditRequest.propTypes = {
-  patients: PropTypes.arrayOf(
-    PropTypes.shape({
+  patients: PropTypes.shape({
       name: PropTypes.string,
       patientID: PropTypes.number,
       requestID: PropTypes.number,
-    })
-  ).isRequired,
+    }).isRequired,
   category: PropTypes.string.isRequired,
-  med_techs: PropTypes.arrayOf(
+  medTechs: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       prcno: PropTypes.number.isRequired,
     })
   ).isRequired,
-  tests: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      isText: PropTypes.bool.isRequired,
-      options: PropTypes.arrayOf(PropTypes.string).isRequired,
-    })
-  ).isRequired,
+  tests: PropTypes.string.isRequired,
   show: PropTypes.bool.isRequired, // Add this prop type for show
   handleClose: PropTypes.func.isRequired, // Add this prop type for handleClose
 };
