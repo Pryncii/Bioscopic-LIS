@@ -1,11 +1,12 @@
 
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { Button, Form, Row, Col } from 'react-bootstrap';
+import { Button, Form, Row, Col, Alert } from 'react-bootstrap';
 import './styles/Register.css'
 
 function Register() {
     const [validated, setValidated] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [formData, setFormData] = useState({
         firstName: "",
         middleName: "",
@@ -26,7 +27,6 @@ function Register() {
             [name]: value
         });
 
-        // Custom validation for names
         if (name === "firstName" || name === "middleName" || name === "lastName") {
             if (/^[A-Za-z]{2,}$/.test(value)) {
                 e.target.setCustomValidity('');
@@ -34,7 +34,6 @@ function Register() {
                 e.target.setCustomValidity('Please provide a valid name.')
             }
         }
-
         if (name === "phoneNumber") {
             if (/^09\d{9}$/.test(value)) {
                 e.target.setCustomValidity('');
@@ -45,6 +44,9 @@ function Register() {
     };
 
     const navigate = useNavigate();
+    const capitalizeName = (name) => {
+        return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    };
 
     // Handle form submission
     const handleSubmit = async (e) => {
@@ -56,27 +58,32 @@ function Register() {
         }
 
         setValidated(true);
+        setErrorMessage("");
 
         if (form.checkValidity()) {
+            const formattedData = {
+                ...formData,
+                firstName: capitalizeName(formData.firstName),
+                middleName: capitalizeName(formData.middleName),
+                lastName: capitalizeName(formData.lastName),
+            };
             try {
-                const response = await fetch('/register', {
+                const response = await fetch('http://localhost:4000/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify(formattedData),
                 });
-
+                const responseData = await response.json();
                 if (response.ok) {
                     navigate('/home');
                 } else {
-                    navigate('/home')
-                    console.error('Registration failed');
+                    setErrorMessage(responseData.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
             }
-            console.log("Form data submitted: ", formData);
         }
     };
     return (
@@ -154,13 +161,14 @@ function Register() {
                         />
                         <Form.Control.Feedback type="invalid">Please provide a username.</Form.Control.Feedback>
                     </Form.Group>
+                    {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
                     <Form.Group className="mb-3">
                         <Form.Label>Email Address</Form.Label>
                         <Form.Control
                             required
                             type="email"
                             name="email"
-                            placeholder="username@bioscopic.com"
+                            placeholder="name@bioscopic.com"
                             pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
                             value={formData.email}
                             onChange={handleChange}
