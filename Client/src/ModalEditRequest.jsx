@@ -32,6 +32,7 @@ function ModalEditRequest(props) {
 
     fetchTestOptions();
   }, []);
+  
   const handleClose = () => {
     setShow(false);
     props.handleClose(); // Call the passed in handleClose function from parent
@@ -107,9 +108,9 @@ function ModalEditRequest(props) {
       </Modal.Header>
 
       <Modal.Body>
-        <h4>{props.patients[0].name}</h4>
-        <h5>Patient ID: {props.patients[0].patientID}</h5>
-        <h5>Request ID: {props.patients[0].requestID}</h5>
+        <h4>{props.patient.name}</h4>
+        <h5>Patient ID: {props.patient.patientID}</h5>
+        <h5>Request ID: {props.patient.requestID}</h5>
         <div>
           <Container className="px-0 my-3">
             <Row>
@@ -136,7 +137,7 @@ function ModalEditRequest(props) {
 }
 
 ModalEditRequest.propTypes = {
-  patients: PropTypes.shape({
+  patient: PropTypes.shape({
       name: PropTypes.string,
       patientID: PropTypes.number,
       requestID: PropTypes.number,
