@@ -19,7 +19,7 @@ const {
 } = appdata;
 
 const app = express()
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 app.use(express.json())
 app.use(cors())
@@ -54,6 +54,84 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`App is running on port ${port}`);
+app.get('/patients', async (req, res) => {
+    try {
+        // Fetch data from all patients
+        const patients = await patientModel.find();
+        const requests = await requestModel.find();
+        let patientData = [[]];
+
+        // Iterate over each patient
+        let i = 0;
+        for (const patient of patients) {
+            // Filter requests for the current patient
+            const patientRequests = requests.filter(request => request.patientID === patient.patientID);
+
+            // Find the latest dateStart among the requests for this patient
+            const latestRequest = patientRequests.reduce((latest, current) => {
+                const currentDateStart = current.dateStart;
+
+                // Skip current if dateStart is 'N/A' or not a valid date
+                if (currentDateStart === 'N/A' || isNaN(new Date(currentDateStart))) {
+                    return latest; // Skip this entry
+                }
+
+                // If latest is null, set current as the latest
+                if (!latest) {
+                    return current;
+                }
+
+                const latestDateStart = latest.dateStart;
+
+                // Skip latest if its dateStart is 'N/A' or not a valid date
+                if (latestDateStart === 'N/A' || isNaN(new Date(latestDateStart))) {
+                    return current; // If latest is invalid, return current
+                }
+
+                // Both dates are valid, compare them
+                return new Date(currentDateStart) > new Date(latestDateStart) ? current : latest;
+            }, null);
+
+            // Add the patient data along with the latest dateStart if found
+            if (latestRequest) {
+                const formattedDate = latestRequest.dateStart
+                    ? new Date(latestRequest.dateStart).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })
+                    : "N/A";
+                patientData[i].push({
+                    patientID: patient.patientID,
+                    name: patient.name,
+                    latestDate: formattedDate,
+                    remarks: patient.remarks,
+                });
+            } else {
+                patientData[i].push({
+                    patientID: patient.patientID,
+                    name: patient.name,
+                    latestDate: "N/A",
+                    remarks: patient.remarks,
+                });
+            }
+            if(patientData[i].length == 5){
+                i++;
+                patientData[i] = [];
+            }
+        }
+
+        res.json(patientData);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
+
+
+const server = app.listen(port, () => {
+    console.log(`Listening at port ${port}`);
+});
+
+module.exports = {app, server};
