@@ -1,27 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ModalEditStatus from "./ModalEditStatus";
 import ModalEditRequest from "./ModalEditRequest"; // Import the edit request modal
 import './styles/Table.css';
 
-// Sample tests and med techs data
-const tests = [
-  { id: 1, name: "Test 1", isText: true },
-  { id: 2, name: "Test 2", isText: false, options: ["opt1", "opt2", "opt3"] },
-  { id: 3, name: "Test 3", isText: true },
-  { id: 4, name: "Test 4", isText: true },
-  { id: 5, name: "Test 5", isText: false, options: ["opt1", "opt2"] }
-];
-
-const med_techs = [
-  { name: "Arjay", prcno: 12345678 },
-  { name: "Percival", prcno: 87654321 },
-  { name: "Ian", prcno: 78456312 },
-];
-
 function TableHome({ data }) {
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [modalType, setModalType] = useState(null); // New state to manage the modal type
+    const [users, setUsers] = useState([]); // State to hold users from MongoDB
 
+    // Fetch user data from MongoDB
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/users'); // Adjust the URL as necessary
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setUsers(data);
+            } catch (error) {
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUsers();
+    }, []);
     const handleShowStatusModal = (patient) => {
         setSelectedPatient(patient);
         setModalType("status"); // Set modal type to status
@@ -77,7 +82,7 @@ function TableHome({ data }) {
             <tbody>
                 {data.length > 0 ? (
                     data.map((item, index) => (
-                        <tr key={index} onClick={() => handleShowRequestModal(item)}>
+                    <tr key={index} onClick={() => handleShowRequestModal(item)}>
                         <td className="item-container number"><h6>{index + 1}</h6></td>
                         <td className="item-container"><h6>{item.requestID}</h6></td>
                         <td className="item-container"><h6>{item.patientID}</h6></td>
@@ -113,12 +118,12 @@ function TableHome({ data }) {
         )}
         {selectedPatient && modalType === "request" && (
             <ModalEditRequest
-                patients={[selectedPatient]}
+                patient={[selectedPatient]}
                 show={true} // Always show the modal
                 handleClose={handleCloseModal}
-                tests={tests}
-                med_techs={med_techs}
-                category="Hematology"
+                tests={selectedPatient.tests}
+                medTechs={users}
+                category={selectedPatient.category}
             />
         )}
         </>
