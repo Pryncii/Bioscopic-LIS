@@ -17,7 +17,8 @@ function Home() {
       remarks: 'Medtech needed',
       paymentStatus: 'Paid',
       dateRequested: '2024-09-25',
-      dateCompleted: ''
+      dateCompleted: '',
+      medtech: 'Arjay',
     },
     {
         requestId: 'REQ123',
@@ -29,7 +30,8 @@ function Home() {
         remarks: 'Urgent',
         paymentStatus: 'Paid',
         dateRequested: '2024-09-25',
-        dateCompleted: ''
+        dateCompleted: '',
+        medtech: 'Percival',
     },
     {
         requestId: 'REQ124',
@@ -41,11 +43,11 @@ function Home() {
         remarks: 'Normal',
         paymentStatus: 'Paid',
         dateRequested: '2024-09-24',
-        dateCompleted: '2024-09-26'
+        dateCompleted: '2024-09-26',
+        medtech: 'Ian',
     },
     {},{}
   ];
-
 
   return (
     <>
