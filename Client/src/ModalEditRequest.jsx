@@ -13,6 +13,7 @@ import Row from "react-bootstrap/Row";
 function ModalEditRequest(props) {
   const [show, setShow] = useState(props.show); // Initialize based on props
   const [testOptions, setTestOptions] = useState([]); // State to hold users from MongoDB
+  const [users, setUsers] = useState([{ prcno: "" }]); // State to hold users from MongoDB
   
   useEffect(() => {
     const fetchTestOptions = async () => {
@@ -33,6 +34,26 @@ function ModalEditRequest(props) {
     fetchTestOptions();
   }, []);
   
+  // Fetch user data from MongoDB
+  useEffect(() => {
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/users'); // Adjust the URL as necessary
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setUsers(data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchUsers();
+  }, []);
+
   const handleClose = () => {
     setShow(false);
     props.handleClose(); // Call the passed in handleClose function from parent
@@ -81,17 +102,17 @@ function ModalEditRequest(props) {
   const test_col1 = listTests.slice(0, midpoint);
   const test_col2 = listTests.slice(midpoint);
 
-  const listMedTechs = props.medTechs.map((medTech, index) => (
-    <option key={index} value={medTech.name}>
-      {medTech.name}
+  const listUsers = users.map((user, index) => (
+    <option key={index} value={user.name}>
+      {user.name}
     </option>
   ));
 
   const inputRef = useRef(null);
 
-  function handleMedTechChange(event) {
-    const medTech = props.medTechs.find((medtech) => medtech.name === event.target.value);
-    inputRef.current.value = medTech.prcno;
+  function handleUserChange(event) {
+    const user = users.find((user) => user.name === event.target.value);
+    inputRef.current.value = user.prcno;
   }
 
   return (
@@ -119,12 +140,12 @@ function ModalEditRequest(props) {
             </Row>
           </Container>
           <FloatingLabel label="Med Tech">
-            <Form.Select onChange={handleMedTechChange}>
-              {listMedTechs}
+            <Form.Select onChange={handleUserChange}>
+              {listUsers}
             </Form.Select>
           </FloatingLabel>
           <FloatingLabel label="PRC No" className="my-3">
-            <Form.Control type="number" value={props.medTechs[0].prcno} ref={inputRef} readOnly />
+            <Form.Control type="number" defaultValue={users[0].prcno} ref={inputRef} readOnly />
           </FloatingLabel>
         </div>
       </Modal.Body>
@@ -143,12 +164,6 @@ ModalEditRequest.propTypes = {
       requestID: PropTypes.number,
     }).isRequired,
   category: PropTypes.string.isRequired,
-  medTechs: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      prcno: PropTypes.number.isRequired,
-    })
-  ).isRequired,
   tests: PropTypes.string.isRequired,
   show: PropTypes.bool.isRequired, // Add this prop type for show
   handleClose: PropTypes.func.isRequired, // Add this prop type for handleClose
