@@ -6,27 +6,7 @@ import './styles/Table.css';
 function TableHome({ data }) {
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [modalType, setModalType] = useState(null); // New state to manage the modal type
-    const [users, setUsers] = useState([]); // State to hold users from MongoDB
 
-    // Fetch user data from MongoDB
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await fetch('http://localhost:4000/users'); // Adjust the URL as necessary
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setUsers(data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUsers();
-    }, []);
     const handleShowStatusModal = (patient) => {
         setSelectedPatient(patient);
         setModalType("status"); // Set modal type to status
@@ -122,7 +102,6 @@ function TableHome({ data }) {
                 show={true} // Always show the modal
                 handleClose={handleCloseModal}
                 tests={selectedPatient.tests}
-                medTechs={users}
                 category={selectedPatient.category}
             />
         )}
