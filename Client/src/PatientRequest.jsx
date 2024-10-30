@@ -4,12 +4,42 @@ import PatientRequestSearch from './PatientRequestSearch.jsx';
 import PatientRequestTests from './PatientRequestTests.jsx';
 import PatientInformation from './PatientInformation.jsx';
 import DateTime from './DateTime.jsx';
-import ModalConfirmRequest from './ModalConfirmRequest.jsx';
-import { useState } from 'react';
+// import ModalConfirmRequest from './ModalConfirmRequest.jsx';
+import { useState, useEffect } from 'react';
 
 function PatientRequest() {
   const [selectedTests, setSelectedTests] = useState({});
-  const [showModal, setShowModal] = useState(false);
+  // const [showModal, setShowModal] = useState(false);
+  const [patients, setPatients] = useState({}); // To store all the fetched data
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const res = await fetch('http://localhost:4000/requests');
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const patients = await res.json();
+
+        const updatedPatients = patients.map(patient => {
+          return {
+            ...patient,
+            birthday: new Date(patient.birthday).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }),
+          };
+        });
+
+        setPatients(updatedPatients); // Save all data to state
+        console.log(updatedPatients); // Log to check if data is fetched correctly
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchPatients();
+  }, []);
 
   const handleCheckboxChange = (test, category) => {
     setSelectedTests((prev) => {
@@ -43,55 +73,17 @@ function PatientRequest() {
         throw new Error('Failed to submit data');
       }
 
-<<<<<<< HEAD
-        const result = await res.json();
-
-        setSelectedTests({});
-        
-        console.log('Data submitted successfully:', result);
-        // You can also add logic to clear selected tests or show a success message
-=======
       const result = await res.json();
 
       setSelectedTests({});
 
       console.log('Data submitted successfully:', result);
       // You can also add logic to clear selected tests or show a success message
->>>>>>> 6347abca10c7789ed8aa41eea3803e17c5a2903e
 
     } catch (error) {
       console.error('Error submitting data:', error);
     }
   };
-
-  const sampleData = {
-    patientName: 'Pika Chu',
-    patientSex: 'M',
-    patientPhoneNo: '09876543210',
-    patientEmail: 'pikapika@chu.com',
-    patientAge: '3',
-    patientBday: 'April 1, 2021',
-    patientAddress: 'Palette Town',
-  };
-
-  // Temporary data for modal
-  const tests = [
-    { id: 1, name: "Test 1", isText: true },
-    { id: 2, name: "Test 2", isText: false, options: ["opt1", "opt2", "opt3"] },
-    { id: 3, name: "Test 3", isText: true },
-    { id: 4, name: "Test 4", isText: true },
-    { id: 5, name: "Test 5", isText: false, options: ["opt1", "opt2"] }
-  ];
-  const med_techs = [
-    { name: "Arjay", prcno: 12345678 },
-    { name: "Percival", prcno: 87654321 },
-    { name: "Ian", prcno: 78456312 },
-  ];
-  const patients = [
-    { name: "Matthew", patient_id: 1004, request_id: 2003 },
-    { name: "Kyle", patient_id: 1005, request_id: 2004 },
-    { name: "Jr", patient_id: 1006, request_id: 2005 },
-  ];
 
   return (
     <>
@@ -102,30 +94,32 @@ function PatientRequest() {
         <br />
         <PatientRequestSearch />
         <hr />
-        <PatientInformation data={sampleData} />
+        {patients.length > 0 ? (
+          <PatientInformation patient={patients[0]} />
+        ) : (
+          <div>Loading patient information...</div>
+        )}
         <hr />
       </div>
       <div className='table-body'>
-<<<<<<< HEAD
-        <PatientRequestTests onCheckboxChange={handleCheckboxChange} selectedTests={selectedTests} />
-        <hr/>
-        <PatientRequestButtons onSubmit={handleSubmit}/>
-=======
         <PatientRequestTests onCheckboxChange={handleCheckboxChange} selectedTests={selectedTests}  />
         <hr />
-        <PatientRequestButtons onSubmit={() => setShowModal(true)} />
->>>>>>> 6347abca10c7789ed8aa41eea3803e17c5a2903e
+        <PatientRequestButtons onSubmit={handleSubmit} />
       </div>
 
-      <ModalConfirmRequest
+      {/* <ModalConfirmRequest
         show={showModal}
         onHide={() => setShowModal(false)}
         patients={patients}
         med_techs={med_techs}
         tests={tests}
-      />
+      /> */}
     </>
   );
 }
+/*
+onSubmit={() => setShowModal(true)}
+
+*/
 
 export default PatientRequest;
