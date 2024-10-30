@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('http://localhost:3000');
+        const res = await fetch('http://localhost:4000');
         const jsonData = await res.json();
         setData(jsonData); // Save all data to state
         console.log(jsonData); // Log to check if data is fetched correctly
