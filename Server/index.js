@@ -158,7 +158,7 @@ app.post('/api/requests', async (req, res) => {
           newId++;
       }
 
-      res.status(201).json({ message: 'Requests created successfully', newId }); // Respond with success message
+      res.status(201).json({ message: 'Requests created successfully with latest ID', newId }); // Respond with success message
   } catch (error) {
       console.error('Failed to create request:', error);
       res.status(500).json({ error: 'Failed to create request' }); // Respond with an error message

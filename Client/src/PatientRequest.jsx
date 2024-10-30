@@ -43,6 +43,9 @@ function PatientRequest() {
         }
 
         const result = await res.json();
+
+        setSelectedTests({});
+        
         console.log('Data submitted successfully:', result);
         // You can also add logic to clear selected tests or show a success message
 
@@ -76,7 +79,7 @@ function PatientRequest() {
 
       </div>
       <div className='table-body'>
-        <PatientRequestTests onCheckboxChange={handleCheckboxChange}/>
+        <PatientRequestTests onCheckboxChange={handleCheckboxChange} selectedTests={selectedTests} />
         <hr/>
         <PatientRequestButtons onSubmit={handleSubmit}/>
       </div>
