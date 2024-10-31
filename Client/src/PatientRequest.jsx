@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 function PatientRequest() {
   const [selectedTests, setSelectedTests] = useState({});
   const [showModal, setShowModal] = useState(false);
-  const [patients, setPatients] = useState({}); // To store all the fetched data
+  const [patients, setPatients] = useState({});
   const [selectPatient, setSelectedPatient] = useState("");
 
   useEffect(() => {
@@ -33,8 +33,7 @@ function PatientRequest() {
           };
         });
 
-        setPatients(updatedPatients); // Save all data to state
-        console.log(updatedPatients); // Log to check if data is fetched correctly
+        setPatients(updatedPatients);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -50,8 +49,7 @@ function PatientRequest() {
   const handleSearchQuery = (searchResult) => {
     const patient = patients.find(p => p.patientID === searchResult.patientID);
       if (patient) {
-          setSelectedPatient(patient); // Save selected patient info
-          console.log("Selected patient:", patient); // Log the selected patient info
+          setSelectedPatient(patient);
       } else {
           console.log("Patient not found");
       }
@@ -150,9 +148,5 @@ function PatientRequest() {
     </>
   );
 }
-/*
-
-onSubmit={handleSubmit}
-*/
 
 export default PatientRequest;

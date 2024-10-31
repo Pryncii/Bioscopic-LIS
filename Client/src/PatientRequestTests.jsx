@@ -1,4 +1,5 @@
 function PatientRequestTests({ onCheckboxChange, selectedTests }) {
+    const isCBCChecked = !!selectedTests["CBC"];
 
     return (
       <>
@@ -7,7 +8,7 @@ function PatientRequestTests({ onCheckboxChange, selectedTests }) {
               <tr><h4 className='_title'><b>Hematology</b></h4></tr>
               <tr>
                   <td><input class="Hematology form-check-input" id="H-1" type="checkbox" checked={!!selectedTests["CBC"]} onChange={() => onCheckboxChange("CBC", "Hematology")} /> CBC</td>
-                  <td><input class="Hematology form-check-input" id="H-2" type="checkbox" disabled checked={!!selectedTests["CBC with Platelet Count"]} onChange={() => onCheckboxChange("CBC with Platelet Count", "Hematology")} /> Platelet Count</td>
+                  <td><input class="Hematology form-check-input" id="H-2" type="checkbox" checked={!!selectedTests["CBC with Platelet Count"]} onChange={() => onCheckboxChange("CBC with Platelet Count", "Hematology")} disabled={!isCBCChecked}/> Platelet Count</td>
                   <td><input class="Hematology form-check-input" id="H-3" type="checkbox" checked={!!selectedTests["ESR"]} onChange={() => onCheckboxChange("ESR", "Hematology")} /> ESR</td>
               </tr>
               <tr>
