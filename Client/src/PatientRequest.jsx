@@ -4,12 +4,12 @@ import PatientRequestSearch from './PatientRequestSearch.jsx';
 import PatientRequestTests from './PatientRequestTests.jsx';
 import PatientInformation from './PatientInformation.jsx';
 import DateTime from './DateTime.jsx';
-// import ModalConfirmRequest from './ModalConfirmRequest.jsx';
+import ModalConfirmRequest from './ModalConfirmRequest.jsx';
 import { useState, useEffect } from 'react';
 
 function PatientRequest() {
   const [selectedTests, setSelectedTests] = useState({});
-  // const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [patients, setPatients] = useState({}); // To store all the fetched data
   const [selectPatient, setSelectedPatient] = useState("");
 
@@ -71,10 +71,11 @@ function PatientRequest() {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (payment) => {
     const requestData = {
       tests: selectedTests,
       patientID: selectPatient.patientID,
+      payment: payment,
     };
 
     try {
@@ -95,10 +96,21 @@ function PatientRequest() {
       setSelectedTests({});
 
       console.log('Data submitted successfully:', result);
-      // You can also add logic to clear selected tests or show a success message
 
     } catch (error) {
       console.error('Error submitting data:', error);
+    }
+  };
+
+  const handleCancel = async () => {
+    try {
+      setSelectedPatient({});
+      setSelectedTests({});
+
+      console.log('Successfully Cancelled Request');
+
+    } catch (error) {
+      console.error('Error in Cancelling Request:', error);
     }
   };
 
@@ -121,22 +133,26 @@ function PatientRequest() {
       <div className='table-body'>
         <PatientRequestTests onCheckboxChange={handleCheckboxChange} selectedTests={selectedTests}  />
         <hr />
-        <PatientRequestButtons onSubmit={handleSubmit} />
+        <PatientRequestButtons 
+          onSubmit={() => setShowModal(true)}
+          onCancel={handleCancel}
+          isDisabled={!Object.keys(selectPatient).length > 0 || !Object.keys(selectedTests).length > 0}
+        />
       </div>
 
-      {/* <ModalConfirmRequest
+      <ModalConfirmRequest
         show={showModal}
         onHide={() => setShowModal(false)}
-        patients={patients}
-        med_techs={med_techs}
-        tests={tests}
-      /> */}
+        patient={selectPatient}
+        tests={selectedTests}
+        onSubmit={handleSubmit}
+      />
     </>
   );
 }
 /*
-onSubmit={() => setShowModal(true)}
 
+onSubmit={handleSubmit}
 */
 
 export default PatientRequest;

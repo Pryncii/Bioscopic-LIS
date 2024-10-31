@@ -139,12 +139,12 @@ app.post('/api/requests', async (req, res) => {
   try {
       const createRequest = async (requestData) => {
           try {
-              const newRequest = new requestModel(requestData); // Create a new instance
-              await newRequest.save(); // Save to the database
+              const newRequest = new requestModel(requestData);
+              await newRequest.save(); 
               console.log('Request created:', newRequest);
           } catch (error) {
               console.error('Error creating request:', error);
-              throw error; // Propagate the error
+              throw error;
           }
       };
 
@@ -154,12 +154,12 @@ app.post('/api/requests', async (req, res) => {
 
       const currentDate = new Date(); // Get the current date
 
-      const { tests, patientID } = req.body; // Extract tests from the request body
+      const { tests, patientID , payment } = req.body;
 
       for (const [key, value] of Object.entries(tests)) {
           await createRequest({
               requestID: newId,
-              patientID: patientID, // Replace with actual patient ID
+              patientID: patientID,
               medtechID: 2000, // Replace with actual medtech ID
               category: value,
               test: key,
@@ -167,7 +167,7 @@ app.post('/api/requests', async (req, res) => {
               dateStart: currentDate,
               dateEnd: null,
               remarks: "",
-              payStatus: "Unpaid" 
+              payStatus: payment 
           });
           newId++;
       }
