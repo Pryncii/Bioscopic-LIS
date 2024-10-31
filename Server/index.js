@@ -154,12 +154,12 @@ app.post('/api/requests', async (req, res) => {
 
       const currentDate = new Date(); // Get the current date
 
-      const { tests } = req.body; // Extract tests from the request body
+      const { tests, patientID } = req.body; // Extract tests from the request body
 
       for (const [key, value] of Object.entries(tests)) {
           await createRequest({
               requestID: newId,
-              patientID: 1000, // Replace with actual patient ID
+              patientID: patientID, // Replace with actual patient ID
               medtechID: 2000, // Replace with actual medtech ID
               category: value,
               test: key,

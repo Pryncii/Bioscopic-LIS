@@ -22,10 +22,10 @@ function PatientRequestSearch({ patients, onSearch }) {
     const handleSearch = (e) => {
         e.preventDefault(); // Prevent default form submission behavior
 
-        // Use the filtered patients already computed
         if (filteredPatients.length > 0) {
-            const firstPatient = filteredPatients[0]; // Get the first patient from the filtered list
+            const firstPatient = filteredPatients[0]; 
             onSearch({ name: firstPatient.name, patientID: firstPatient.patientID });
+            setSearchQuery("");
         } else {
             console.log("No matches found.");
         }

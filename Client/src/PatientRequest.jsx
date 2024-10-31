@@ -74,6 +74,7 @@ function PatientRequest() {
   const handleSubmit = async () => {
     const requestData = {
       tests: selectedTests,
+      patientID: selectPatient.patientID,
     };
 
     try {
@@ -90,7 +91,7 @@ function PatientRequest() {
       }
 
       const result = await res.json();
-
+      setSelectedPatient({});
       setSelectedTests({});
 
       console.log('Data submitted successfully:', result);
