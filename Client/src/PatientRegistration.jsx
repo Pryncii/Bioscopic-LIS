@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import './styles/Register.css'
 import Header from './Header.jsx'
 
+
 function PatientRegistration() {
     const [formData, setFormData] = useState({
         firstName: "",
@@ -10,7 +11,6 @@ function PatientRegistration() {
         lastName: "",
         sex: "",
         birthday: "",
-        birthyear:"",
         age: 0,
         phoneNumber: "",
         email: "",
@@ -201,7 +201,7 @@ function PatientRegistration() {
                     </div>
                     {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error message */}
                     <div class="d-flex justify-content-center mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg">REGISTER</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Data</button>
                     </div>
                 </form>
             </div>
