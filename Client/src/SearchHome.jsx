@@ -1,7 +1,7 @@
 import './styles/Search.css';
 import { useState } from 'react';
 
-function SearchHome() {
+function SearchHome( { onSearch }) {
   const [searchQuery, setSearchQuery] = useState("");
   
   const handleSearchChange = (event) => {
@@ -10,9 +10,28 @@ function SearchHome() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Handle form submission logic here
+    const placeholderLowerDateSt = '2000-01-01'; // Placeholder dates
+    const placeholderUpperDateSt = '2100-12-31';
+    const placeholderLowerDateEn = '2000-01-01';
+    const placeholderUpperDateEn = '2100-12-31';
+
+    const lowerdatest = document.getElementById('lowerdatest').value || placeholderLowerDateSt;
+    const upperdatest = document.getElementById('upperdatest').value || placeholderUpperDateSt;
+    const lowerdateen = document.getElementById('lowerdateen').value || placeholderLowerDateEn;
+    const upperdateen = document.getElementById('upperdateen').value || placeholderUpperDateEn;
+
+    onSearch({
+      search: searchQuery,
+      lowerdatest: lowerdatest,
+      upperdatest: upperdatest,
+      lowerdateen: lowerdateen,
+      upperdateen: upperdateen,
+      status: document.getElementById('status').value,
+      category: document.getElementById('category').value,
+      test: document.getElementById('tests').value
+    });
     console.log("Search Query:", searchQuery);
-    // Possibly trigger a search API or filter results in the frontend
+    //console.log("category", document.getElementById('category').value)
   };
 
   return (
@@ -50,12 +69,22 @@ function SearchHome() {
             <div className="card card-body">
               <div className="row">
                 <div className="col-md-6">
-                  <label htmlFor="start_date">Starting Date Range</label>
-                  <input type="date" className="form-control adv-item" id="lowerdate" name="lowerdate" />
+                  <label htmlFor="lowerdatest">Request Start Range</label>
+                  <input type="date" className="form-control adv-item" id="lowerdatest" name="lowerdatest" />
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="end_date">Ending Date Range</label>
-                  <input type="date" className="form-control adv-item" id="upperdate" name="upperdate" />
+                  <label htmlFor="upperdatest">Request End Range</label>
+                  <input type="date" className="form-control adv-item" id="upperdatest" name="upperdatest" />
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-md-6">
+                  <label htmlFor="lowerdateen">Complete Start Range</label>
+                  <input type="date" className="form-control adv-item" id="lowerdateen" name="lowerdateen" />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="upperdateen">Complete End Range</label>
+                  <input type="date" className="form-control adv-item" id="upperdateen" name="upperdateen" />
                 </div>
               </div>
               <div className="row">
