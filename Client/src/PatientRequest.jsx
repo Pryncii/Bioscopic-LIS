@@ -11,6 +11,7 @@ function PatientRequest() {
   const [selectedTests, setSelectedTests] = useState({});
   // const [showModal, setShowModal] = useState(false);
   const [patients, setPatients] = useState({}); // To store all the fetched data
+  const [selectPatient, setSelectedPatient] = useState("");
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -40,6 +41,21 @@ function PatientRequest() {
     };
     fetchPatients();
   }, []);
+
+  const searchPatients = Object.values(patients || {}).map(patient => ({
+    patientID: patient.patientID,
+    name: patient.name
+  }));
+
+  const handleSearchQuery = (searchResult) => {
+    const patient = patients.find(p => p.patientID === searchResult.patientID);
+      if (patient) {
+          setSelectedPatient(patient); // Save selected patient info
+          console.log("Selected patient:", patient); // Log the selected patient info
+      } else {
+          console.log("Patient not found");
+      }
+  };
 
   const handleCheckboxChange = (test, category) => {
     setSelectedTests((prev) => {
@@ -92,10 +108,10 @@ function PatientRequest() {
         <h1 className='_title'>Add Patient Request</h1>
         <DateTime />
         <br />
-        <PatientRequestSearch />
+        <PatientRequestSearch patients={searchPatients} onSearch={handleSearchQuery}/>
         <hr />
         {patients.length > 0 ? (
-          <PatientInformation patient={patients[0]} />
+          <PatientInformation patient={selectPatient} />
         ) : (
           <div>Loading patient information...</div>
         )}
