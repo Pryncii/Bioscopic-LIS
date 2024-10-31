@@ -63,3 +63,18 @@ a:hover {
 .title-body, .table-body {
     margin: 2%;
 }
+
+/*   ----------   MODAL CSS   ----------    */
+
+.modal-header {
+    background-color: rgb(19, 33, 83);
+    color: #ffffff;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(3);
+}
+
+.modal-header .btn-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
