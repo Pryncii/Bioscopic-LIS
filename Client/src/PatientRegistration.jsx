@@ -5,41 +5,57 @@ import Header from './Header.jsx'
 
 function PatientRegistration() {
     const [formData, setFormData] = useState({
-        firstName: "",
-        middleName: "",
-        lastName: "",
-        sex: "",
+        firstName: "Jeka",
+        middleName: "Bunda",
+        lastName: "Cataluna",
+        sex: "M",
         birthday: "",
         birthyear:"",
-        age: "",
-        phoneNumber: "",
-        email: "",
+        age: 0,
+        phoneNumber: "09364606008",
+        email: "cataluna.joriceerika@yahoo.com",
         pwdID: "",
         seniorID: "",
-        address: "",
+        address: "asdadasd",
       });
-      
+      const [error, setError] = useState('');
 
         // Handle input change
     const handleChange = (e) => {
+        setError("");
         const { name, value } = e.target;
         setFormData({
             ...formData,
             [name]: value
         });
+    };
 
+    //validate age and birthday
+    const validate = () => {
+        if (formData.birthday){
+            if(formData.age){
+                const today = new Date();
+                const birthDate = new Date(formData.birthday);
+                let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+                if (today < new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate())) {
+                    calculatedAge--;    
+                }
 
-        //validate age and birthday
-        if (name === birthday){
-            if(age){
-                
+                if (formData.age != calculatedAge){
+                    setError("Age and Birthday does not match!");
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
             }
         }
-        
-    };
+    }
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        //validate age and birthday
 
         //format the name
         const fullName = formData.lastName + ', ' + formData.firstName + ', ' + formData.middleName;
@@ -49,26 +65,30 @@ function PatientRegistration() {
           };
         
         try{
-            const res = await fetch('http://localhost:4000/addpatient', {
-                method: 'POST',
-                headers:{
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(dataToSend)
-            });
-            const json = await res.json()
-            if(res.ok){
-                console.log('Patient Added:',  json);
-            }
-            else{
-                console.log('Data Received:', json);
-                console.log('Failed to add patient. Please try again');      
+            if(!validate()){
+                const res = await fetch('http://localhost:4000/addpatient', {
+                    method: 'POST',
+                    headers:{
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+                const json = await res.json()
+                if(res.ok){
+                    console.log('Patient Added:',  json);
+                    
+                }
+                else{
+                    console.log('Data Received:', json);
+                    console.log('Failed to add patient. Please try again');      
+                }
             }
         }catch(error){
             console.error('Error adding patient:', error);
         }
         // Process form data (e.g., send to backend)
         console.log("Form data submitted: ", dataToSend);
+        
     };
     return (
         <>
@@ -123,6 +143,7 @@ function PatientRegistration() {
                             <input type="number" 
                             className ="form-control" 
                             name="age"  required
+                            min = "0"
                             value={formData.age} 
                             onChange={handleChange}/>
                         </div>
@@ -132,7 +153,7 @@ function PatientRegistration() {
                             className ="form-control" 
                             name="phoneNumber" required 
                             pattern = "\d{11}"
-                            title = "Please enter 11 digits"
+                            title = "Please enter 11 digits (09xxxxxxxxx)"
                             value={formData.phoneNumber} 
                             onChange={handleChange}/>
                         </div>
@@ -142,7 +163,7 @@ function PatientRegistration() {
                             className="form-control" 
                             name="email" 
                             placeholder="username@bioscopic.com" 
-                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required
+                            pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required
                             value={formData.email} 
                             onChange={handleChange}/>
                         </div>
@@ -162,15 +183,17 @@ function PatientRegistration() {
                             value={formData.pwdID} 
                             onChange={handleChange}/>
                         </div>
-                        <div className ="mb-3">
+                        {formData.age >= 65 && (<div className ="mb-3">
                             <label for="seniorID" className = "form-label">SENIOR ID</label>
                             <input type="text"
                             className ="form-control" 
                             name = "seniorID"
                             value={formData.seniorID} 
                             onChange={handleChange}/>
-                        </div>
+                        </div>)}
+                        
                     </div>
+                    {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error message */}
                     <div class="d-flex justify-content-center mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">REGISTER</button>
                     </div>

@@ -177,17 +177,6 @@ app.post('/addpatient', async (req,res) => {
             seniorID, 
             address, 
             remarks});
-        
-            const date = new Date();
-            const currentYear = date.getFullYear();
-            const realAge = currentYear - patient.birthyear;
-
-        //validate the age and birth date
-        if(patient.birthyear){
-            if(realAge == patient.age){
-                
-            }
-        }
         await patient.save();
         res.status(201).json({ message: 'Patient added successfully', patient });
 
