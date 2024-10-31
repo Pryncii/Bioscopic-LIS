@@ -1,6 +1,8 @@
 language: node_js
 node_js:
-  - "16"
+  - 18
+
+dist: focal
 
 # Only build on pull requests or the main branch
 branches:
@@ -48,6 +50,8 @@ script:
   - npm run build
 
   - cd ../$BACKEND_DIR
+  - chmod +x node_modules/.bin/jest
+  - npm test
 
 deploy:
   provider: script

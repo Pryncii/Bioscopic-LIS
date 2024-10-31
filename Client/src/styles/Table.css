@@ -54,4 +54,5 @@
     align-items: center;
 }
 
+.patient-table { table-layout: fixed; }
 .home-table { table-layout: fixed; }
