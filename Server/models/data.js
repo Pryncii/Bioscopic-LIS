@@ -23,6 +23,7 @@ const patientSchema = new mongoose.Schema(
         name: { type: String },
         sex: { type: String },
         birthday: { type: Date },
+        birthyear: { type: Date }, 
         age: { type: Number },
         phoneNo: { type: String },
         email: { type: String },

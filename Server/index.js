@@ -23,7 +23,7 @@ const app = express()
 const port = process.env.PORT || 4000;
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({origin: 'http://localhost:3000'}));
 connectDB()
 
 app.get('/', async (req, res) => {
@@ -155,6 +155,46 @@ app.post('/register', async (req, res) => {
         console.error('Registration error:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
+});
+
+app.post('/addpatient', async (req,res) => {
+    const {name, sex, birthday, age, phoneNo, email, pwdID, seniorID, address, remarks} = req.body;
+    try{
+        const latestPatient = parseInt(await patientModel.findOne().sort({patientID: -1}));
+        const newPatientID = latestPatient ? latestPatient.patientID + 1 : 1;
+
+        //automate the patientID for the new patients
+        const patient = new patientModel({
+            patientID: newPatientID,
+            name, 
+            sex, 
+            birthday, 
+            age, 
+            phoneNo, 
+            email, 
+            pwdID, 
+            seniorID, 
+            address, 
+            remarks});
+        
+            const date = new Date();
+            const currentYear = date.getFullYear();
+            const realAge = currentYear - patient.birthyear;
+
+        //validate the age and birth date
+        if(patient.birthyear){
+            if(realAge == patient.age){
+                
+            }
+        }
+        await patient.save();
+        res.status(201).json({ message: 'Patient added successfully', patient });
+
+    }catch (error){
+        res.json({ message: 'Error adding patient', error: error.message});
+    }
+        
+
 });
 
 const server = app.listen(port, () => {
