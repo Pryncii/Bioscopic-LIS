@@ -27,6 +27,14 @@ function PatientRegistration() {
             ...formData,
             [name]: value
         });
+
+
+        //validate age and birthday
+        if (name === birthday){
+            if(age){
+                
+            }
+        }
         
     };
     // Handle form submission

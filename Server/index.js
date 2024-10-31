@@ -158,19 +158,20 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/addpatient', async (req,res) => {
-    const {name, sex, birthday, age, phoneNo, email, pwdID, seniorID, address, remarks} = req.body;
+    const {name, sex, birthday, age, phoneNumber, email, pwdID, seniorID, address, remarks} = req.body;
     try{
-        const latestPatient = parseInt(await patientModel.findOne().sort({patientID: -1}));
+        //automate the patientID for the new patients
+        const latestPatient = await patientModel.findOne({}, { patientID: 1 }).sort({ patientID: -1 });
         const newPatientID = latestPatient ? latestPatient.patientID + 1 : 1;
 
-        //automate the patientID for the new patients
+        //create new patient
         const patient = new patientModel({
             patientID: newPatientID,
             name, 
             sex, 
             birthday, 
             age, 
-            phoneNo, 
+            phoneNo: phoneNumber, 
             email, 
             pwdID, 
             seniorID, 
