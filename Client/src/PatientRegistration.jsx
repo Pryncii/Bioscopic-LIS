@@ -5,18 +5,18 @@ import Header from './Header.jsx'
 
 function PatientRegistration() {
     const [formData, setFormData] = useState({
-        firstName: "Jeka",
-        middleName: "Bunda",
-        lastName: "Cataluna",
-        sex: "M",
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        sex: "",
         birthday: "",
         birthyear:"",
         age: 0,
-        phoneNumber: "09364606008",
-        email: "cataluna.joriceerika@yahoo.com",
+        phoneNumber: "",
+        email: "",
         pwdID: "",
         seniorID: "",
-        address: "asdadasd",
+        address: "",
       });
       const [error, setError] = useState('');
 
@@ -51,6 +51,12 @@ function PatientRegistration() {
             }
         }
     }
+
+    const capitalizeFirstLetter = (string) => {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -58,7 +64,7 @@ function PatientRegistration() {
         //validate age and birthday
 
         //format the name
-        const fullName = formData.lastName + ', ' + formData.firstName + ', ' + formData.middleName;
+        const fullName = capitalizeFirstLetter(formData.lastName) + ', ' + capitalizeFirstLetter(formData.firstName) + ', ' + capitalizeFirstLetter(formData.middleName);
         const dataToSend ={
             ...formData,
             name: fullName,
@@ -98,7 +104,7 @@ function PatientRegistration() {
                 <form onSubmit={handleSubmit}>
                 <div className="spacer">
                 <h1 className="text-center fw-bold mb-3">Add Patient</h1>
-                        <label className = "form-label">Full Name *: </label>
+                        <label className = "form-label">Full Name * </label>
                         <div className="d-flex justify-content-evenly mb-3 gap-3">   
                                 <input type="text" 
                                 className="form-control" 
@@ -124,8 +130,8 @@ function PatientRegistration() {
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Sex</label>
-                            <select className="form-select" name="sex"value={formData.sex} onChange={handleChange}>
-                                <option value="null"> </option>
+                            <select className="form-select" name="sex" required value={formData.sex} onChange={handleChange}>
+                                <option value="">--Please choose an option--</option>
                                 <option value="M">Male</option>
                                 <option value="F">Female</option>
                             </select>
@@ -183,7 +189,7 @@ function PatientRegistration() {
                             value={formData.pwdID} 
                             onChange={handleChange}/>
                         </div>
-                        {formData.age >= 65 && (<div className ="mb-3">
+                        {formData.age >= 60 && (<div className ="mb-3">
                             <label for="seniorID" className = "form-label">SENIOR ID</label>
                             <input type="text"
                             className ="form-control" 
