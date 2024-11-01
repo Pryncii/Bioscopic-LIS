@@ -29,22 +29,25 @@ function PatientRequestTests({ onCheckboxChange, selectedTests }) {
               <tr><h4 className='_title'><b>Chemistry</b></h4></tr>
               <tr>
                   <td><input class="Chemistry form-check-input" id="C-1" type="checkbox" checked={!!selectedTests["FBS"]} onChange={() => onCheckboxChange("FBS", "Chemistry")} /> FBS</td>
+                  <td><input class="Chemistry form-check-input" id="C-1" type="checkbox" checked={!!selectedTests["RBS"]} onChange={() => onCheckboxChange("RBS", "Chemistry")} /> RBS</td>
                   <td><input class="Chemistry form-check-input" id="C-2" type="checkbox" checked={!!selectedTests["Creatinine"]} onChange={() => onCheckboxChange("Creatinine", "Chemistry")} /> Creatinine</td>
-                  <td><input class="Chemistry form-check-input" id="C-3" type="checkbox" checked={!!selectedTests["Uric Acid"]} onChange={() => onCheckboxChange("Uric Acid", "Chemistry")} /> Uric Acid</td>
               </tr>
               <tr>
+                  <td><input class="Chemistry form-check-input" id="C-3" type="checkbox" checked={!!selectedTests["Uric Acid"]} onChange={() => onCheckboxChange("Uric Acid", "Chemistry")} /> Uric Acid</td>
                   <td><input class="Chemistry form-check-input" id="C-4" type="checkbox" checked={!!selectedTests["Cholesterol"]} onChange={() => onCheckboxChange("Cholesterol", "Chemistry")} /> Cholesterol</td>
                   <td><input class="Chemistry form-check-input" id="C-5" type="checkbox" checked={!!selectedTests["Triglycerides"]} onChange={() => onCheckboxChange("Triglycerides", "Chemistry")} /> Triglycerides</td>
-                  <td><input class="Chemistry form-check-input" id="C-6" type="checkbox" checked={!!selectedTests["HDL"]} onChange={() => onCheckboxChange("HDL", "Chemistry")} /> HDL</td>
               </tr> 
               <tr>
+                  <td><input class="Chemistry form-check-input" id="C-6" type="checkbox" checked={!!selectedTests["HDL"]} onChange={() => onCheckboxChange("HDL", "Chemistry")} /> HDL</td>
                   <td><input class="Chemistry form-check-input" id="C-7" type="checkbox" checked={!!selectedTests["LDL"]} onChange={() => onCheckboxChange("LDL", "Chemistry")} /> LDL</td>
                   <td><input class="Chemistry form-check-input" id="C-8" type="checkbox" checked={!!selectedTests["VLDL"]} onChange={() => onCheckboxChange("VLDL", "Chemistry")} /> VLDL</td>
-                  <td><input class="Chemistry form-check-input" id="C-9" type="checkbox" checked={!!selectedTests["BUN"]} onChange={() => onCheckboxChange("BUN", "Chemistry")} /> BUN</td>
               </tr>
               <tr>
+                  <td><input class="Chemistry form-check-input" id="C-9" type="checkbox" checked={!!selectedTests["BUN"]} onChange={() => onCheckboxChange("BUN", "Chemistry")} /> BUN</td>
                   <td><input class="Chemistry form-check-input" id="C-10" type="checkbox" checked={!!selectedTests["SGPT"]} onChange={() => onCheckboxChange("SGPT", "Chemistry")} /> SGPT</td>
                   <td><input class="Chemistry form-check-input" id="C-11" type="checkbox" checked={!!selectedTests["SGOT"]} onChange={() => onCheckboxChange("SGOT", "Chemistry")} /> SGOT</td>
+              </tr>
+              <tr>
                   <td><input class="Chemistry form-check-input" id="C-12" type="checkbox" checked={!!selectedTests["HbA1c"]} onChange={() => onCheckboxChange("HbA1c", "Chemistry")} /> HbA1c</td>
               </tr>
               <tr><td colSpan="3"><hr /></td></tr>
