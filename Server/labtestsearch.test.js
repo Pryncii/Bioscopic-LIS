@@ -89,7 +89,13 @@ describe('GET /requests', () => {
         const resCategory = await request(app).get('/requests').query({ category: 'Chemistry' });
         expect(resCategory.status).toBe(200);
         expect(resCategory.body[0][0].patientID).toBe(1000);
-        expect(resCategory.body[0][0].tests).toBe('Chemistry');
+        expect(resCategory.body[0][0].category).toBe('Chemistry');
+
+        // Test filtering by category "Urinalysis"
+        const resTest = await request(app).get('/requests').query({ test: 'Urinalysis' });
+        expect(resTest.status).toBe(200);
+        expect(resTest.body[0][0].patientID).toBe(1001);
+        expect(resTest.body[0][0].tests).toBe('Urinalysis');
 
         // Test filtering by status "Completed"
         const resStatus = await request(app).get('/requests').query({ status: 'Completed' });
