@@ -3,21 +3,6 @@ import ModalEditStatus from "./ModalEditStatus";
 import ModalEditRequest from "./ModalEditRequest"; // Import the edit request modal
 import './styles/Table.css';
 
-// Sample tests and med techs data
-const tests = [
-  { id: 1, name: "Test 1", isText: true },
-  { id: 2, name: "Test 2", isText: false, options: ["opt1", "opt2", "opt3"] },
-  { id: 3, name: "Test 3", isText: true },
-  { id: 4, name: "Test 4", isText: true },
-  { id: 5, name: "Test 5", isText: false, options: ["opt1", "opt2"] }
-];
-
-const med_techs = [
-  { name: "Arjay", prcno: 12345678 },
-  { name: "Percival", prcno: 87654321 },
-  { name: "Ian", prcno: 78456312 },
-];
-
 function TableHome({ data }) {
     const [tableData, setTableData] = useState(data);
     const [selectedPatient, setSelectedPatient] = useState(null);
@@ -145,12 +130,11 @@ function TableHome({ data }) {
         )}
         {selectedPatient && modalType === "request" && (
             <ModalEditRequest
-                patients={[selectedPatient]}
+                patient={[selectedPatient]}
                 show={true} // Always show the modal
                 handleClose={handleCloseModal}
-                tests={tests}
-                med_techs={med_techs}
-                category="Hematology"
+                tests={selectedPatient.tests}
+                category={selectedPatient.category}
             />
         )}
         </>
