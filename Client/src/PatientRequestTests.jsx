@@ -1,5 +1,5 @@
 function PatientRequestTests({ onCheckboxChange, selectedTests }) {
-    const isCBCChecked = !!selectedTests["CBC"];
+    const isCBCChecked = !!selectedTests["CBC"];    // only allow CBCwPC be checkable if CBC is checked
 
     return (
       <>
@@ -12,7 +12,7 @@ function PatientRequestTests({ onCheckboxChange, selectedTests }) {
                   <td><input class="Hematology form-check-input" id="H-3" type="checkbox" checked={!!selectedTests["ESR"]} onChange={() => onCheckboxChange("ESR", "Hematology")} /> ESR</td>
               </tr>
               <tr>
-                  <td><input class="Hematology form-check-input" id="H-4" type="checkbox" checked={!!selectedTests["Blood Type with Rh", "Hematology"]} onChange={() => onCheckboxChange("Blood Type with Rh", "Hematology")} /> Blood Type with Rh</td>
+                  <td><input class="Hematology form-check-input" id="H-4" type="checkbox" checked={!!selectedTests["Blood Type with Rh"]} onChange={() => onCheckboxChange("Blood Type with Rh", "Hematology")} /> Blood Type with Rh</td>
                   <td><input class="Hematology form-check-input" id="H-5" type="checkbox" checked={!!selectedTests["Clotting Time"]} onChange={() => onCheckboxChange("Clotting Time", "Hematology")} /> Clotting Time</td>
                   <td><input class="Hematology form-check-input" id="H-6" type="checkbox" checked={!!selectedTests["Breeding Time"]} onChange={() => onCheckboxChange("Breeding Time", "Hematology")} /> Bleeding Time</td>
               </tr>

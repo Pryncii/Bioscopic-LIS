@@ -13,7 +13,7 @@ function PatientRequest() {
   const [patients, setPatients] = useState({});
   const [selectPatient, setSelectedPatient] = useState("");
 
-  useEffect(() => {
+  useEffect(() => {   //  fetch all of the patients' information
     const fetchPatients = async () => {
       try {
         const res = await fetch('http://localhost:4000/requests');
@@ -25,7 +25,7 @@ function PatientRequest() {
         const updatedPatients = patients.map(patient => {
           return {
             ...patient,
-            birthday: new Date(patient.birthday).toLocaleDateString('en-US', {
+            birthday: new Date(patient.birthday).toLocaleDateString('en-US', {    // convert date type to string date
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -41,12 +41,7 @@ function PatientRequest() {
     fetchPatients();
   }, []);
 
-  const searchPatients = Object.values(patients || {}).map(patient => ({
-    patientID: patient.patientID,
-    name: patient.name
-  }));
-
-  const handleSearchQuery = (searchResult) => {
+  const handleSearchQuery = (searchResult) => {   //  whenever a search is done, the patient selected will be stored in selectedPatient
     const patient = patients.find(p => p.patientID === searchResult.patientID);
       if (patient) {
           setSelectedPatient(patient);
@@ -55,7 +50,7 @@ function PatientRequest() {
       }
   };
 
-  const handleCheckboxChange = (test, category) => {
+  const handleCheckboxChange = (test, category) => {  //  whenever a checkbox is checked it will be added to the selectedTests and viceversa
     setSelectedTests((prev) => {
       const updatedTests = { ...prev };
 
@@ -65,12 +60,19 @@ function PatientRequest() {
         updatedTests[test] = category;
       }
 
+      if (test === "CBC" && !updatedTests[test]) {  // if CBC is clicked and unchecked
+        updatedTests["CBC with Platelet Count"] = false;  // also uncheck CBCwPC if ever checked
+      }
+
       return updatedTests;
     });
   };
 
-  const handleSubmit = async (payment) => {
-    const requestData = {
+  const handleSubmit = async (payment) => {   //  when submit is pressed then pass the information to save records to the api
+    if (selectedTests["CBC with Platelet Count"]) {   //  remove CBC when CBCwPC is selected because of priority
+      delete selectedTests["CBC"];
+    }
+    const requestData = {   //  data to be passed
       tests: selectedTests,
       patientID: selectPatient.patientID,
       payment: payment,
@@ -89,9 +91,10 @@ function PatientRequest() {
         throw new Error('Failed to submit data');
       }
 
-      const result = await res.json();
-      setSelectedPatient({});
-      setSelectedTests({});
+      const result = await res.json();  //  message from api
+
+      setSelectedPatient({});   //  clear data of patient information and checked tests
+      setSelectedTests({});     //  meaning remove patient information, remove selectedPatient, and uncheck selectedTests
 
       console.log('Data submitted successfully:', result);
 
@@ -100,10 +103,10 @@ function PatientRequest() {
     }
   };
 
-  const handleCancel = async () => {
+  const handleCancel = async () => {  //  reset everything
     try {
-      setSelectedPatient({});
-      setSelectedTests({});
+      setSelectedPatient({});   //  clear data of patient information and checked tests
+      setSelectedTests({});     //  meaning remove patient information, remove selectedPatient, and uncheck selectedTests
 
       console.log('Successfully Cancelled Request');
 
@@ -111,6 +114,11 @@ function PatientRequest() {
       console.error('Error in Cancelling Request:', error);
     }
   };
+  
+  const searchPatients = Object.values(patients || {}).map(patient => ({    // only pass patientId and patient name to search bar
+    patientID: patient.patientID,
+    name: patient.name
+  }));
 
   return (
     <>
