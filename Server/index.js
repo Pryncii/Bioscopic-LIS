@@ -134,45 +134,244 @@ app.get('/requests', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
-
+// const hematologySchema = new mongoose.Schema(
+//   {
+//       requestID: { type: Number },
+//       hemoglobin: { type: Number },
+//       hematocrit: { type: Number },
+//       rbcCount: { type: Number },
+//       wbcCount: { type: Number },
+//       neutrophil: { type: Number },
+//       lymphocyte: { type: Number },
+//       monocyte: { type: Number },
+//       eosinophil: { type: Number },
+//       basophil: { type: Number },
+//       // withPlateletCount: { type: Boolean },
+//       plateletCount: {
+//           type: Number
+//           // validate: {
+//           //     validator: function () {
+//           //         return this.withPlateletCount ? this.plateletCount != null : true;
+//           //     },
+//           //     message: "plateletCount is required if withPlateletCount is true",
+//           // },
+//       },
+//       esr: { type: Number },
+//       bloodWithRh: { type: Number },
+//       clottingTime: { type: Number },
+//       bleedingTime: { type: Number },
+//   },
+//   { versionKey: false },
+//   { discriminatorKey: "type" }
+// );
 app.post('/api/requests', async (req, res) => {
   try {
-      const createRequest = async (requestData) => {
-          try {
-              const newRequest = new requestModel(requestData);
-              await newRequest.save(); 
-              console.log('Request created:', newRequest);
-          } catch (error) {
-              console.error('Error creating request:', error);
-              throw error;
-          }
+    const createRequest = async (requestData) => {
+      try {
+        const newRequest = new requestModel(requestData);
+        await newRequest.save(); 
+        console.log('Request created:', newRequest);
+      } catch (error) {
+        console.error('Error creating request:', error);
+        throw error;
+      }
+    };
+    const createTest = async (testData, category) => {
+      try {
+        const modelMap = {
+          "Hematology": hematologyModel,
+          "Clinical Microscopy": clinicalMicroscopyModel,
+          "Chemistry": chemistryModel,
+          "Serology": serologyModel
+        };
+      
+        const Model = modelMap[category];
+        if (Model) {
+          const newTest = new Model(testData);
+          await newTest.save();
+          console.log('Test created:', newTest);
+        } else {
+          console.log('Error in Creating a Request');
+        }
+      
+      } catch (error) {
+        console.error('Error creating request:', error);
+        throw error;
+      }
+    };
+
+    const latestDocument = await requestModel.findOne({}, null, { sort: { requestID: -1 } });
+    const latestId = latestDocument ? latestDocument.requestID : 1000;
+    let newReqId = latestId + 1; // Get new secondary id
+
+    const currentDate = new Date(); // Get the current date
+
+    const { tests, patientID , payment } = req.body;
+    for (const [key, value] of Object.entries(tests)) {
+      await createRequest({
+          requestID: newReqId,
+          patientID: patientID,
+          medtechID: 2000, // Replace with actual medtech ID
+          category: value,
+          test: key,
+          status: "requested",
+          dateStart: currentDate,
+          dateEnd: null,
+          remarks: "",
+          payStatus: payment 
+      });
+
+      let newTest = {
+        requestID: newReqId,
       };
 
-      const latestDocument = await requestModel.findOne({}, null, { sort: { requestID: -1 } });
-      const latestId = latestDocument ? latestDocument.requestID : 1000;
-      let newId = latestId + 1; // Get new secondary id
-
-      const currentDate = new Date(); // Get the current date
-
-      const { tests, patientID , payment } = req.body;
-
-      for (const [key, value] of Object.entries(tests)) {
-          await createRequest({
-              requestID: newId,
-              patientID: patientID,
-              medtechID: 2000, // Replace with actual medtech ID
-              category: value,
-              test: key,
-              status: "requested",
-              dateStart: currentDate,
-              dateEnd: null,
-              remarks: "",
-              payStatus: payment 
-          });
-          newId++;
+      if (value == "Hematology") {
+        switch(key){
+          case "CBC": 
+            newTest.hemoglobin = -1;
+            newTest.hematocrit = -1;
+            newTest.rbcCount = -1;
+            newTest.wbcCount = -1;
+            newTest.neutrophil = -1;
+            newTest.lymphocyte = -1;
+            newTest.eosinophil = -1;
+            newTest.basophil = -1;
+            break;
+          case "CBC with Platelet Count":
+            newTest.withPlateletCount = true;
+            newTest.plateletCount = -1;
+            break;
+          case "ESR":
+            newTest.esr = -1;
+            break;
+          case "Blood Type with Rh":
+            newTest.bloodWithRh = -1;
+            break;
+          case "Clotting Time":
+            newTest.clottingTime = -1;
+            break;
+          case "Breeding Time":
+            newTest.bleedingTime = -1;
+            break;
+          default:
+            console.log("Unknown test key: ", key);
+            break;
+        }
       }
+      else if (value == "Clinical Microscopy") {
+        newTest.color = "";
+        newTest.bacteria = "";
+        newTest.rbc = -1;
+        newTest.pus = -1;
+        switch(key){
+          case "Urinalysis": 
+            newTest.transparency = "";
+            newTest.pH = -1;
+            newTest.specificGravity = -1;
+            newTest.sugar = "";
+            newTest.protein = "";
+            newTest.epithelialCells = "";
+            newTest.mucusThread = "";
+            break;
+          case "Fecalysis":
+            newTest.consistency = "";
+            newTest.wbc = -1;
+            newTest.ovaParasite = "";
+            newTest.fatGlobule = "";
+            newTest.bileCrystal = "";
+            newTest.vegetableFiber = "";
+            newTest.meatFiber = "";
+            newTest.erythrocyte = -1;
+            newTest.yeastCell = -1;
+            break;
+          case "FOBT":
+            // newTest.fobt = -1;
+            break;
+          default:
+            console.log("Unknown test key: ", key);
+            break;
+        }
+      }
+      else if (value == "Chemistry") {
+        switch(key){
+          case "FBS": 
+            newTest.fbs = -1;
+            break;
+          // case "RBS": 
+          //   newTest.rbs = -1;
+          //   break;
+          case "Creatinine": 
+            newTest.creatinine = -1;
+            break;
+          case "Uric Acid": 
+            newTest.uricAcid = -1;
+            break;
+          case "Cholesterol": 
+            newTest.cholesterol = -1;
+            break;
+          case "Triglycerides": 
+            newTest.triglycerides = -1;
+            break;
+          case "HDL": 
+            newTest.hdl = -1;
+            break;
+          case "LDL":
+            newTest.ldl = -1;
+            break;
+          case "VLDL": 
+            newTest.vldl = -1;
+            break;
+          case "BUN": 
+            newTest.bun = -1;
+            break;
+          case "SGPT": 
+            newTest.sgpt = -1;
+            break;
+          case "SGOT": 
+            newTest.sgot = -1;
+            break;
+          case "HbA1c": 
+            newTest.hba1c = -1;
+            break;
+          default:
+            console.log("Unknown test key: ", key);
+            break;
+        }
+      }
+      else if (value == "Serology") {
+        switch(key){
+          case "HbsAg": 
+            newTest.hbsAg = -1;
+            break;
+          case "RPR/VDRL": 
+            newTest.rprVdrl = -1;
+            break;
+          case "Serum Pregnancy Test": 
+            newTest.pregnancyTestSerum = -1;
+            break;
+          case "Urine Pregnancy Test": 
+            newTest.pregnancyTestUrine = -1;
+            break;
+          case "Dengue NS1": 
+            newTest.dengueNs1 = -1;
+            break;
+          case "Dengue Duo": 
+            newTest.dengueDuo = -1;
+            break;
+          default:
+            console.log("Unknown test key: ", key);
+            break;
+        }
+      }
+      else {
+        console.log("Error in Creating a Request: ", value);
+      }
+      await createTest(newTest, value);
+      newReqId++;
 
-      res.status(201).json({ message: 'Requests created successfully with latest ID', newId }); // Respond with success message
+    }
+
+      res.status(201).json({ message: 'Requests created successfully with latest ID', newReqId }); // Respond with success message
   } catch (error) {
       console.error('Failed to create request:', error);
       res.status(500).json({ error: 'Failed to create request' }); // Respond with an error message
