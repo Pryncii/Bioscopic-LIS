@@ -1,4 +1,4 @@
-import ModalSendEmail from "./modalSendEmail.jsx"
+import ModalSendEmail from "./ModalSendEmail.jsx"
 
 import { useState } from "react"
 import Button from "react-bootstrap/Button"

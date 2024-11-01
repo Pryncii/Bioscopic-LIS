@@ -206,7 +206,7 @@ app.post('/api/requests', async (req, res) => {
           medtechID: 2000, // Replace with actual medtech ID
           category: category,
           test: stringTests,
-          status: "requested",
+          status: "Requested",
           dateStart: currentDate,
           dateEnd: null,
           remarks: "",
