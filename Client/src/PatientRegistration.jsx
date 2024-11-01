@@ -1,7 +1,9 @@
 
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import './styles/Register.css'
 import Header from './Header.jsx'
+
 
 function PatientRegistration() {
     const [formData, setFormData] = useState({
@@ -10,28 +12,94 @@ function PatientRegistration() {
         lastName: "",
         sex: "",
         birthday: "",
-        age: "",
+        age: 0,
         phoneNumber: "",
         email: "",
         pwdID: "",
         seniorID: "",
         address: "",
       });
+      const [error, setError] = useState('');
 
         // Handle input change
     const handleChange = (e) => {
+        setError("");
         const { name, value } = e.target;
         setFormData({
-        ...formData,
-        [name]: value
+            ...formData,
+            [name]: value
         });
     };
 
+    //validate age and birthday
+    const validate = () => {
+        if (formData.birthday){
+            if(formData.age){
+                const today = new Date();
+                const birthDate = new Date(formData.birthday);
+                let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+                if (today < new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate())) {
+                    calculatedAge--;    
+                }
+
+                if (formData.age != calculatedAge){
+                    setError("Age and Birthday does not match!");
+                    res.json("Age and Birthday does not match!");
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+        }
+    }
+    
+    const navigate = useNavigate();
+    const capitalizeFirstLetter = (string) => {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        //validate age and birthday
+
+        //format the name
+        const fullName = capitalizeFirstLetter(formData.lastName) + ', ' + capitalizeFirstLetter(formData.firstName) + ', ' + capitalizeFirstLetter(formData.middleName);
+        const dataToSend ={
+            ...formData,
+            name: fullName,
+          };
+        
+        try{
+            if(!validate()){ //if age and birthday match
+                const res = await fetch('http://localhost:4000/addpatient', {
+                    method: 'POST',
+                    headers:{
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+                const json = await res.json()
+                if(res.ok){
+                    console.log('Patient Added:',  json);
+                    navigate('/home');
+                    alert('Patient added successfully')
+                }
+                else{
+                    alert('Error adding patient')
+                    console.log('Data Received:', json);
+                    console.log('Failed to add patient. Please try again');  
+                }
+            }
+        }catch(error){
+            console.error('Error adding patient:', error);
+        }
         // Process form data (e.g., send to backend)
-        console.log("Form data submitted: ", formData);
+        console.log("Form data submitted: ", dataToSend);
+        
     };
     return (
         <>
@@ -41,7 +109,7 @@ function PatientRegistration() {
                 <form onSubmit={handleSubmit}>
                 <div className="spacer">
                 <h1 className="text-center fw-bold mb-3">Add Patient</h1>
-                        <label className = "form-label">Full Name: </label>
+                        <label className = "form-label">Full Name * </label>
                         <div className="d-flex justify-content-evenly mb-3 gap-3">   
                                 <input type="text" 
                                 className="form-control" 
@@ -67,43 +135,55 @@ function PatientRegistration() {
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Sex</label>
-                            <select className="form-select" name="sex"value={formData.sex} onChange={handleChange}>
+                            <select className="form-select" name="sex" required value={formData.sex} onChange={handleChange}>
+                                <option value="">--Please choose an option--</option>
                                 <option value="M">Male</option>
                                 <option value="F">Female</option>
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label for="date" className="form-label">Birthday</label>
-                            <input type="" 
+                            <label for="date" className="form-label">Birthdate</label>
+                            <input type="date" 
                             className="form-control"  
-                            name="birthday" 
+                            name="birthday"
                             value={formData.birthday} 
                             onChange={handleChange}/>
                         </div>
                         <div className="mb-3">
-                            <label for="age" className ="form-label">Age</label>
+                            <label for="age" className ="form-label">Age *</label>
                             <input type="number" 
                             className ="form-control" 
-                            name="age" 
+                            name="age"  required
+                            min = "0"
                             value={formData.age} 
                             onChange={handleChange}/>
                         </div>
                         <div className="mb-3">
-                            <label for="phoneNumber" className ="form-label">Phone Number</label>
+                            <label for="phoneNumber" className ="form-label">Phone Number *</label>
                             <input type="text" 
                             className ="form-control" 
                             name="phoneNumber" required 
+                            pattern = "\d{11}"
+                            title = "Please enter 11 digits (09xxxxxxxxx)"
                             value={formData.phoneNumber} 
                             onChange={handleChange}/>
                         </div>
                         <div className="mb-3">
-                            <label for="email" className="form-label">Email Address</label>
+                            <label for="email" className="form-label">Email Address *</label>
                             <input type="email" 
                             className="form-control" 
                             name="email" 
                             placeholder="username@bioscopic.com" 
-                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required
+                            pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required
                             value={formData.email} 
+                            onChange={handleChange}/>
+                        </div>
+                        <div className="mb-3">
+                            <label for="address" className="form-label">Home Address</label>
+                            <input type="text" 
+                            className="form-control" 
+                            name="address"
+                            value={formData.address} 
                             onChange={handleChange}/>
                         </div>
                         <div className ="mb-3">
@@ -114,17 +194,19 @@ function PatientRegistration() {
                             value={formData.pwdID} 
                             onChange={handleChange}/>
                         </div>
-                        <div className ="mb-3">
+                        {formData.age >= 60 && (<div className ="mb-3">
                             <label for="seniorID" className = "form-label">SENIOR ID</label>
                             <input type="text"
                             className ="form-control" 
                             name = "seniorID"
                             value={formData.seniorID} 
                             onChange={handleChange}/>
-                        </div>
+                        </div>)}
+                        
                     </div>
+                    {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error message */}
                     <div class="d-flex justify-content-center mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg">REGISTER</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Data</button>
                     </div>
                 </form>
             </div>

@@ -23,7 +23,7 @@ const app = express()
 const port = process.env.PORT || 4000;
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({origin: 'http://localhost:3000'}));
 connectDB()
 
 app.get('/', async (req, res) => {
@@ -313,6 +313,34 @@ app.post('/register', async (req, res) => {
     }
 });
 
+app.post('/addpatient', async (req, res) => {
+    const {name, sex, birthday, age, phoneNumber, email, pwdID, seniorID, address, remarks} = req.body;
+    try{
+        //automate the patientID for the new patients
+        const latestPatient = await patientModel.findOne({}, { patientID: 1 }).sort({ patientID: -1 });
+        const newPatientID = latestPatient ? latestPatient.patientID + 1 : 1;
+
+        //create new patient
+        const patient = new patientModel({
+            patientID: newPatientID,
+            name, 
+            sex, 
+            birthday, 
+            age, 
+            phoneNo: phoneNumber, 
+            email, 
+            pwdID, 
+            seniorID, 
+            address, 
+            remarks});
+        await patient.save();
+        res.status(201).json({ message: 'Patient added successfully', patient });
+
+    }catch (error){
+        res.status(500).json({ message: 'Error adding patient', error: error.message});
+    }
+});
+
 app.put("/api/requests/:requestID", async (req, res) => {
   const { requestID } = req.params;
   const { status, payStatus, remarks } = req.body;
@@ -354,7 +382,7 @@ app.put("/api/requests/:requestID", async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
-  
+
 const server = app.listen(port, () => {
     console.log(`Listening at port ${port}`);
 });
