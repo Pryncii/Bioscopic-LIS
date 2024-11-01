@@ -1,0 +1,18 @@
+.bg {
+    background: #0D1D58;
+}
+
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+}
+
+.title-text { font-weight: bold; }
+.title { margin-bottom: 2%; }
+
+img {
+    width: 50%;
+    margin-bottom: 5%;
+}
+
+.cb { margin-right: 5px;}

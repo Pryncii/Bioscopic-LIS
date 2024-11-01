@@ -1,9 +1,10 @@
 
 import React, { useState } from "react";
-import './Register.css'
+import './styles/Register.css'
 import logo2 from './assets/logo2.png'
 import { Checkbox } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -25,21 +26,29 @@ function Login() {
         // Process form data (e.g., send to backend)
         console.log("Form data submitted: ", formData);
     };
+    const navigate = useNavigate();
+
+    const loginHome = () => {
+        navigate('/home'); // This navigates to a specific route
+    };
     return (
     <div className="d-flex align-items-center vh-100">
         <div className="d-flex justify-content-center flex-column vh-100 bg">
-            <div className = "d-flex spacer bg align-items-center flex-column">
+            <div className = "d-flex align-items-center flex-column">
                 <img src= {logo2}/>
-                <h2 className = "text-white title">BIOSCOPIC DIAGNOSTIC CENTER</h2>
-                <h3 className = "text-white">LABORATORY INFORMATION SYSTEM</h3>
-                <div className = "spacer text-white">
-                    An easy to use application for your laboratory viewing needs
+                <div className="d-flex align-items-center flex-column title">
+                    <h2 className = "text-white title-text">BIOSCOPIC DIAGNOSTIC CENTER</h2>
+                    <h4 className = "text-white">LABORATORY INFORMATION SYSTEM</h4>
                 </div>
+                <span className = "text-white">
+                    An easy to use application for your laboratory viewing needs
+                </span>
             </div>
         </div>
-        <div className="d-flex justify-content-center align-items-centervh-100 w-100">
-            <form onSubmit={handleSubmit}>
-                <h1 className="text-center fw-bold mb-3">Welcome Back!</h1>
+        <div className="d-flex justify-content-center w-100">
+            <div className="col-5">
+                <form onSubmit={handleSubmit}>
+                    <h1 className="fw-bold mb-3">Welcome!</h1>
                     <div className="mb-3">
                         <label for="username" className="form-label">Username</label>
                         <input type="text" 
@@ -48,7 +57,7 @@ function Login() {
                         value={formData.username} 
                         onChange={handleChange}/>
                     </div>
-                    <div className="mb-3">
+                    <div className="mb-2">
                         <label for="password" className="form-label">Password</label>
                         <input type="password" 
                         className="form-control"  
@@ -57,19 +66,19 @@ function Login() {
                         value={formData.password} 
                         onChange={handleChange}/>
                     </div>
-                <div class="d-flex align-items-center flex-column mb-3 ">
-                    <button type="submit" class="btn btn-primary btn-lg mb-3">LOGIN</button>
-                    <div className = "mb-3">
-                    <FormControlLabel control = {<Checkbox />} label = "Remember Me" /> 
-                        <a href = "/"> Forgot password? </a>
+                    <div className = "mb-3 d-flex justify-content-between">
+                        <div className="remember">
+                            <input className="form-check-input cb" type="checkbox" value="" id="remember" />
+                            <label className="form-check-label" for="remember">Remember me</label>
+                        </div>
+                        <a href = "/">Forgot password?</a>
                     </div>
-                    
-                    <div className = "mb-3">
-                        Don't have an account yet? 
-                        <a href = "/"> Register </a>
+                    <div class="d-flex justify-content-center">
+                        <button onClick = {loginHome} type="submit" class="btn btn-primary btn-lg mb-3">LOGIN</button>
                     </div>
-                </div>
-            </form>
+                    <div className="text-center">Don't have an account yet? <a href = "register">Register Now</a></div>
+                </form>
+            </div>
         </div>    
     </div>
     );

@@ -1,0 +1,58 @@
+.item-label, .item-container, .page-container { padding: 10px; }
+.number { width: 4%; }
+.remarks { width: 20%; }
+.input-item { width: 25%; }
+.adv-item { border: 1px solid #0D1D58; }
+.row { margin: 7px; }
+.adv-icon { margin: 0px 7px 0px 7px; }
+
+.id-item {
+    width: 7% !important;
+    text-align: center;
+}
+
+.date, .status {
+    width: 10%;
+    text-align: center;
+}
+
+.item-label, .number { 
+    border: 2px solid #FFF8F3 !important;
+    border-radius: 10px;
+    background-color: #0D1D58 !important;
+    color: #FFF8F3;
+    text-align: center;
+}
+
+.item-container {
+    border: 2px solid #FFF8F3;
+    border-radius: 10px;
+    background-color: #DDDFE3;
+}
+
+.test-items {
+    width: 100%;
+    margin: 15px 0px 15px 0px;
+}
+
+.status-item {
+    border-radius: 50px;
+    padding: 5px 5px 5px 5px;
+    border: none;
+}
+
+.req { background-color: rgb(199, 199, 199); }
+.req:hover { background-color: rgb(149, 149, 149); }
+.c { background-color: rgba(112, 253, 112, 0.623); }
+.c:hover { background-color:rgba(23, 219, 23, 0.623); }
+.ip { background-color: rgba(238, 232, 144, 0.623); }
+.ip:hover { background-color: rgba(206, 195, 41, 0.623); }
+
+.button-page {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.patient-table { table-layout: fixed; }
+.home-table { table-layout: fixed; }

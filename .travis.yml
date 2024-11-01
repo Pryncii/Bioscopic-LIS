@@ -1,0 +1,67 @@
+language: node_js
+node_js:
+  - 18
+
+dist: focal
+
+# Only build on pull requests or the main branch
+branches:
+  only:
+    - /^feature-\S+$/ # Matches any branch starting with "feature-" followed by a description
+    - develop # Build on the develop branch
+    - release # Build on the release branch
+
+# Conditional build triggers
+
+# Trigger build on pushes to feature branches
+# Trigger build on pull requests to develop
+# Trigger build on pushes to develop
+# Trigger build on pushes to release
+if: |
+  (type = push AND branch =~ /^feature-\S+$/) OR \  
+  (type = pull_request AND branch = develop) OR \   
+  (type = push AND branch = develop) OR \           
+  (type = push AND branch = release)
+
+# Define environments for both front-end and back-end
+env:
+  global:
+    - FRONTEND_DIR=Client
+    - BACKEND_DIR=Server
+
+services:
+  - mongodb # Add MongoDB service for the back-end
+
+before_script:
+  # Set up MongoDB connection environment variables, if needed
+  - sleep 15 # Give MongoDB service time to start
+  - mongo mydb --eval 'db.createCollection("test");' # Example to create a test DB
+
+# Install dependencies for both front-end and back-end
+install:
+  - cd $FRONTEND_DIR
+  - npm install
+  - cd ../$BACKEND_DIR
+  - npm install
+
+# Build and test both front-end and back-end
+script:
+  - cd ../$FRONTEND_DIR
+  - npm run build
+
+  - cd ../$BACKEND_DIR
+  - chmod +x node_modules/.bin/jest
+  - npm test
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: >-
+    curl $RENDER_DEPLOY
+  on:
+    branch: feature-home
+    condition: $TRAVIS_TEST_RESULT = 0 # Only deploy if TRAVIS CI tests pass
+
+cache:
+  directories:
+    - $HOME/.npm

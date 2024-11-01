@@ -1,4 +1,4 @@
-import './Header.css'
+import './styles/Header.css'
 import logoPic from './assets/header_logo.png'
 
 function Header() {
@@ -14,10 +14,10 @@ function Header() {
 
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav">
-              <li><a className="nav-link" href="/">Home</a></li>
-              <li><a className="nav-link" href="/">Add Patient Data</a></li>
-              <li><a className="nav-link" href="/">Add Patient Request</a></li>
-              <li><a className="nav-link" href="/">View All Patients</a></li>
+              <li><a className="nav-link" href="/home">Home</a></li>
+              <li><a className="nav-link" href="/addpatient">Add Patient Data</a></li>
+              <li><a className="nav-link" href="/request">Add Patient Request</a></li>
+              <li><a className="nav-link" href="/patients">View All Patients</a></li>
               <li className="dropdown">
                 <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Name Here
