@@ -62,7 +62,7 @@ describe("Request Status Update", () => {
             .put(`/api/requests/${testRequest.requestID}`)
             .send({
                 status: "In Progress",
-                payStatus: "Pending",
+                payStatus: "Unpaid",
                 remarks: "Work in progress",
             });
 
@@ -70,7 +70,7 @@ describe("Request Status Update", () => {
         const updatedRequest = await requestModel.findOne({ requestID: testRequest.requestID });
 
         expect(updatedRequest.status).toBe("In Progress");
-        expect(updatedRequest.payStatus).toBe("Pending");
+        expect(updatedRequest.payStatus).toBe("Unpaid");
         expect(updatedRequest.remarks).toBe("Work in progress");
         expect(updatedRequest.dateEnd).toBeNull();
     });
