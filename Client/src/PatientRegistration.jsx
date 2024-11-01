@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import './styles/Register.css'
 import Header from './Header.jsx'
 
@@ -43,6 +44,7 @@ function PatientRegistration() {
 
                 if (formData.age != calculatedAge){
                     setError("Age and Birthday does not match!");
+                    res.json("Age and Birthday does not match!");
                     return 1;
                 }
                 else{
@@ -51,7 +53,8 @@ function PatientRegistration() {
             }
         }
     }
-
+    
+    const navigate = useNavigate();
     const capitalizeFirstLetter = (string) => {
         if (!string) return '';
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -71,7 +74,7 @@ function PatientRegistration() {
           };
         
         try{
-            if(!validate()){
+            if(!validate()){ //if age and birthday match
                 const res = await fetch('http://localhost:4000/addpatient', {
                     method: 'POST',
                     headers:{
@@ -82,11 +85,13 @@ function PatientRegistration() {
                 const json = await res.json()
                 if(res.ok){
                     console.log('Patient Added:',  json);
-                    
+                    navigate('/home');
+                    alert('Patient added successfully')
                 }
                 else{
+                    alert('Error adding patient')
                     console.log('Data Received:', json);
-                    console.log('Failed to add patient. Please try again');      
+                    console.log('Failed to add patient. Please try again');  
                 }
             }
         }catch(error){

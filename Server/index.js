@@ -157,7 +157,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post('/addpatient', async (req,res) => {
+app.post('/addpatient', async (req, res) => {
     const {name, sex, birthday, age, phoneNumber, email, pwdID, seniorID, address, remarks} = req.body;
     try{
         //automate the patientID for the new patients
@@ -181,7 +181,7 @@ app.post('/addpatient', async (req,res) => {
         res.status(201).json({ message: 'Patient added successfully', patient });
 
     }catch (error){
-        res.json({ message: 'Error adding patient', error: error.message});
+        res.status(500).json({ message: 'Error adding patient', error: error.message});
     }
         
 
