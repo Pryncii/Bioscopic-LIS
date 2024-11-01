@@ -130,7 +130,7 @@ function TableHome({ data }) {
         )}
         {selectedPatient && modalType === "request" && (
             <ModalEditRequest
-                patient={[selectedPatient]}
+                patient={selectedPatient}
                 show={true} // Always show the modal
                 handleClose={handleCloseModal}
                 tests={selectedPatient.tests}

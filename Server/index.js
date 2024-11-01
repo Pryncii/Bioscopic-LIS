@@ -171,7 +171,8 @@ app.get('/requests', async (req, res) => {
             requestID: request.requestID,
             patientID: request.patientID,
             name: patientMap[request.patientID], // Retrieve the name from the patient map
-            tests: request.category,
+            category: request.category,
+            tests: request.test,
             barColor: statusColor,
             requestStatus: request.status,
             remarks: request.remarks,
