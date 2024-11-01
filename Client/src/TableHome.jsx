@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ModalEditStatus from "./ModalEditStatus";
 import ModalEditRequest from "./ModalEditRequest"; // Import the edit request modal
 import './styles/Table.css';
@@ -19,8 +19,20 @@ const med_techs = [
 ];
 
 function TableHome({ data }) {
+    const [tableData, setTableData] = useState(data);
     const [selectedPatient, setSelectedPatient] = useState(null);
-    const [modalType, setModalType] = useState(null); // New state to manage the modal type
+    const [modalType, setModalType] = useState(null);
+
+    const formatDateTime = (date) => 
+        date ? new Date(date).toLocaleString('en-US', {
+          month: '2-digit', day: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit', hour12: true
+        }) : "";
+
+    // Set `tableData` whenever `data` changes
+    useEffect(() => {
+        setTableData(data);
+    }, [data]);
 
     const handleShowStatusModal = (patient) => {
         setSelectedPatient(patient);
@@ -35,6 +47,25 @@ function TableHome({ data }) {
     const handleCloseModal = () => {
         setModalType(null); // Reset modal type to close any modal
         setSelectedPatient(null);
+    };
+
+    // Function to handle updating a row after editing
+    const handleStatusUpdate = (updatedPatient) => {
+        setTableData(prevData =>
+            prevData.map(row =>
+                row.requestID === updatedPatient.requestID
+                    ? {
+                        ...row,
+                        requestStatus: updatedPatient.status,
+                        remarks: updatedPatient.remarks,
+                        paymentStatus: updatedPatient.payStatus,
+                        barColor: updatedPatient.status === "Completed" ? "c"
+                                  : updatedPatient.status === "In Progress" ? "ip" : "req",
+                        dateCompleted: formatDateTime(updatedPatient.dateEnd) || ""
+                    }
+                    : row
+            )
+        );
     };
 
     return (
@@ -75,30 +106,30 @@ function TableHome({ data }) {
                 </tr>
             </thead>
             <tbody>
-                {data.length > 0 ? (
-                    data.map((item, index) => (
+                {tableData.length > 0 ? (
+                    tableData.map((item, index) => (
                         <tr key={index} onClick={() => handleShowRequestModal(item)}>
-                        <td className="item-container number"><h6>{index + 1}</h6></td>
-                        <td className="item-container"><h6>{item.requestID}</h6></td>
-                        <td className="item-container"><h6>{item.patientID}</h6></td>
-                        <td className="item-container"><h6>{item.name}</h6></td>
-                        <td className="item-container"><h6>{item.tests}</h6></td>
-                        <td className="item-container status" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
-                            <h6 className={`status-item ${item.barColor}`}>{item.requestStatus}</h6>
-                        </td>
-                        <td className="item-container" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
-                            <h6>{item.remarks}</h6>
-                        </td>
-                        <td className="item-container id-item" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
-                            <h6>{item.paymentStatus}</h6>
-                        </td>
-                        <td className="item-container date"><h6>{item.dateRequested}</h6></td>
-                        <td className="item-container date"><h6>{item.dateCompleted}</h6></td>
-                    </tr>
+                            <td className="item-container number"><h6>{index + 1}</h6></td>
+                            <td className="item-container"><h6>{item.requestID}</h6></td>
+                            <td className="item-container"><h6>{item.patientID}</h6></td>
+                            <td className="item-container"><h6>{item.name}</h6></td>
+                            <td className="item-container"><h6>{item.tests}</h6></td>
+                            <td className="item-container status" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
+                                <h6 className={`status-item ${item.barColor}`}>{item.requestStatus}</h6>
+                            </td>
+                            <td className="item-container" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
+                                <h6>{item.remarks}</h6>
+                            </td>
+                            <td className="item-container id-item" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
+                                <h6>{item.paymentStatus}</h6>
+                            </td>
+                            <td className="item-container date"><h6>{item.dateRequested}</h6></td>
+                            <td className="item-container date"><h6>{item.dateCompleted}</h6></td>
+                        </tr>
                     ))
                 ) : (
                     <tr>
-                        <td colSpan="10" className="item-container"><h6>No requests found</h6></td>
+                        <td colSpan="10" className="item-container text-center"><h6>No requests found</h6></td>
                     </tr>
                 )}
             </tbody>
@@ -109,6 +140,7 @@ function TableHome({ data }) {
                 patient={selectedPatient}
                 show={true}
                 handleClose={handleCloseModal}
+                onStatusUpdate={handleStatusUpdate} // Pass the function to ModalEditStatus
             />
         )}
         {selectedPatient && modalType === "request" && (

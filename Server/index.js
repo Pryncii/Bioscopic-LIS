@@ -318,11 +318,8 @@ app.put("/api/requests/:requestID", async (req, res) => {
   const { status, payStatus, remarks } = req.body;
 
   try {
-    console.log("Received PUT request to update requestID:", requestID);
-    console.log("New data:", { status, payStatus, remarks });
-
-    // Get the current date and time
-    const currentDate = new Date();
+    // console.log("Received PUT request to update requestID:", requestID);
+    // console.log("New data:", { status, payStatus, remarks });
 
     // Prepare the update data
     const updateData = {
@@ -330,14 +327,16 @@ app.put("/api/requests/:requestID", async (req, res) => {
       payStatus,
       remarks,
     };
-
-    // If the status is 'Completed', set dateEnd to the current date
+    
+    // Set dateEnd to current date if status is "Completed", or remove it otherwise
     if (status === "Completed") {
-      updateData.dateEnd = currentDate; // Add dateEnd to the update data
+      updateData.dateEnd = new Date(); // Set dateEnd to current date
+    } else {
+      updateData.dateEnd = null; // Remove dateEnd for other statuses
     }
-
+    
     const updatedRequest = await requestModel.findOneAndUpdate(
-      { requestID: parseInt(requestID) }, // Ensure requestID matches the schema type
+      { requestID: parseInt(requestID) },
       updateData,
       { new: true }
     );
