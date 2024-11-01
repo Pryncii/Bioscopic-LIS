@@ -59,7 +59,7 @@ deploy:
   script: >-
     curl $RENDER_DEPLOY
   on:
-    branch: feature-home
+    branch: release
     condition: $TRAVIS_TEST_RESULT = 0 # Only deploy if TRAVIS CI tests pass
 
 cache:
