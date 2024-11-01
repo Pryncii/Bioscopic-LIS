@@ -45,7 +45,7 @@ const requestSchema = new mongoose.Schema(
         test: { type: String },
         status: { type: String },
         dateStart: { type: Date },
-        dateEnd: { type: Date },
+        dateEnd: { type: Date, default: null },
         remarks: { type: String },
         payStatus: { type: String }
     },

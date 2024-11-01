@@ -4,37 +4,49 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
-function ModalEditStatus({ patient, show, handleClose }) {
+function ModalEditStatus({ patient, show, handleClose, onStatusUpdate }) {
   const [requestStatus, setRequestStatus] = useState(patient?.requestStatus || "");
   const [paymentStatus, setPaymentStatus] = useState(patient?.paymentStatus || "");
   const [remarks, setRemarks] = useState(patient?.remarks || "");
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/api/requests/${patient.requestID}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: requestStatus,
-          payStatus: paymentStatus,
-          remarks,
-        }),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to update request");
-      }
-  
-      handleClose(); // Close modal after successful save
+        // console.log("Saving changes for patient:", patient);
+        // console.log("Status:", requestStatus, "Payment:", paymentStatus, "Remarks:", remarks);
 
-      window.location.reload(); // Reload the page
+        const response = await fetch(`http://localhost:4000/api/requests/${patient.requestID}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                status: requestStatus,
+                payStatus: paymentStatus,
+                remarks,
+            }),
+        });
 
+        if (!response.ok) {
+            throw new Error("Failed to update request");
+        }
+
+        // Parse the updated request data from the response
+        const updatedPatient = await response.json();
+        // console.log("Updated patient data received from server:", updatedPatient);
+
+        // Ensure onStatusUpdate is defined
+        if (onStatusUpdate) {
+            onStatusUpdate(updatedPatient); // Pass full updated data to onStatusUpdate
+        } else {
+            console.error("onStatusUpdate is not defined");
+        }
+
+        handleClose(); // Close modal after successful save
     } catch (error) {
-      console.error("Failed to update request:", error);
+        console.error("Failed to update request:", error);
     }
-  };
+};
+
 
   return (
     <Modal size="xs" show={show} onHide={handleClose} backdrop="static" keyboard={false} centered>
@@ -83,6 +95,7 @@ ModalEditStatus.propTypes = {
   }),
   show: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
+  onStatusUpdate: PropTypes.func.isRequired,
 };
 
 export default ModalEditStatus;
