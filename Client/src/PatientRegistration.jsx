@@ -18,6 +18,7 @@ function PatientRegistration() {
         pwdID: "",
         seniorID: "",
         address: "",
+        message: null
       });
       const [error, setError] = useState('');
 
@@ -44,7 +45,6 @@ function PatientRegistration() {
 
                 if (formData.age != calculatedAge){
                     setError("Age and Birthday does not match!");
-                    res.json("Age and Birthday does not match!");
                     return 1;
                 }
                 else{
@@ -59,6 +59,7 @@ function PatientRegistration() {
         if (!string) return '';
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
+      
 
     // Handle form submission
     const handleSubmit = async (e) => {
@@ -89,16 +90,23 @@ function PatientRegistration() {
                     alert('Patient added successfully')
                 }
                 else{
-                    alert('Error adding patient')
-                    console.log('Data Received:', json);
-                    console.log('Failed to add patient. Please try again');  
+                    alert('Error processing request') 
                 }
             }
+            else{ //age and birthday does not match
+                const res = await fetch('http://localhost:4000/addpatient', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: "error" }),
+                  });
+                    alert('Error adding patient. Please try again')
+            }
         }catch(error){
-            console.error('Error adding patient:', error);
+            console.error('Error processing request:', error);
         }
-        // Process form data (e.g., send to backend)
-        console.log("Form data submitted: ", dataToSend);
+        console.log("Form data: ", dataToSend);
         
     };
     return (
