@@ -552,22 +552,22 @@ app.post('/api/requests', async (req, res) => {
           else if (category == "Serology") {
             switch(test){
               case "HbsAg": 
-                newTest.hbsAg = -1;
+                newTest.hbsAg = "";
                 break;
               case "RPR/VDRL": 
-                newTest.rprVdrl = -1;
+                newTest.rprVdrl = "";
                 break;
               case "Serum Pregnancy Test": 
-                newTest.pregnancyTestSerum = -1;
+                newTest.pregnancyTestSerum = "";
                 break;
               case "Urine Pregnancy Test": 
-                newTest.pregnancyTestUrine = -1;
+                newTest.pregnancyTestUrine = "";
                 break;
               case "Dengue NS1": 
-                newTest.dengueNs1 = -1;
+                newTest.dengueNs1 = "";
                 break;
               case "Dengue Duo": 
-                newTest.dengueDuo = -1;
+                newTest.dengueDuo = "";
                 break;
               default:
                 console.log("Unknown test key: ", test);
