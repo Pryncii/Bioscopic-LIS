@@ -7,6 +7,8 @@ import {useEffect, useState} from 'react'
 
 function Home() {
   const [data, setData] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = data.length; // Set this to the total number of pages you have
 
   const fetchData = async (params = {}) => {
     try {
@@ -14,7 +16,7 @@ function Home() {
       const res = await fetch(`http://localhost:4000/requests?${query}`);
       const jsonData = await res.json();
       setData(jsonData);
-      setCurrentPage(1);
+      setCurrentPage(currentPage);
       console.log(jsonData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -25,9 +27,6 @@ function Home() {
   useEffect(() => {
     fetchData(); // Call fetchData without parameters to get all data initially
   }, []);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = data.length; // Set this to the total number of pages you have
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -61,6 +60,11 @@ function Home() {
       }
   };
 
+  // Function to handle updated status data from TableHome
+  const handleUpdate = () => {
+    fetchData();
+  };
+
   return (
     <>
       <Header/>
@@ -70,7 +74,7 @@ function Home() {
       </div>
       <SearchHome onSearch={(params) => fetchData(params)} />
       <div className='table-body'>
-        <TableHome data={data[currentPage - 1] || []} />
+        <TableHome data={data[currentPage - 1] || []} onUpdate={handleUpdate}/>
         <div className="button-page">
             <button className="btn-item btn btn-primary btn-lg" onClick={handleBack} disabled={currentPage === 1}>
                 BACK
