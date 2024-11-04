@@ -496,7 +496,7 @@ app.post('/api/requests', async (req, res) => {
                 newTest.yeastCell = -1;
                 break;
               case "FOBT":
-                // newTest.fobt = -1;
+                newTest.fobt = -1;
                 break;
               default:
                 console.log("Unknown test key: ", test);

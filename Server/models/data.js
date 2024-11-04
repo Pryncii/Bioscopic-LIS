@@ -113,6 +113,8 @@ const clinicalMicroscopySchema = new mongoose.Schema(
         meatFiber: { type: String },
         erythrocyte: { type: Number },
         yeastCell: { type: Number },
+
+        fobt: {type: Number}
     },
     { versionKey: false, discriminatorKey: "type" }
 );
