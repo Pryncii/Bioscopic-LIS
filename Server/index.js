@@ -630,25 +630,26 @@ app.post("/api/requests", async (req, res) => {
                 console.log("Unknown test key: ", test);
                 break;
             }
-          } else if (category == "Serology") {
-            switch (test) {
-              case "HbsAg":
-                newTest.hbsAg = -1;
+          }
+          else if (category == "Serology") {
+            switch(test){
+              case "HbsAg": 
+                newTest.hbsAg = "";
                 break;
-              case "RPR/VDRL":
-                newTest.rprVdrl = -1;
+              case "RPR/VDRL": 
+                newTest.rprVdrl = "";
                 break;
-              case "Serum Pregnancy Test":
-                newTest.pregnancyTestSerum = -1;
+              case "Serum Pregnancy Test": 
+                newTest.pregnancyTestSerum = "";
                 break;
-              case "Urine Pregnancy Test":
-                newTest.pregnancyTestUrine = -1;
+              case "Urine Pregnancy Test": 
+                newTest.pregnancyTestUrine = "";
                 break;
-              case "Dengue NS1":
-                newTest.dengueNs1 = -1;
+              case "Dengue NS1": 
+                newTest.dengueNs1 = "";
                 break;
-              case "Dengue Duo":
-                newTest.dengueDuo = -1;
+              case "Dengue Duo": 
+                newTest.dengueDuo = "";
                 break;
               default:
                 console.log("Unknown test key: ", test);
