@@ -66,15 +66,15 @@ const hematologySchema = new mongoose.Schema(
         monocyte: { type: Number },
         eosinophil: { type: Number },
         basophil: { type: Number },
-        // withPlateletCount: { type: Boolean },
+        withPlateletCount: { type: Boolean },
         plateletCount: {
-            type: Number
-            // validate: {
-            //     validator: function () {
-            //         return this.withPlateletCount ? this.plateletCount != null : true;
-            //     },
-            //     message: "plateletCount is required if withPlateletCount is true",
-            // },
+            type: Number,
+            validate: {
+                validator: function () {
+                    return this.withPlateletCount ? this.plateletCount != null : true;
+                },
+                message: "plateletCount is required if withPlateletCount is true",
+            },
         },
         esr: { type: Number },
         bloodWithRh: { type: Number },
@@ -153,6 +153,17 @@ const serologySchema = new mongoose.Schema(
     { discriminatorKey: "type" }
 );
 
+const testOptionsSchema = new mongoose.Schema(
+    {
+    name: { type: String },
+    options: { type: [String] },
+    },
+    { versionKey: false },
+    { discriminatorKey: "type" }
+);
+
+const testOptionsModel = mongoose.model("testOptions", testOptionsSchema);
+
 const baseTestSchema = new mongoose.Schema({}, { discriminatorKey: "type" });
 const serologyModel = mongoose.model("serology", serologySchema, "tests");
 const hematologyModel = mongoose.model("hematology", hematologySchema, "tests");
@@ -168,6 +179,7 @@ let appdata = {
     clinicalMicroscopyModel: clinicalMicroscopyModel,
     chemistryModel: chemistryModel,
     serologyModel: serologyModel,
+    testOptionsModel: testOptionsModel,
     allTestModel: allTestModel,
 };
 
