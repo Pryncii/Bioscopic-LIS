@@ -17,19 +17,20 @@ const {
 let mongoServer;
 
 beforeAll(async () => {
-    if (mongoose.connection.readyState === 0) { // 0 means disconnected
-      mongoServer = await MongoMemoryServer.create();
-      const uri = mongoServer.getUri();
-      await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    }
-  });
+    process.env.NODE_ENV = 'test'; 
+    mongoServer = await MongoMemoryServer.create({
+        binary: { version: '5.0.3' }  // Specify a version known to be available
+    });
+    const uri = mongoServer.getUri();
+    await mongoose.connect(uri);
+}, 50000);
 
 afterAll(async () => {
     await mongoose.disconnect();
     if (mongoServer) {
         await mongoServer.stop();
     }
-    if (server) {
+    if (server) {  // Ensure server is defined
         server.close();
     }
 });
