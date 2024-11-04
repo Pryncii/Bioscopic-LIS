@@ -17,13 +17,11 @@ branches:
 # Trigger build on pull requests to develop
 # Trigger build on pushes to develop
 # Trigger build on pushes to release
-# Trigger build on pull requests to release
-#if: |
-#  (type = push AND branch =~ /^feature-\S+$/) OR \
-#  (type = pull_request AND branch = develop) OR \
-#  (type = push AND branch = develop) OR \
-#  (type = push AND branch = release) OR \
-#  (type = pull_request AND branch = release)
+if: |
+  (type = push AND branch =~ /^feature-\S+$/) OR \  
+  (type = pull_request AND branch = develop) OR \   
+  (type = push AND branch = develop) OR \           
+  (type = push AND branch = release)
 
 # Define environments for both front-end and back-end
 env:
@@ -61,7 +59,7 @@ deploy:
   script: >-
     curl $RENDER_DEPLOY
   on:
-    branch: release
+    branch: feature-home
     condition: $TRAVIS_TEST_RESULT = 0 # Only deploy if TRAVIS CI tests pass
 
 cache:
