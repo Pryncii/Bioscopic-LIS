@@ -1,22 +1,76 @@
-import ModalShowPDF from "./ModalShowPDF.jsx"
+import ModalShowPDF from "./ModalShowPDF.jsx";
 
-import { useState, useRef } from "react"
-import PropTypes from "prop-types"
-import Button from "react-bootstrap/Button"
-import Col from "react-bootstrap/Col"
-import Container from "react-bootstrap/Container"
-import Form from "react-bootstrap/Form"
-import FloatingLabel from "react-bootstrap/FloatingLabel"
-import Modal from "react-bootstrap/Modal"
-import Row from "react-bootstrap/Row"
+import { useEffect, useState, useRef } from "react";
+import PropTypes from "prop-types";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
+import FloatingLabel from "react-bootstrap/FloatingLabel";
+import Modal from "react-bootstrap/Modal";
+import Row from "react-bootstrap/Row";
 
 function ModalEditRequest(props) {
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(props.show); // Initialize based on props
+  const [testOptions, setTestOptions] = useState([]); // State to hold users from MongoDB
+  const [users, setUsers] = useState([{ prcno: "" }]); // State to hold users from MongoDB
+  
+  useEffect(() => {
+    const fetchTestOptions = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/testoptions');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setTestOptions(data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+    fetchTestOptions();
+  }, []);
+  
+  // Fetch user data from MongoDB
+  useEffect(() => {
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/users'); // Adjust the URL as necessary
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setUsers(data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const list_tests = props.tests.map((test) => (
+    fetchUsers();
+  }, []);
+
+  const handleClose = () => {
+    setShow(false);
+    props.handleClose(); // Call the passed in handleClose function from parent
+  };
+
+  const tests = [];
+  const splitTests = props.tests.split(", ");
+  for (let i = 0; i < splitTests.length; i++) {
+    const matchingTest = testOptions.find(test => test.name === splitTests[i]);
+    if (matchingTest) {
+      tests.push({ name: splitTests[i], isText: false, options: matchingTest.options});
+    } else {
+      tests.push({ name: splitTests[i], isText: true});
+    }
+  }
+
+  const listTests = tests.map((test) => (
     <div key={test.id}>
       <Row>
         <Col>
@@ -43,95 +97,76 @@ function ModalEditRequest(props) {
       <br />
     </div>
   ));
-  const midpoint = Math.ceil(list_tests.length / 2);
-  const test_col1 = list_tests.slice(0, midpoint);
-  const test_col2 = list_tests.slice(midpoint);
 
-  const list_med_techs = props.med_techs.map((med_tech, index) => (
-    <option key={index} value={med_tech.name}>
-      {med_tech.name}
+  const midpoint = Math.ceil(listTests.length / 2);
+  const test_col1 = listTests.slice(0, midpoint);
+  const test_col2 = listTests.slice(midpoint);
+
+  const listUsers = users.map((user, index) => (
+    <option key={index} value={user.name}>
+      {user.name}
     </option>
-      
   ));
 
   const inputRef = useRef(null);
-  
-  function handleMedTechChange(event){
-    const med_tech = props.med_techs.find(medtech => medtech.name === event.target.value);
-    inputRef.current.value = med_tech.prcno;
+
+  function handleUserChange(event) {
+    const user = users.find((user) => user.name === event.target.value);
+    inputRef.current.value = user.prcno;
   }
 
   return (
-    <>
-      <Button variant="primary" onClick={handleShow}>
-        Modal Edit Request
-      </Button>
+    <Modal
+      size="lg"
+      show={show}
+      onHide={handleClose} // Use handleClose to handle closing
+      backdrop="static"
+      keyboard={false}
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>{props.category}</Modal.Title>
+      </Modal.Header>
 
-      <Modal
-        size="lg"
-        show={show}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{props.category}</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <h4>{props.patients[0].name}</h4>
-          <h5>Patient ID: {props.patients[0].patient_id}</h5>
-          <h5>Request ID: {props.patients[0].request_id}</h5>
-          <div>
-            <Container className="px-0 my-3">
-              <Row>
-                <Col>{test_col1}</Col>
-                <Col>{test_col2}</Col>
-              </Row>
-            </Container>
-            <FloatingLabel label="Med Tech">
-              <Form.Select onChange={handleMedTechChange}>
-                {list_med_techs}
-              </Form.Select>
-            </FloatingLabel>
-            <FloatingLabel label="PRC No" className="my-3">
-              <Form.Control type="number" value={props.med_techs[0].prcno} ref={inputRef} readOnly />
-            </FloatingLabel>
-          </div>
-        </Modal.Body>
-        <Modal.Footer className="justify-content-center">
-          <Button variant="primary">Submit</Button>
-          <ModalShowPDF/>
-        </Modal.Footer>
-      </Modal>
-    </>
+      <Modal.Body>
+        <h4>{props.patient.name}</h4>
+        <h5>Patient ID: {props.patient.patientID}</h5>
+        <h5>Request ID: {props.patient.requestID}</h5>
+        <div>
+          <Container className="px-0 my-3">
+            <Row>
+              <Col>{test_col1}</Col>
+              <Col>{test_col2}</Col>
+            </Row>
+          </Container>
+          <FloatingLabel label="Med Tech">
+            <Form.Select onChange={handleUserChange}>
+              {listUsers}
+            </Form.Select>
+          </FloatingLabel>
+          <FloatingLabel label="PRC No" className="my-3">
+            <Form.Control type="number" defaultValue={users[0].prcno} ref={inputRef} readOnly />
+          </FloatingLabel>
+        </div>
+      </Modal.Body>
+      <Modal.Footer className="justify-content-center">
+        <Button variant="primary">Submit</Button>
+        <ModalShowPDF />
+      </Modal.Footer>
+    </Modal>
   );
 }
 
 ModalEditRequest.propTypes = {
-  patients: PropTypes.arrayOf(
-    PropTypes.shape({
+  patient: PropTypes.shape({
       name: PropTypes.string,
-      patient_id: PropTypes.number,
-      request_id: PropTypes.number,
-    })
-  ),
-  category: PropTypes.string,
-  med_techs: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-      prcno: PropTypes.number,
-    })
-  ),
-  tests: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      isText: PropTypes.bool,
-      options: PropTypes.arrayOf(PropTypes.string),
-    })
-  ),
+      patientID: PropTypes.number,
+      requestID: PropTypes.number,
+    }).isRequired,
+  category: PropTypes.string.isRequired,
+  tests: PropTypes.string.isRequired,
+  show: PropTypes.bool.isRequired, // Add this prop type for show
+  handleClose: PropTypes.func.isRequired, // Add this prop type for handleClose
 };
 
-export default ModalEditRequest
+export default ModalEditRequest;
