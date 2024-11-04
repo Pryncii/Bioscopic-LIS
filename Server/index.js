@@ -331,6 +331,7 @@ app.post('/addpatient', async (req, res) => {
     }catch (error){
         res.status(500).json({ message: 'Error adding patient', error: error.message});
     }
+  });
 
 app.post('/api/requests', async (req, res) => {
   try {
