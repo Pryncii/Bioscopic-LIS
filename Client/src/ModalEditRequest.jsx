@@ -14,7 +14,11 @@ function ModalEditRequest(props) {
   const [show, setShow] = useState(props.show); // Initialize based on props
   const [testOptions, setTestOptions] = useState([]); // State to hold users from MongoDB
   const [users, setUsers] = useState([{ prcno: "" }]); // State to hold users from MongoDB
-  
+  const numberTypeTests = [ 'ESR', 'Blood with RH', 'Clotting Time', 
+                            'Bleeding Time', 'FBS', 'RBS', 'Creatinine',
+                            'Uric Acid', 'Cholesterol', 'Triglycerides',
+                            'HDL', 'LDL', 'VLDL', 'BUN', 'SGPT', 'SGOT',
+                            'HbA1c' ]
   useEffect(() => {
     const fetchTestOptions = async () => {
         try {
@@ -62,11 +66,58 @@ function ModalEditRequest(props) {
   const tests = [];
   const splitTests = props.tests.split(", ");
   for (let i = 0; i < splitTests.length; i++) {
+    if (splitTests[i] === 'CBC' || splitTests[i] === 'CBC with Platelet Count') {
+      tests.push(
+        { name: 'Hemoglobin', isText: true, isNumber: true },
+        { name: 'Hematocrit', isText: true, isNumber: true },
+        { name: 'RBC Count', isText: true, isNumber: true },
+        { name: 'WBC Count', isText: true, isNumber: true },
+        { name: 'Neutrophil', isText: true, isNumber: true },
+        { name: 'Lymphocyte', isText: true, isNumber: true },
+        { name: 'Monocyte', isText: true, isNumber: true },
+        { name: 'Eosinophil', isText: true, isNumber: true },
+        { name: 'Basophil', isText: true, isNumber: true },
+      );
+      if (splitTests[i] === 'CBC with Platelet Count') {
+        tests.push({ name: 'Platelet Count', isText: true, isNumber: true });
+      }
+    } else if (splitTests[i] === 'Urinalysis' || splitTests[i] === 'Fecalysis') {
+      tests.push(
+        { name: 'Color', isText: true, isNumber: false },
+        { name: 'Bacteria', isText: true, isNumber: false },
+        { name: 'RBC', isText: true, isNumber: true },
+        { name: 'Pus', isText: true, isNumber: true },
+      );
+      if (splitTests[i] === 'Urinalysis') {
+        tests.push(
+          { name: 'Transparency', isText: true, isNumber: false },
+          { name: 'pH', isText: true, isNumber: true },
+          { name: 'Specific Gavity', isText: true, isNumber: true },
+          { name: 'Sugar', isText: true, isNumber: false },
+          { name: 'Protein', isText: true, isNumber: false },
+          { name: 'Epithelial Cells', isText: true, isNumber: false },
+          { name: 'Mucus Thread', isText: true, isNumber: false },
+        );
+      } else {
+        tests.push(
+          { name: 'Consistency', isText: true, isNumber: false },
+          { name: 'WBC', isText: true, isNumber: true },
+          { name: 'Ova Parasite', isText: true, isNumber: false },
+          { name: 'Fat Globule', isText: true, isNumber: false },
+          { name: 'Bile Crystal', isText: true, isNumber: false },
+          { name: 'Vegetable Fiber', isText: true, isNumber: false },
+          { name: 'Meat Fiber', isText: true, isNumber: false },
+          { name: 'Erythrocyte', isText: true, isNumber: true },
+          { name: 'Yeast Cell', isText: true, isNumber: true },
+        );
+      }
+    }
     const matchingTest = testOptions.find(test => test.name === splitTests[i]);
     if (matchingTest) {
-      tests.push({ name: splitTests[i], isText: false, options: matchingTest.options});
+      tests.push({ name: splitTests[i], isText: false, options: matchingTest.options });
     } else {
-      tests.push({ name: splitTests[i], isText: true});
+      const isNumber = numberTypeTests.includes(splitTests[i]);
+      tests.push({ name: splitTests[i], isText: true, isNumber: isNumber});
     }
   }
 
@@ -76,7 +127,7 @@ function ModalEditRequest(props) {
         <Col>
           {test.isText ? (
             <FloatingLabel label={test.name}>
-              <Form.Control type="text" placeholder="" />
+              <Form.Control type={test.isNumber ? "number" : "text"} placeholder="" />
             </FloatingLabel>
           ) : (
             <FloatingLabel label={test.name}>
