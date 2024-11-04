@@ -29,6 +29,24 @@ function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = data.length; // Set this to the total number of pages you have
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+        if (event.key === 'ArrowRight') {
+            handleNext(); // Navigate to the next page
+        } else if (event.key === 'ArrowLeft') {
+            handleBack(); // Navigate to the previous page
+        }
+    };
+
+    // Add event listener for keydown
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+    };
+}, [currentPage, totalPages]);
+
   // Function to handle the NEXT button click
   const handleNext = () => {
       if (currentPage < totalPages) {

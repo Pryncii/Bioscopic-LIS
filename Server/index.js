@@ -133,6 +133,26 @@ app.get('/patients', async (req, res) => {
     }
 });
 
+app.get('/request', async (req, res) => {
+    try {
+      const patients = await patientModel.find({}, {
+        patientID: 1,
+        name: 1,
+        sex: 1,
+        phoneNo: 1,
+        email: 1,
+        age: 1,
+        birthday: 1,
+        address: 1,
+        _id: 0
+      });
+      res.json(patients);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.get('/requests', async (req, res) => {
     try {
         // Fetch all patients and requests, with requests sorted by requestID in descending order
