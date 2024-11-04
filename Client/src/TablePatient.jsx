@@ -1,8 +1,8 @@
-import './Table.css';
+import './styles/Table.css';
 
 function TablePatient({ data = [] }) {
     return (
-        <table className="test-items">
+        <table className="test-items patient-table">
             <thead>
                 <tr>
                     <th className="item-label"><h5>Patient</h5></th>

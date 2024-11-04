@@ -1,4 +1,4 @@
-import './Header.css'
+import './styles/Header.css'
 import logoPic from './assets/header_logo.png'
 
 function Header() {

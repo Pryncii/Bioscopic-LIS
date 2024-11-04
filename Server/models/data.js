@@ -45,7 +45,7 @@ const requestSchema = new mongoose.Schema(
         test: { type: String },
         status: { type: String },
         dateStart: { type: Date },
-        dateEnd: { type: Date },
+        dateEnd: { type: Date, default: null },
         remarks: { type: String },
         payStatus: { type: String }
     },
@@ -153,6 +153,17 @@ const serologySchema = new mongoose.Schema(
     { discriminatorKey: "type" }
 );
 
+const testOptionsSchema = new mongoose.Schema(
+    {
+    name: { type: String },
+    options: { type: [String] },
+    },
+    { versionKey: false },
+    { discriminatorKey: "type" }
+);
+
+const testOptionsModel = mongoose.model("testOptions", testOptionsSchema);
+
 const baseTestSchema = new mongoose.Schema({}, { discriminatorKey: "type" });
 const serologyModel = mongoose.model("serology", serologySchema, "tests");
 const hematologyModel = mongoose.model("hematology", hematologySchema, "tests");
@@ -168,6 +179,7 @@ let appdata = {
     clinicalMicroscopyModel: clinicalMicroscopyModel,
     chemistryModel: chemistryModel,
     serologyModel: serologyModel,
+    testOptionsModel: testOptionsModel,
     allTestModel: allTestModel,
 };
 

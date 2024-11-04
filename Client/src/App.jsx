@@ -26,7 +26,7 @@ function App() {
   }, []);
   return (
     <>
-      <Router>
+    <Router>
       <div>
         <Routes>
           <Route path="/" element={<Login />} />
@@ -34,18 +34,11 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/addpatient" element={<PatientRegistration />} />
           <Route path="/request" element={<PatientRequest />} />
-          <Route path="/patients" element={<ViewPatientHistory />} />
-          <Route path="/patienthistory" element={<ViewPatients />} />
+          <Route path="/patienthistory" element={<ViewPatientHistory />} />
+          <Route path="/patients" element={<ViewPatients />} />
         </Routes>
       </div>
     </Router>
-      {/*
-      <div>
-        <h1>Fetched Data</h1>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      </div>
-      */}
-  
     </>
   )
 }

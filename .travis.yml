@@ -1,6 +1,8 @@
 language: node_js
 node_js:
-  - "16"
+  - 18
+
+dist: focal
 
 # Only build on pull requests or the main branch
 branches:
@@ -15,12 +17,13 @@ branches:
 # Trigger build on pull requests to develop
 # Trigger build on pushes to develop
 # Trigger build on pushes to release
+# Trigger build on pull requests to release
 if: |
-  (type = push AND branch =~ /^feature-\S+$/) OR \  
-  (type = pull_request AND branch = develop) OR \   
-  (type = push AND branch = develop) OR \           
-  (type = push AND branch = release)
-
+  (type = push AND branch =~ /^feature-\S+$/) OR \
+  (type = pull_request AND branch = develop) OR \
+  (type = push AND branch = develop) OR \
+  (type = push AND branch = release) OR \
+  (type = pull_request AND branch = release)
 # Define environments for both front-end and back-end
 env:
   global:
@@ -48,17 +51,16 @@ script:
   - npm run build
 
   - cd ../$BACKEND_DIR
+  - chmod +x node_modules/.bin/jest
+  - npm test
 
 deploy:
   provider: script
   skip_cleanup: true
   script: >-
-    echo $RENDER_DEPLOY curl -v -X POST $RENDER_DEPLOY \
-     -H "Authorization: Bearer $RENDER_API_KEY" \
-     -H "Content-Type: application/json" \
-     -d '{"branch":"develop"}'
+    curl $RENDER_DEPLOY
   on:
-    branch: develop
+    branch: release
     condition: $TRAVIS_TEST_RESULT = 0 # Only deploy if TRAVIS CI tests pass
 
 cache:
