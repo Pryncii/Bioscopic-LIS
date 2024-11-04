@@ -8,15 +8,20 @@ const { requestModel } = appdata; // Adjust based on how models are structured
 let mongoServer;
 
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
+    process.env.NODE_ENV = 'test'; 
+    mongoServer = await MongoMemoryServer.create({
+        binary: { version: '5.0.3' }  // Specify a version known to be available
+    });
     const uri = mongoServer.getUri();
-    await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(uri);
 }, 50000);
 
 afterAll(async () => {
     await mongoose.disconnect();
-    await mongoServer.stop();
-    if (server) {
+    if (mongoServer) {
+        await mongoServer.stop();
+    }
+    if (server) {  // Ensure server is defined
         server.close();
     }
 });
