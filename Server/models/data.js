@@ -66,15 +66,15 @@ const hematologySchema = new mongoose.Schema(
         monocyte: { type: Number },
         eosinophil: { type: Number },
         basophil: { type: Number },
-        // withPlateletCount: { type: Boolean },
+        withPlateletCount: { type: Boolean },
         plateletCount: {
-            type: Number
-            // validate: {
-            //     validator: function () {
-            //         return this.withPlateletCount ? this.plateletCount != null : true;
-            //     },
-            //     message: "plateletCount is required if withPlateletCount is true",
-            // },
+            type: Number,
+            validate: {
+                validator: function () {
+                    return this.withPlateletCount ? this.plateletCount != null : true;
+                },
+                message: "plateletCount is required if withPlateletCount is true",
+            },
         },
         esr: { type: Number },
         bloodWithRh: { type: Number },
