@@ -515,11 +515,11 @@ app.post("/api/requests", async (req, res) => {
           payStatus: payment,
         });
 
+        // create the new test for every test in tests
+        let newTest = {
+          requestID: newReqId,
+        };
         for (const test of tests) {
-          // create the new test for every test in tests
-          let newTest = {
-            requestID: newReqId,
-          };
 
           if (category == "Hematology") {
             switch (test) {
@@ -658,8 +658,8 @@ app.post("/api/requests", async (req, res) => {
           } else {
             console.log("Error in Creating a Request: ", category);
           }
-          await createTest(newTest, category);
         }
+        await createTest(newTest, category);
         newReqId++; //  increment internal counter for request ID
       }
     }
