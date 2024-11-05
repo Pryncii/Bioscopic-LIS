@@ -6,8 +6,11 @@ import PatientInformation from './PatientInformation.jsx';
 import DateTime from './DateTime.jsx';
 import ModalConfirmRequest from './ModalConfirmRequest.jsx';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 function PatientRequest() {
+  const navigate = useNavigate();
   const [selectedTests, setSelectedTests] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [patients, setPatients] = useState({});
@@ -101,6 +104,7 @@ function PatientRequest() {
     } catch (error) {
       console.error('Error submitting data:', error);
     }
+    navigate('/home'); 
   };
 
   const handleCancel = async () => {  //  reset everything

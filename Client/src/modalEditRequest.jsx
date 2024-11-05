@@ -121,6 +121,7 @@ function ModalEditRequest(props) {
   };
 
   const handleSubmit = () => {
+    alert("Request Updated!");
     props.handleSubmit(formData); // Call the passed in handleClose function from parent
   };
 
@@ -222,10 +223,13 @@ function ModalEditRequest(props) {
             </FloatingLabel>
           )}
         </Col>
+{/*
         <Col>
           <Form.Control type="text" placeholder="" className="h-100" readOnly />
         </Col>
+        */}
       </Row>
+      
       <br />
     </div>
   ));
