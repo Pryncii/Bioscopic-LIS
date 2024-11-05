@@ -3,7 +3,7 @@ import ModalEditStatus from "./ModalEditStatus";
 import ModalEditRequest from "./ModalEditRequest"; // Import the edit request modal
 import './styles/Table.css';
 
-function TableHome({ data }) {
+function TableHome({ data, onUpdate }) {
     const [tableData, setTableData] = useState(data);
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [modalType, setModalType] = useState(null);
@@ -105,6 +105,10 @@ function TableHome({ data }) {
                     : row
             )
         );
+        // Call onUpdate to update the data at Home
+        if (onUpdate) {
+            onUpdate();
+        }
     };
 
     const handleSubmit = async (formData) => {

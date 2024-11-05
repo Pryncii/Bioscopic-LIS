@@ -1,7 +1,13 @@
+/**
+ * @jest-environment jsdom
+ */
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {app, server} = require('./index'); // Your Express app
+const { app, server } = require('./index'); // Your Express app
 const { appdata } = require("./models/data");
 const {
     userModel,
@@ -13,7 +19,9 @@ const {
     serologyModel,
     allTestModel
 } = appdata;
-
+import { render } from '@testing-library/react';
+import React, { useState } from 'react';
+import ModalEditRequest from '../Client/src/modalEditRequest'
 let mongoServer;
 
 beforeAll(async () => {
@@ -48,13 +56,11 @@ describe('ModalEditRequest Component', () => {
     });
 
     it('should render text field if isText is true', async () => {
-        const mockProps = {
-            patient: { name: 'John Doe', patientID: 1, requestID: 1 },
-            category: 'Hematology',
-            tests: 'Test A, Test B',
-            show: true,
-            handleClose: jest.fn(),
-        };
+        const patient = { name: 'John Doe', patientID: 1, requestID: 1 };
+        const category = 'Hematology';
+        const tests = 'Test A, Test B';
+        const show = true;
+        const handleClose = jest.fn();
 
         const testOptions = [
             { name: 'Test A', options: ['Option A1', 'Option A2'] },
@@ -67,20 +73,26 @@ describe('ModalEditRequest Component', () => {
             })
         );
 
-        render(<ModalEditRequest {...mockProps} />);
+        render(
+            <ModalEditRequest 
+                patient={patient} 
+                category={category} 
+                tests={tests} 
+                show={show} 
+                handleClose={handleClose} 
+            />
+        );
 
         const textField = screen.getByLabelText('Test B');
         expect(textField).toBeInTheDocument();
     });
 
     it('should render dropdown with options if isText is false', async () => {
-        const mockProps = {
-            patient: { name: 'John Doe', patientID: 1, requestID: 1 },
-            category: 'Hematology',
-            tests: 'Test A, Test B',
-            show: true,
-            handleClose: jest.fn(),
-        };
+        const patient = { name: 'John Doe', patientID: 1, requestID: 1 };
+        const category = 'Hematology';
+        const tests = 'Test A, Test B';
+        const show = true;
+        const handleClose = jest.fn();
 
         const testOptions = [
             { name: 'Test A', options: ['Option A1', 'Option A2'] },
@@ -93,7 +105,15 @@ describe('ModalEditRequest Component', () => {
             })
         );
 
-        render(<ModalEditRequest {...mockProps} />);
+        render(
+            <ModalEditRequest 
+                patient={patient} 
+                category={category} 
+                tests={tests} 
+                show={show} 
+                handleClose={handleClose} 
+            />
+        );
 
         const dropdown = screen.getByLabelText('Test A');
         expect(dropdown).toBeInTheDocument();
@@ -105,19 +125,25 @@ describe('ModalEditRequest Component', () => {
     });
 
     it('should handle closing the modal', async () => {
-        const mockProps = {
-            patient: { name: 'John Doe', patientID: 1, requestID: 1 },
-            category: 'Hematology',
-            tests: 'Test A, Test B',
-            show: true,
-            handleClose: jest.fn(),
-        };
+        const patient = { name: 'John Doe', patientID: 1, requestID: 1 };
+        const category = 'Hematology';
+        const tests = 'Test A, Test B';
+        const show = true;
+        const handleClose = jest.fn();
 
-        render(<ModalEditRequest {...mockProps} />);
+        render(
+            <ModalEditRequest 
+                patient={patient} 
+                category={category} 
+                tests={tests} 
+                show={show} 
+                handleClose={handleClose} 
+            />
+        );
 
         const closeButton = screen.getByRole('button', { name: /close/i });
         userEvent.click(closeButton);
 
-        expect(mockProps.handleClose).toHaveBeenCalled();
+        expect(handleClose).toHaveBeenCalled();
     });
 });

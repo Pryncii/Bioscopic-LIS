@@ -169,7 +169,7 @@ app.get("/requests", async (req, res) => {
     const patients = await patientModel.find();
 
     if (req.query.search !== undefined || req.query.search !== "") {
-      regex = new RegExp(req.query.search, "i"); // for case insentivity
+      const regex = new RegExp(req.query.search, "i"); // for case insentivity
       const patients = await patientModel.find({ name: regex });
       for (const item of patients) {
         //console.log(item.patientID);
@@ -235,7 +235,7 @@ app.get("/requests", async (req, res) => {
     // Check if test is defined and non-empty
     if (req.query.test !== "AAA" && req.query.test !== undefined) {
       // Add test query to the search query
-      regex2 = new RegExp(req.query.test, "i");
+      const regex2 = new RegExp(req.query.test, "i");
       searchQuery.$and.push({ test: regex2 });
     }
     // Check if status is defined and non-empty
@@ -515,11 +515,12 @@ app.post("/api/requests", async (req, res) => {
           payStatus: payment,
         });
 
+
+        // create the new test for every test in tests
         let newTest = {
           requestID: newReqId,
         };
         for (const test of tests) {
-          // create the new test for every test in tests
 
           if (category == "Hematology") {
             switch (test) {
