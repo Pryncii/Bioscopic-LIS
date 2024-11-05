@@ -7,6 +7,9 @@ function TableHome({ data }) {
     const [tableData, setTableData] = useState(data);
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [modalType, setModalType] = useState(null);
+    const [users, setUsers] = useState([{ prcno: "" }]); 
+    const [testOptions, setTestOptions] = useState([""]); 
+    const [testValues, setTestValues] = useState([]); 
 
     const formatDateTime = (date) => 
         date ? new Date(date).toLocaleString('en-US', {
@@ -14,11 +17,62 @@ function TableHome({ data }) {
           hour: '2-digit', minute: '2-digit', hour12: true
         }) : "";
 
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/users'); // Adjust the URL as necessary
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setUsers(data);
+            } catch (error) {
+                setError(error.message);
+            } 
+        };
+    
+        fetchUsers();
+        }, []);
+
+    useEffect(() => {
+        const fetchTestOptions = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/testoptions');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setTestOptions(data);
+            } catch (error) {
+                setError(error.message);
+            } 
+        };
+    
+        fetchTestOptions();
+        }, []);
+
+    useEffect(() => {
+        const fetchTestValues = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/tests');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setTestValues(data);
+            } catch (error) {
+                setError(error.message);
+            } 
+        };
+    
+        fetchTestValues();
+        }, []);
+
     // Set `tableData` whenever `data` changes
     useEffect(() => {
         setTableData(data);
     }, [data]);
-
+    
     const handleShowStatusModal = (patient) => {
         setSelectedPatient(patient);
         setModalType("status"); // Set modal type to status
@@ -51,6 +105,35 @@ function TableHome({ data }) {
                     : row
             )
         );
+    };
+
+    const handleSubmit = async (formData) => {
+    
+        console.log(formData); // Log the form data for debugging
+    
+        try {
+            const response = await fetch('http://localhost:4000/testvalues', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData),
+            });
+            if (!response.ok) {
+                console.log('here');
+                const errorText = await response.text();
+                console.error('Error response:', response.status, errorText);
+                return; 
+            } else {
+              const responseData = await response.json(); 
+              console.log('Response Data:', responseData); 
+            }
+    
+        } catch (error) {
+            // Handle fetch errors
+            console.error('Error during submission:', error);
+            setErrorMessage('An error occurred while submitting the form. Please try again.'); // Set a generic error message
+        }
     };
 
     return (
@@ -131,10 +214,14 @@ function TableHome({ data }) {
         {selectedPatient && modalType === "request" && (
             <ModalEditRequest
                 patient={selectedPatient}
+                users={users}
                 show={true} // Always show the modal
                 handleClose={handleCloseModal}
+                handleSubmit={handleSubmit}
                 tests={selectedPatient.tests}
+                testOptions={testOptions}
                 category={selectedPatient.category}
+                testValues={testValues}
             />
         )}
         </>
