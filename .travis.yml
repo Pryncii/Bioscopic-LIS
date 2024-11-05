@@ -24,6 +24,7 @@ if: |
   (type = push AND branch = develop) OR \
   (type = push AND branch = release) OR \
   (type = pull_request AND branch = release)
+
 # Define environments for both front-end and back-end
 env:
   global:
