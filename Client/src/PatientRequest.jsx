@@ -16,7 +16,7 @@ function PatientRequest() {
   useEffect(() => {   //  fetch all of the patients' information
     const fetchPatients = async () => {
       try {
-        const res = await fetch('http://localhost:4000/requests');
+        const res = await fetch('http://localhost:4000/request');
         if (!res.ok) {
           throw new Error('Network response was not ok');
         }
