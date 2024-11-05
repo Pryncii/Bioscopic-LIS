@@ -123,6 +123,7 @@ function ModalEditRequest(props) {
   const handleSubmit = () => {
     alert("Request Updated!")
     props.handleSubmit(formData); // Call the passed in handleClose function from parent
+    window.location.reload();
   };
 
   const tests = [];
