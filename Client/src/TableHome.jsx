@@ -1,27 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ModalEditStatus from "./ModalEditStatus";
 import ModalEditRequest from "./ModalEditRequest"; // Import the edit request modal
 import './styles/Table.css';
-
-// Sample tests and med techs data
-const tests = [
-  { id: 1, name: "Test 1", isText: true },
-  { id: 2, name: "Test 2", isText: false, options: ["opt1", "opt2", "opt3"] },
-  { id: 3, name: "Test 3", isText: true },
-  { id: 4, name: "Test 4", isText: true },
-  { id: 5, name: "Test 5", isText: false, options: ["opt1", "opt2"] }
-];
-
-const med_techs = [
-  { name: "Arjay", prcno: 12345678 },
-  { name: "Percival", prcno: 87654321 },
-  { name: "Ian", prcno: 78456312 },
-];
-
-function TableHome({ data }) {
+//commit
+function TableHome({ data, onUpdate }) {
+    const [tableData, setTableData] = useState(data);
     const [selectedPatient, setSelectedPatient] = useState(null);
-    const [modalType, setModalType] = useState(null); // New state to manage the modal type
+    const [modalType, setModalType] = useState(null);
+    const [users, setUsers] = useState([{ prcno: "" }]); 
+    const [testOptions, setTestOptions] = useState([""]); 
+    const [testValues, setTestValues] = useState([]); 
 
+    const formatDateTime = (date) => 
+        date ? new Date(date).toLocaleString('en-US', {
+          month: '2-digit', day: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit', hour12: true
+        }) : "";
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/users'); // Adjust the URL as necessary
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setUsers(data);
+            } catch (error) {
+                setError(error.message);
+            } 
+        };
+    
+        fetchUsers();
+        }, []);
+
+    useEffect(() => {
+        const fetchTestOptions = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/testoptions');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setTestOptions(data);
+            } catch (error) {
+                setError(error.message);
+            } 
+        };
+    
+        fetchTestOptions();
+        }, []);
+
+    useEffect(() => {
+        const fetchTestValues = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/tests');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setTestValues(data);
+            } catch (error) {
+                setError(error.message);
+            } 
+        };
+    
+        fetchTestValues();
+        }, []);
+
+    // Set `tableData` whenever `data` changes
+    useEffect(() => {
+        setTableData(data);
+    }, [data]);
+    
     const handleShowStatusModal = (patient) => {
         setSelectedPatient(patient);
         setModalType("status"); // Set modal type to status
@@ -35,6 +86,58 @@ function TableHome({ data }) {
     const handleCloseModal = () => {
         setModalType(null); // Reset modal type to close any modal
         setSelectedPatient(null);
+    };
+
+    // Function to handle updating a row after editing
+    const handleStatusUpdate = (updatedPatient) => {
+        setTableData(prevData =>
+            prevData.map(row =>
+                row.requestID === updatedPatient.requestID
+                    ? {
+                        ...row,
+                        requestStatus: updatedPatient.status,
+                        remarks: updatedPatient.remarks,
+                        paymentStatus: updatedPatient.payStatus,
+                        barColor: updatedPatient.status === "Completed" ? "c"
+                                  : updatedPatient.status === "In Progress" ? "ip" : "req",
+                        dateCompleted: formatDateTime(updatedPatient.dateEnd) || ""
+                    }
+                    : row
+            )
+        );
+        // Call onUpdate to update the data at Home
+        if (onUpdate) {
+            onUpdate();
+        }
+    };
+
+    const handleSubmit = async (formData) => {
+    
+        console.log(formData); // Log the form data for debugging
+    
+        try {
+            const response = await fetch('http://localhost:4000/testvalues', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData),
+            });
+            if (!response.ok) {
+                console.log('here');
+                const errorText = await response.text();
+                console.error('Error response:', response.status, errorText);
+                return; 
+            } else {
+              const responseData = await response.json(); 
+              console.log('Response Data:', responseData); 
+            }
+    
+        } catch (error) {
+            // Handle fetch errors
+            console.error('Error during submission:', error);
+            setErrorMessage('An error occurred while submitting the form. Please try again.'); // Set a generic error message
+        }
     };
 
     return (
@@ -75,30 +178,30 @@ function TableHome({ data }) {
                 </tr>
             </thead>
             <tbody>
-                {data.length > 0 ? (
-                    data.map((item, index) => (
+                {tableData.length > 0 ? (
+                    tableData.map((item, index) => (
                         <tr key={index} onClick={() => handleShowRequestModal(item)}>
-                        <td className="item-container number"><h6>{index + 1}</h6></td>
-                        <td className="item-container"><h6>{item.requestID}</h6></td>
-                        <td className="item-container"><h6>{item.patientID}</h6></td>
-                        <td className="item-container"><h6>{item.name}</h6></td>
-                        <td className="item-container"><h6>{item.tests}</h6></td>
-                        <td className="item-container status" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
-                            <h6 className={`status-item ${item.barColor}`}>{item.requestStatus}</h6>
-                        </td>
-                        <td className="item-container" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
-                            <h6>{item.remarks}</h6>
-                        </td>
-                        <td className="item-container id-item" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
-                            <h6>{item.paymentStatus}</h6>
-                        </td>
-                        <td className="item-container date"><h6>{item.dateRequested}</h6></td>
-                        <td className="item-container date"><h6>{item.dateCompleted}</h6></td>
-                    </tr>
+                            <td className="item-container number"><h6>{index + 1}</h6></td>
+                            <td className="item-container"><h6>{item.requestID}</h6></td>
+                            <td className="item-container"><h6>{item.patientID}</h6></td>
+                            <td className="item-container"><h6>{item.name}</h6></td>
+                            <td className="item-container"><h6>{item.tests}</h6></td>
+                            <td className="item-container status" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
+                                <h6 className={`status-item ${item.barColor}`}>{item.requestStatus}</h6>
+                            </td>
+                            <td className="item-container" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
+                                <h6>{item.remarks}</h6>
+                            </td>
+                            <td className="item-container id-item" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
+                                <h6>{item.paymentStatus}</h6>
+                            </td>
+                            <td className="item-container date"><h6>{item.dateRequested}</h6></td>
+                            <td className="item-container date"><h6>{item.dateCompleted}</h6></td>
+                        </tr>
                     ))
                 ) : (
                     <tr>
-                        <td colSpan="10" className="item-container"><h6>No requests found</h6></td>
+                        <td colSpan="10" className="item-container text-center"><h6>No requests found</h6></td>
                     </tr>
                 )}
             </tbody>
@@ -109,16 +212,20 @@ function TableHome({ data }) {
                 patient={selectedPatient}
                 show={true}
                 handleClose={handleCloseModal}
+                onStatusUpdate={handleStatusUpdate} // Pass the function to ModalEditStatus
             />
         )}
         {selectedPatient && modalType === "request" && (
             <ModalEditRequest
-                patients={[selectedPatient]}
+                patient={selectedPatient}
+                users={users}
                 show={true} // Always show the modal
                 handleClose={handleCloseModal}
-                tests={tests}
-                med_techs={med_techs}
-                category="Hematology"
+                handleSubmit={handleSubmit}
+                tests={selectedPatient.tests}
+                testOptions={testOptions}
+                category={selectedPatient.category}
+                testValues={testValues}
             />
         )}
         </>

@@ -66,18 +66,18 @@ const hematologySchema = new mongoose.Schema(
         monocyte: { type: Number },
         eosinophil: { type: Number },
         basophil: { type: Number },
-        // withPlateletCount: { type: Boolean },
+        withPlateletCount: { type: Boolean },
         plateletCount: {
-            type: Number
-            // validate: {
-            //     validator: function () {
-            //         return this.withPlateletCount ? this.plateletCount != null : true;
-            //     },
-            //     message: "plateletCount is required if withPlateletCount is true",
-            // },
+            type: Number,
+            validate: {
+                validator: function () {
+                    return this.withPlateletCount ? this.plateletCount != null : true;
+                },
+                message: "plateletCount is required if withPlateletCount is true",
+            },
         },
         esr: { type: Number },
-        bloodWithRh: { type: Number },
+        bloodTypeWithRh: { type: Number },
         clottingTime: { type: Number },
         bleedingTime: { type: Number },
     },
@@ -113,6 +113,8 @@ const clinicalMicroscopySchema = new mongoose.Schema(
         meatFiber: { type: String },
         erythrocyte: { type: Number },
         yeastCell: { type: Number },
+
+        fobt: {type: Number}
     },
     { versionKey: false, discriminatorKey: "type" }
 );
@@ -133,7 +135,7 @@ const chemistrySchema = new mongoose.Schema(
         bun: { type: Number },
         sgpt: { type: Number },
         sgot: { type: Number },
-        hba1c: { type: Number },
+        hbA1c: { type: Number },
     },
     { versionKey: false },
     { discriminatorKey: "type" }
@@ -153,6 +155,17 @@ const serologySchema = new mongoose.Schema(
     { discriminatorKey: "type" }
 );
 
+const testOptionsSchema = new mongoose.Schema(
+    {
+    name: { type: String },
+    options: { type: [String] },
+    },
+    { versionKey: false },
+    { discriminatorKey: "type" }
+);
+
+const testOptionsModel = mongoose.model("testOptions", testOptionsSchema);
+
 const baseTestSchema = new mongoose.Schema({}, { discriminatorKey: "type" });
 const serologyModel = mongoose.model("serology", serologySchema, "tests");
 const hematologyModel = mongoose.model("hematology", hematologySchema, "tests");
@@ -168,6 +181,7 @@ let appdata = {
     clinicalMicroscopyModel: clinicalMicroscopyModel,
     chemistryModel: chemistryModel,
     serologyModel: serologyModel,
+    testOptionsModel: testOptionsModel,
     allTestModel: allTestModel,
 };
 
