@@ -515,11 +515,11 @@ app.post("/api/requests", async (req, res) => {
           payStatus: payment,
         });
 
+        let newTest = {
+          requestID: newReqId,
+        };
         for (const test of tests) {
           // create the new test for every test in tests
-          let newTest = {
-            requestID: newReqId,
-          };
 
           if (category == "Hematology") {
             switch (test) {
@@ -658,8 +658,8 @@ app.post("/api/requests", async (req, res) => {
           } else {
             console.log("Error in Creating a Request: ", category);
           }
-          await createTest(newTest, category);
         }
+        await createTest(newTest, category);
         newReqId++; //  increment internal counter for request ID
       }
     }
@@ -716,6 +716,36 @@ app.put("/api/requests/:requestID", async (req, res) => {
   }
 });
 
+app.post("/testvalues", async (req, res) => {
+  const data = req.body;
+  console.log("Request Body:", data);
+  console.log("Updating document with requestID:", data.requestID);
+  try {
+    const models = {
+      Hematology: hematologyModel,
+      'Clinical Microscopy': clinicalMicroscopyModel,
+      Chemistry: chemistryModel,
+      Serology: serologyModel,
+    };
+    
+    const Model = models[data.category];
+    const updatedRequest = await Model.findOneAndUpdate( // Filter for the document to update
+      { requestID: data.requestID },
+      { $set: data },
+      { new: true } 
+    );
+    console.log(updatedRequest);
+    if (updatedRequest) {
+      res.status(200).json({ message: "Test values updated successfully!" });
+    } else {
+      res.status(404).json({ message: "Document not found, no update performed." });
+    }
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+});
+
 app.get("/users", async (req, res) => {
   try {
     const users = await userModel.find();
@@ -732,6 +762,15 @@ app.get("/testoptions", async (req, res) => {
     res.json(testOptions);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+app.get('/tests', async (req, res) => {
+  try {
+      const allTests = await allTestModel.find();
+      res.json(allTests);
+  } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
