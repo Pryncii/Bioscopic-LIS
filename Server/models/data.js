@@ -77,7 +77,7 @@ const hematologySchema = new mongoose.Schema(
             },
         },
         esr: { type: Number },
-        bloodWithRh: { type: Number },
+        bloodTypeWithRh: { type: Number },
         clottingTime: { type: Number },
         bleedingTime: { type: Number },
     },
@@ -135,7 +135,7 @@ const chemistrySchema = new mongoose.Schema(
         bun: { type: Number },
         sgpt: { type: Number },
         sgot: { type: Number },
-        hba1c: { type: Number },
+        hbA1c: { type: Number },
     },
     { versionKey: false },
     { discriminatorKey: "type" }
