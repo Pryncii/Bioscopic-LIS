@@ -86,45 +86,52 @@ function Register() {
         }
     };
     return (
-        <div className="d-flex justify-content-center align-items-center vh-100 w">
+        <div className="d-flex justify-content-center align-items-center">
             <div className="w-50">
-                <h1 className="text-center fw-bold mb-3">Register Account</h1>
+                <h1 className="text-center fw-bold mb-3 mt-5">Register Account</h1>
                 <Form noValidate validated={validated} onSubmit={handleSubmit}>
                     <Form.Label>Full Name:</Form.Label>
                     <Form.Group className="d-flex justify-content-evenly mb-3 gap-3">
-                        <Form.Control
-                            required
-                            type="text"
-                            name="firstName"
-                            placeholder="First Name"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            Please provide a valid first name.
-                        </Form.Control.Feedback>
-                        <Form.Control
-                            //required
-                            type="text"
-                            name="middleName"
-                            placeholder="Middle Name"
-                            value={formData.middleName}
-                            onChange={handleChange}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            Please provide a valid middle name.
-                        </Form.Control.Feedback>
-                        <Form.Control
-                            required
-                            type="text"
-                            name="lastName"
-                            placeholder="Last Name"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            Please provide a valid last name.
-                        </Form.Control.Feedback>
+                        <div className="d-flex flex-column">
+                            <Form.Control
+                                required
+                                type="text"
+                                name="firstName"
+                                placeholder="First Name"
+                                value={formData.firstName}
+                                onChange={handleChange}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                Please provide a valid first name.
+                            </Form.Control.Feedback>
+                        </div>
+                        <div className="d-flex flex-column">
+                            <Form.Control
+                                //required
+                                type="text"
+                                name="middleName"
+                                placeholder="Middle Name"
+                                value={formData.middleName}
+                                onChange={handleChange}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                Please provide a valid middle name.
+                            </Form.Control.Feedback>
+                        </div>
+                        <div className="d-flex flex-column">
+                            <Form.Control
+                                required
+                                type="text"
+                                name="lastName"
+                                placeholder="Last Name"
+                                value={formData.lastName}
+                                onChange={handleChange}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                Please provide a valid last name.
+                            </Form.Control.Feedback>
+                        </div>
+                        
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Sex</Form.Label>
@@ -226,7 +233,7 @@ function Register() {
                         </Button>
                     </div>
                 </Form>
-                <div className="text-center mb-3">
+                <div className="text-center mb-5">
                     Already have an account? <a href="/">Login</a>
                 </div>
             </div>
