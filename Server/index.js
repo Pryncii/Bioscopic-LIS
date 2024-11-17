@@ -24,6 +24,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
+app.use(cors());
 connectDB();
 
 app.get("/", async (req, res) => {
