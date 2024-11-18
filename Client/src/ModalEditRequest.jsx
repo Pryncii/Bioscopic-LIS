@@ -25,6 +25,8 @@ function ModalEditRequest(props) {
     switch (props.category) {
       case 'Hematology':
         return {
+          requestName: props.patient.name,
+          physName: props.users.name,
           requestID: props.patient.requestID,
           hemoglobin: testValues.hemoglobin,
           hematocrit: testValues.hematocrit,
@@ -45,6 +47,8 @@ function ModalEditRequest(props) {
         };
       case 'Clinical Microscopy':
         return {
+          requestName: props.patient.name,
+          physName: props.users.name,
           requestID: props.patient.requestID,
           // Common fields
           color: testValues.color,
@@ -75,6 +79,8 @@ function ModalEditRequest(props) {
         };
       case 'Chemistry':
         return {
+          requestName: props.patient.name,
+          physName: props.users.name,
           requestID: props.patient.requestID,
           fbs: testValues.fbs,
           rbs: testValues.rbs,
@@ -93,6 +99,8 @@ function ModalEditRequest(props) {
         };
       case 'Serology':
         return {
+          requestName: props.patient.name,
+          physName: props.users.name,
           requestID: props.patient.requestID,
           hbsAg: testValues.hbsAg,
           rprVdrl: testValues.rprVdrl,
@@ -289,7 +297,7 @@ function ModalEditRequest(props) {
           </div>
           <Modal.Footer className="justify-content-center">
             <Button variant="primary" type="submit" onClick={() => { handleSubmit(); handleClose(); }}>Submit</Button>
-            <ModalShowPDF />
+            <ModalShowPDF formData={formData}/>
           </Modal.Footer>
       </Modal.Body>
     </Modal>

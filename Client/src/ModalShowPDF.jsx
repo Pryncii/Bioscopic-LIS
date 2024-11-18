@@ -1,14 +1,42 @@
 import ModalSendEmail from "./ModalSendEmail.jsx"
-
 import { useState } from "react"
 import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
 
-function ModalShowPDF() {
+function ModalShowPDF({formData}) {
+  const [pdfUrl, setPdfUrl] = useState(null);
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleClose = () => {
+    setShow(false);
+    setPdfUrl(null); // Clear the PDF URL when the modal closes
+  };
+
+  const handleShow = async () => {
+    setShow(true);
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:4000/generate-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate PDF");
+
+      console.log(response);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -28,7 +56,17 @@ function ModalShowPDF() {
           <Modal.Title>PDF</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          PDF HERE
+          {loading ? (
+            <p>Generating PDF...</p>
+          ) : pdfUrl ? (
+            <iframe
+              src={pdfUrl}
+              style={{ width: "100%", height: "500px" }}
+              title="Generated PDF"
+            />
+          ) : (
+            <p>No PDF generated</p>
+          )}
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
           <Button variant="primary">Download PDF</Button>
