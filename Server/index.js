@@ -782,10 +782,16 @@ app.post('/generate-pdf', async (req, res) => {
   console.log('Received data:', req.body);  
   const dir = '../Client/src/assets/PDFTemplates/';
 
+  const request = await requestModel.findOne({ requestID: req.body.requestID });
+  const patient = await patientModel.findOne({ patientID: request.patientID });
+  const physician = await userModel.findOne({ medtechID: request.medtechID });
+
+  let requestName = req.body.requestName;
+  let physName = physician.name;
+  let requestAge = patient.age;
+  let requestSex = patient.sex;
+
   if(req.body.category == 'Hematology'){
-    let requestName = req.body.requestName;
-    let physName = req.body.physName;
-    let requestID = req.body.requestID;
     let hemoglobin = req.body.hemoglobin;
     let hematocrit = req.body.hematocrit;
     let rbcCount = req.body.rbcCount;
@@ -807,8 +813,6 @@ app.post('/generate-pdf', async (req, res) => {
       const form = pdfDoc.getForm();
       const fields = form.getFields();
 
-      // Define the Times New Roman font
-      // Define the Times New Roman font
       const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
       const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
       console.log(fields.map(field => field.getName())); 
@@ -821,7 +825,7 @@ app.post('/generate-pdf', async (req, res) => {
       
       form.getTextField('Name').setText(requestName.toUpperCase());
       form.getTextField('Name').defaultUpdateAppearances(timesBold);
-      //form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Age/Sex').setText(requestAge + "/" + requestSex);
       form.getTextField('Date').setText(month+ "/" + day + "/" + year);
 
       //let lastName = JSON.stringify(global.userFname[0]);
@@ -872,9 +876,6 @@ app.post('/generate-pdf', async (req, res) => {
   }
 
   if(req.body.category == 'Clinical Microscopy'){
-    let requestName = req.body.requestName;
-    let physName = req.body.physName;
-    let requestID = req.body.requestID;
     // Common fields
     let color = req.body.color;
     let bacteria = req.body.bacteria;
@@ -906,8 +907,6 @@ app.post('/generate-pdf', async (req, res) => {
       const form = pdfDoc.getForm();
       const fields = form.getFields();
 
-      // Define the Times New Roman font
-      // Define the Times New Roman font
       const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
       const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
       console.log(fields.map(field => field.getName())); 
@@ -920,7 +919,7 @@ app.post('/generate-pdf', async (req, res) => {
       
       form.getTextField('Name').setText(requestName.toUpperCase());
       form.getTextField('Name').defaultUpdateAppearances(timesBold);
-      //form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
       form.getTextField('Date').setText(month+ "/" + day + "/" + year);
 
       //let lastName = JSON.stringify(global.userFname[0]);
@@ -928,6 +927,7 @@ app.post('/generate-pdf', async (req, res) => {
       //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
       //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
 
+      form.getTextField('Physician').setText(physName);
       if (transparency || pH || specificGravity) {
         form.getTextField('Color_Urinal').setText(String(color === -1 ? '' : color || ''));
         form.getTextField('Pus_Urinal').setText(String(pus === -1 ? '' : pus || ''));
@@ -986,9 +986,6 @@ app.post('/generate-pdf', async (req, res) => {
   }
 
   if(req.body.category == 'Chemistry'){
-    let requestName = req.body.requestName;
-    let physName = req.body.physName;
-    let requestID = req.body.requestID;
     let fbs = req.body.fbs;
     let rbs = req.body.rbs;
     let creatinine = req.body.creatinine;
@@ -1008,8 +1005,6 @@ app.post('/generate-pdf', async (req, res) => {
       const form = pdfDoc.getForm();
       const fields = form.getFields();
 
-      // Define the Times New Roman font
-      // Define the Times New Roman font
       const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
       const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
       console.log(fields.map(field => field.getName())); 
@@ -1022,7 +1017,7 @@ app.post('/generate-pdf', async (req, res) => {
       
       form.getTextField('Name').setText(requestName.toUpperCase());
       form.getTextField('Name').defaultUpdateAppearances(timesBold);
-      //form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
       form.getTextField('Date').setText(month+ "/" + day + "/" + year);
 
       //let lastName = JSON.stringify(global.userFname[0]);
@@ -1073,9 +1068,6 @@ app.post('/generate-pdf', async (req, res) => {
   }
 
   if(req.body.category == 'Serology'){
-    let requestName = req.body.requestName;
-    let physName = req.body.physName;
-    let requestID = req.body.requestID;
     let hbsAg = req.body.hbsAg;
     let rprVdrl = req.body.rprVdrl;
     let pregnancyTestSerum = req.body.pregnancyTestSerum;
@@ -1088,8 +1080,6 @@ app.post('/generate-pdf', async (req, res) => {
       const form = pdfDoc.getForm();
       const fields = form.getFields();
 
-      // Define the Times New Roman font
-      // Define the Times New Roman font
       const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
       const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
       console.log(fields.map(field => field.getName())); 
@@ -1102,7 +1092,7 @@ app.post('/generate-pdf', async (req, res) => {
       
       form.getTextField('Name').setText(requestName.toUpperCase());
       form.getTextField('Name').defaultUpdateAppearances(timesBold);
-      //form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
       form.getTextField('Date').setText(month+ "/" + day + "/" + year);
 
       //let lastName = JSON.stringify(global.userFname[0]);
