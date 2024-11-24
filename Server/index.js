@@ -5,6 +5,8 @@ const connectDB = require("./db.js");
 const { appdata } = require("./models/data");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const session = require("express-session");
+const mongoStore = require("connect-mongodb-session")(session);
 const {
   userModel,
   patientModel,
@@ -27,36 +29,25 @@ app.use(express.json());
 app.use(cors());
 connectDB();
 
-app.get("/", async (req, res) => {
-  try {
-    // Fetch data from all models
-    const users = await userModel.find();
-    const patients = await patientModel.find();
-    const requests = await requestModel.find();
-    const hematologyTests = await hematologyModel.find();
-    const clinicalMicroscopyTests = await clinicalMicroscopyModel.find();
-    const chemistryTests = await chemistryModel.find();
-    const serologyTests = await serologyModel.find();
-    const testOptions = await testOptionsModel.find();
-    const allTests = await allTestModel.find();
+app.use(
+  session({
+    secret: "DLSU",
+    saveUninitialized: false,
+    resave: false,
+    store: new mongoStore({
+      uri: "mongodb+srv://princebuencamino:LIS092901@lis.1ioj1.mongodb.net/labDB?retryWrites=true&w=majority&appName=LIS", // Replace with your actual connection string
+      collection: "sessions",
+      expires: 21 * 24 * 60 * 60 * 1000,
+    }),
+  })
+);
 
-    // Return the combined data as an object
-    res.json({
-      users,
-      patients,
-      requests,
-      hematologyTests,
-      clinicalMicroscopyTests,
-      chemistryTests,
-      serologyTests,
-      testOptions,
-      allTests,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com"],
+    credentials: true,
+  })
+);
 
 app.get("/patients", async (req, res) => {
   try {
@@ -330,52 +321,58 @@ app.post("/register", async (req, res) => {
     prc,
   } = req.body;
 
-  try {
-    const existingUser = await userModel.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: "Username already exists!" });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const userCount = await userModel.countDocuments();
-    const medtechID = userCount + 1;
-    const newUser = new userModel({
-      medtechID: medtechID,
-      name: `${lastName}, ${firstName} ${middleName}`,
-      username,
-      email,
-      phoneNo: phoneNumber,
-      sex,
-      password: hashedPassword,
-      prcno: prc,
-      isMedtech: !!prc,
-    });
-    await newUser.save();
-    res.status(201).json({ message: "User registered successfully!" });
-  } catch (error) {
-    console.error("Registration error:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+  const existingUser = await userModel.findOne({ username });
+  if (existingUser) {
+    return res.status(400).json({ message: "Username already exists!" });
   }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const userCount = await userModel.countDocuments();
+  const medtechID = userCount + 1;
+  const newUser = new userModel({
+    medtechID: medtechID,
+    name: `${lastName}, ${firstName} ${middleName}`,
+    username,
+    email,
+    phoneNo: phoneNumber,
+    sex,
+    password: hashedPassword,
+    prcno: prc,
+    isMedtech: !!prc,
+  });
+  await newUser.save();
+  res.status(201).json({ message: "User registered successfully!" });
 });
 
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+  const user = await userModel.findOne({ username });
+  if (!user) {
+    return res.status(400).json({ message: "Account does not exist" });
+  }
+  const isPasswordIncorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordIncorrect) {
+    return res.status(400).json({ message: "Incorrect password" });
+  }
+  req.session.ID = req.sessionID;
+  if (req.body.remember) {
+    req.session.cookie.maxAge = 21 * 24 * 60 * 60 * 1000;
+  } else {
+    req.session.cookie.expires = false;
+  }
+  res.status(200).json();
+});
 
-  try {
-      const user = await userModel.findOne({ username });
-      if (!user) {
-          return res.status(400).json({ message: 'Account does not exist' });
-      }
+app.get("/logout", function (req, res) {
+  req.session.destroy(function (err) {
+    res.status(204).send();
+  });
+});
 
-      const isPasswordIncorrect = await bcrypt.compare(password, user.password);
-      if (!isPasswordIncorrect) {
-          return res.status(400).json({ message: 'Incorrect password' });
-      }
-      res.status(200).json({ message: 'Login successful'});
-  } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+app.get("/auth", (req, res) => {
+  if (req.session.ID) {
+    return res.status(200).json({ isAuthenticated: true });
+  } else {
+    return res.status(200).json({ isAuthenticated: false });
   }
 });
 
@@ -515,13 +512,11 @@ app.post("/api/requests", async (req, res) => {
           payStatus: payment,
         });
 
-
         // create the new test for every test in tests
         let newTest = {
           requestID: newReqId,
         };
         for (const test of tests) {
-
           if (category == "Hematology") {
             switch (test) {
               case "CBC with Platelet Count":
@@ -631,25 +626,24 @@ app.post("/api/requests", async (req, res) => {
                 console.log("Unknown test key: ", test);
                 break;
             }
-          }
-          else if (category == "Serology") {
-            switch(test){
-              case "HbsAg": 
+          } else if (category == "Serology") {
+            switch (test) {
+              case "HbsAg":
                 newTest.hbsAg = "";
                 break;
-              case "RPR/VDRL": 
+              case "RPR/VDRL":
                 newTest.rprVdrl = "";
                 break;
-              case "Serum Pregnancy Test": 
+              case "Serum Pregnancy Test":
                 newTest.pregnancyTestSerum = "";
                 break;
-              case "Urine Pregnancy Test": 
+              case "Urine Pregnancy Test":
                 newTest.pregnancyTestUrine = "";
                 break;
-              case "Dengue NS1": 
+              case "Dengue NS1":
                 newTest.dengueNs1 = "";
                 break;
-              case "Dengue Duo": 
+              case "Dengue Duo":
                 newTest.dengueDuo = "";
                 break;
               default:
@@ -664,12 +658,10 @@ app.post("/api/requests", async (req, res) => {
         newReqId++; //  increment internal counter for request ID
       }
     }
-    res
-      .status(201)
-      .json({
-        message: "Requests created successfully with latest ID",
-        newReqId,
-      }); // Respond with success message
+    res.status(201).json({
+      message: "Requests created successfully with latest ID",
+      newReqId,
+    }); // Respond with success message
   } catch (error) {
     console.error("Failed to create request:", error);
     res.status(500).json({ error: "Failed to create request" }); // Respond with an error message
@@ -724,26 +716,31 @@ app.post("/testvalues", async (req, res) => {
   try {
     const models = {
       Hematology: hematologyModel,
-      'Clinical Microscopy': clinicalMicroscopyModel,
+      "Clinical Microscopy": clinicalMicroscopyModel,
       Chemistry: chemistryModel,
       Serology: serologyModel,
     };
-    
+
     const Model = models[data.category];
-    const updatedRequest = await Model.findOneAndUpdate( // Filter for the document to update
+    const updatedRequest = await Model.findOneAndUpdate(
+      // Filter for the document to update
       { requestID: data.requestID },
       { $set: data },
-      { new: true } 
+      { new: true }
     );
     console.log(updatedRequest);
     if (updatedRequest) {
       res.status(200).json({ message: "Test values updated successfully!" });
     } else {
-      res.status(404).json({ message: "Document not found, no update performed." });
+      res
+        .status(404)
+        .json({ message: "Document not found, no update performed." });
     }
   } catch (error) {
     console.error("Registration error:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 });
 
@@ -766,12 +763,12 @@ app.get("/testoptions", async (req, res) => {
   }
 });
 
-app.get('/tests', async (req, res) => {
+app.get("/tests", async (req, res) => {
   try {
-      const allTests = await allTestModel.find();
-      res.json(allTests);
+    const allTests = await allTestModel.find();
+    res.json(allTests);
   } catch (err) {
-      res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
