@@ -675,22 +675,32 @@ app.put("/api/requests/:requestID", async (req, res) => {
   const { requestID } = req.params;
   const { status, payStatus, remarks } = req.body;
 
+  console.log(status, payStatus, remarks);
+
   try {
     // console.log("Received PUT request to update requestID:", requestID);
     // console.log("New data:", { status, payStatus, remarks });
 
-    // Prepare the update data
-    const updateData = {
-      status,
-      payStatus,
-      remarks,
-    };
+    const updateData = {};
 
-    // Set dateEnd to current date if status is "Completed", or remove it otherwise
-    if (status === "Completed") {
-      updateData.dateEnd = new Date(); // Set dateEnd to current date
-    } else {
-      updateData.dateEnd = null; // Remove dateEnd for other statuses
+    // Conditionally add `status` to `updateData` if it is not null
+    if (status !== undefined) {
+      updateData.status = status;
+
+      // Handle `dateEnd` based on `status`
+      if (status === "Completed") {
+          updateData.dateEnd = new Date(); // Set dateEnd to current date if status is "Completed"
+      } else {
+          updateData.dateEnd = null; // Remove dateEnd for other statuses
+      }
+    }
+    
+    // Conditionally add `payStatus` and `remarks` if they are not null
+    if (payStatus !== undefined) {
+        updateData.payStatus = payStatus;
+    }
+    if (remarks !== undefined) {
+        updateData.remarks = remarks;
     }
 
     const updatedRequest = await requestModel.findOneAndUpdate(
