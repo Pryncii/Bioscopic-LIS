@@ -8,6 +8,7 @@ function Login() {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
+        remember: false,
     });
     const [validated, setValidated] = useState(false);
     const [isUsernameInvalid, setIsUsernameInvalid] = useState(false); // State for username validity
@@ -15,10 +16,10 @@ function Login() {
 
     // Handle input change
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
         setFormData({
             ...formData,
-            [name]: value,
+            [name]: type === "checkbox" ? checked : value,
         });
         if (name === "username") {
             setIsUsernameInvalid(false);
@@ -47,6 +48,7 @@ function Login() {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(formData),
+                    credentials: "include",
                 });
                 const responseData = await response.json();
                 if (response.ok) {
@@ -114,7 +116,14 @@ function Login() {
                         </Form.Group>
                         <div className="d-flex justify-content-between mb-3">
                             <Form.Group>
-                                <Form.Check type="checkbox" label="Remember me" id="remember" />
+                                <Form.Check
+                                    type="checkbox"
+                                    label="Remember me"
+                                    id="remember"
+                                    name="remember"
+                                    checked={formData.remember}
+                                    onChange={handleChange}
+                                />
                             </Form.Group>
                             <a href="/">Forgot password?</a>
                         </div>
