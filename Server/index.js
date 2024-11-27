@@ -27,8 +27,8 @@ const port = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true // Allow cookies or other credentials
+  origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com"],
+  credentials: true
 }));
 connectDB();
 
@@ -42,13 +42,6 @@ app.use(
       collection: "sessions",
       expires: 21 * 24 * 60 * 60 * 1000,
     }),
-  })
-);
-
-app.use(
-  cors({
-    origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com"],
-    credentials: true,
   })
 );
 
@@ -362,7 +355,7 @@ app.post("/login", async (req, res) => {
   } else {
     req.session.cookie.expires = false;
   }
-  res.status(200).json();
+  res.status(200).json("Login successful!");
 });
 
 app.get("/logout", function (req, res) {
