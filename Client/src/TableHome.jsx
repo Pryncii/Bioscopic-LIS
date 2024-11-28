@@ -17,6 +17,49 @@ function TableHome({ data, onUpdate }) {
           hour: '2-digit', minute: '2-digit', hour12: true
         }) : "";
 
+    const handleStatusChange = async (e, item) => {
+        const updatedStatus = e.target.value;
+        
+        try {
+            const response = await fetch(`http://localhost:4000/api/requests/${item.requestID}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: updatedStatus, // Pass the updated status
+                }),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to update request");
+            }
+    
+            const updatedPatient = await response.json();
+            // console.log(updatedPatient);
+
+            setTableData(prevData =>
+                prevData.map(row =>
+                    row.requestID === item.requestID
+                        ? {
+                            ...row,
+                            requestStatus: updatedPatient.status,
+                            barColor: updatedPatient.status === "Completed" ? "c"
+                                    : updatedPatient.status === "In Progress" ? "ip" : "req",
+                            dateCompleted: formatDateTime(updatedPatient.dateEnd) || ""
+                        }
+                        : row
+                )
+            );
+        } catch (error) {
+            console.error("Failed to update request:", error);
+        }
+
+        if (onUpdate) {
+            onUpdate();
+        }
+    };        
+        
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -95,12 +138,8 @@ function TableHome({ data, onUpdate }) {
                 row.requestID === updatedPatient.requestID
                     ? {
                         ...row,
-                        requestStatus: updatedPatient.status,
                         remarks: updatedPatient.remarks,
-                        paymentStatus: updatedPatient.payStatus,
-                        barColor: updatedPatient.status === "Completed" ? "c"
-                                  : updatedPatient.status === "In Progress" ? "ip" : "req",
-                        dateCompleted: formatDateTime(updatedPatient.dateEnd) || ""
+                        paymentStatus: updatedPatient.payStatus
                     }
                     : row
             )
@@ -186,8 +225,12 @@ function TableHome({ data, onUpdate }) {
                             <td className="item-container"><h6>{item.patientID}</h6></td>
                             <td className="item-container"><h6>{item.name}</h6></td>
                             <td className="item-container"><h6>{item.tests}</h6></td>
-                            <td className="item-container status" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
-                                <h6 className={`status-item ${item.barColor}`}>{item.requestStatus}</h6>
+                            <td className="item-container status" role="button" onClick={(e) => { e.stopPropagation(); }}>
+                                <select className={`status-item ${item.barColor}`} value={item.requestStatus} onChange={(e) => handleStatusChange(e, item)}>                               
+                                    <option value="Requested">Requested</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
                             </td>
                             <td className="item-container" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
                                 <h6>{item.remarks}</h6>

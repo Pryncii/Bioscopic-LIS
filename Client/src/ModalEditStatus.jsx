@@ -5,7 +5,6 @@ import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
 function ModalEditStatus({ patient, show, handleClose, onStatusUpdate }) {
-  const [requestStatus, setRequestStatus] = useState(patient?.requestStatus || "");
   const [paymentStatus, setPaymentStatus] = useState(patient?.paymentStatus || "");
   const [remarks, setRemarks] = useState(patient?.remarks || "");
 
@@ -20,9 +19,8 @@ function ModalEditStatus({ patient, show, handleClose, onStatusUpdate }) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                status: requestStatus,
                 payStatus: paymentStatus,
-                remarks,
+                remarks
             }),
         });
 
@@ -45,7 +43,7 @@ function ModalEditStatus({ patient, show, handleClose, onStatusUpdate }) {
     } catch (error) {
         console.error("Failed to update request:", error);
     }
-};
+  };
 
 
   return (
@@ -59,12 +57,6 @@ function ModalEditStatus({ patient, show, handleClose, onStatusUpdate }) {
             <h4>{patient.name}</h4>
             <h5>Patient ID: {patient.patientID}</h5>
             <h5>Request ID: {patient.requestID}</h5>
-            <Form.Label className="mt-3">Request Status</Form.Label>
-            <Form.Select value={requestStatus} onChange={(e) => setRequestStatus(e.target.value)}>
-              <option>Requested</option>
-              <option>In Progress</option>
-              <option>Completed</option>
-            </Form.Select>
             <Form.Label className="mt-3">Payment Status</Form.Label>
             <Form.Select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
               <option>Paid</option>
@@ -89,7 +81,6 @@ ModalEditStatus.propTypes = {
     name: PropTypes.string,
     patientID: PropTypes.number,
     requestID: PropTypes.number,
-    requestStatus: PropTypes.string,
     paymentStatus: PropTypes.string,
     remarks: PropTypes.string,
   }),
