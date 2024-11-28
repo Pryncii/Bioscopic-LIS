@@ -5,8 +5,13 @@ const connectDB = require("./db.js");
 const { appdata } = require("./models/data");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+
+const { PDFDocument, StandardFonts } = require('pdf-lib');
+const fs = require('fs').promises;
+
 const session = require("express-session");
 const mongoStore = require("connect-mongodb-session")(session);
+
 const {
   userModel,
   patientModel,
@@ -26,10 +31,12 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
+
 app.use(cors({
   origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com"],
   credentials: true
 }));
+
 connectDB();
 
 app.use(
@@ -776,6 +783,365 @@ app.get("/tests", async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
+});
+
+app.post('/generate-pdf', async (req, res) => {
+  console.log('Received data:', req.body);  
+  const dir = '../Client/src/assets/PDFTemplates/';
+
+  const request = await requestModel.findOne({ requestID: req.body.requestID });
+  const patient = await patientModel.findOne({ patientID: request.patientID });
+  const physician = await userModel.findOne({ medtechID: request.medtechID });
+
+  let requestName = req.body.requestName;
+  let physName = physician.name;
+  let requestAge = patient.age;
+  let requestSex = patient.sex;
+
+  if(req.body.category == 'Hematology'){
+    let hemoglobin = req.body.hemoglobin;
+    let hematocrit = req.body.hematocrit;
+    let rbcCount = req.body.rbcCount;
+    let wbcCount = req.body.wbcCount;
+    let neutrophil = req.body.neutrophil;
+    let lymphocyte = req.body.lymphocyte;
+    let monocyte = req.body.monocyte;
+    let eosinophil = req.body.eosinophil;
+    let basophil = req.body.basophil;
+    let withPlateletCount = req.body.plateletCount;
+    let plateletCount = req.body.plateletCount;
+    let esr = req.body.esr;
+    let bloodWithRh = req.body.bloodWithRh;
+    let clottingTime = req.body.clottingTime;
+    let bleedingTime = req.body.bleedingTime;
+
+    try {
+      const pdfDoc = await PDFDocument.load(await fs.readFile(dir + 'HematologyTemplate.pdf'));
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+      console.log(fields.map(field => field.getName())); 
+
+      const today = new Date();
+
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let year = today.getFullYear();
+      
+      form.getTextField('Name').setText(requestName.toUpperCase());
+      form.getTextField('Name').defaultUpdateAppearances(timesBold);
+      form.getTextField('Age/Sex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Date').setText(month+ "/" + day + "/" + year);
+
+      //let lastName = JSON.stringify(global.userFname[0]);
+      //let firstName = JSON.stringify(global.userFname[1]);
+      //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
+      //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
+
+      form.getTextField('Physician').setText(physName);
+      // Set values for specific fields by their names
+      form.getTextField('Hemoglobin').setText(String(hemoglobin === -1 ? '' : hemoglobin || ''));
+      form.getTextField('Hematocrit').setText(String(hematocrit === -1 ? '' : hematocrit || ''));
+      form.getTextField('RBC Count').setText(String(rbcCount === -1 ? '' : rbcCount || ''));
+      form.getTextField('WBC Count').setText(String(wbcCount === -1 ? '' : wbcCount || ''));
+      form.getTextField('Neutrophil').setText(String(neutrophil === -1 ? '' : neutrophil || ''));
+      form.getTextField('Lymphocyte').setText(String(lymphocyte === -1 ? '' : lymphocyte || ''));
+      form.getTextField('Eosinophil').setText(String(eosinophil === -1 ? '' : eosinophil || ''));
+      form.getTextField('Basophil').setText(String(basophil === -1 ? '' : basophil || ''));
+      form.getTextField('Monocyte').setText(String(monocyte === -1 ? '' : monocyte || ''));
+      form.getTextField('Platelet Count').setText(String(plateletCount === -1 ? '' : plateletCount || ''));
+
+
+// DEV NOTE: NEED TO UPDATE PDF, NO ESR, BLOODWITHRH, CLOTTING TIME, BLEEDING TIME
+
+      fields.forEach(field => {
+          field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
+      });
+
+      form.getTextField('Age/Sex').updateAppearances(timesNewRoman);
+      form.getTextField('Date').updateAppearances(timesNewRoman);
+      form.getTextField('Physician').updateAppearances(timesNewRoman);
+
+      // Flatten the form to make fields non-editable and set appearances
+      form.flatten();
+
+      // Save the filled and flattened PDF
+      const pdfBytes = await pdfDoc.save();
+
+      // Set response to download the generated PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Result_test.pdf`);
+      res.send(Buffer.from(pdfBytes));
+
+      console.log('PDF generated successfully');  // Log successful generation
+    } catch (error) {
+      console.log('Error generating PDF:', error);  // Log any errors
+      res.status(500).send('Error generating PDF');
+    }
+  }
+
+  if(req.body.category == 'Clinical Microscopy'){
+    // Common fields
+    let color = req.body.color;
+    let bacteria = req.body.bacteria;
+    let rbc = req.body.rbc;
+    let pus = req.body.pus;
+
+    // Urinalysis-specific fields
+    let transparency = req.body.transparency;
+    let pH = req.body.pH;
+    let specificGravity = req.body.specificGravity;
+    let sugar = req.body.sugar;
+    let protein = req.body.protein;
+    let epithelialCells = req.body.epithelialCells;
+    let mucusThread = req.body.mucusThread;
+
+    // Fecalysis-specific fields
+    let consistency = req.body.consistency;
+    let wbc = req.body.wbc;
+    let ovaParasite = req.body.ovaParasite;
+    let fatGlobule = req.body.fatGlobule;
+    let bileCrystal = req.body.bileCrystal;
+    let vegetableFiber = req.body.vegetableFiber;
+    let meatFiber = req.body.meatFiber;
+    let erythrocyte = req.body.erythrocyte;
+    let yeastCell = req.body.yeastCell;
+
+    try {
+      const pdfDoc = await PDFDocument.load(await fs.readFile(dir + 'ClinicalMicroscopyTemplate.pdf'));
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+      console.log(fields.map(field => field.getName())); 
+
+      const today = new Date();
+
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let year = today.getFullYear();
+      
+      form.getTextField('Name').setText(requestName.toUpperCase());
+      form.getTextField('Name').defaultUpdateAppearances(timesBold);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Date').setText(month+ "/" + day + "/" + year);
+
+      //let lastName = JSON.stringify(global.userFname[0]);
+      //let firstName = JSON.stringify(global.userFname[1]);
+      //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
+      //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
+
+      form.getTextField('Physician').setText(physName);
+      if (transparency || pH || specificGravity) {
+        form.getTextField('Color_Urinal').setText(String(color === -1 ? '' : color || ''));
+        form.getTextField('Pus_Urinal').setText(String(pus === -1 ? '' : pus || ''));
+        form.getTextField('RBC_Urinal').setText(String(rbc === -1 ? '' : rbc || ''));
+        form.getTextField('Bacteria_Urinal').setText(String(bacteria === -1 ? '' : bacteria || ''));
+        form.getTextField('Transparency').setText(String(transparency === -1 ? '' : transparency || ''));
+        form.getTextField('pH').setText(String(pH === -1 ? '' : pH || ''));
+        form.getTextField('Specific_Gravity').setText(String(specificGravity === -1 ? '' : specificGravity || ''));
+        form.getTextField('Sugar').setText(String(sugar === -1 ? '' : sugar || ''));
+        form.getTextField('Protein').setText(String(protein === -1 ? '' : protein || ''));
+        form.getTextField('Epithelial_Cells').setText(String(epithelialCells === -1 ? '' : epithelialCells || ''));
+        form.getTextField('Mucus_Thread').setText(String(mucusThread === -1 ? '' : mucusThread || ''));
+      } else if (consistency || ovaParasite || bileCrystal || vegetableFiber || meatFiber || erythrocyte || yeastCell) {
+// DEV NOTES: TWO PUS FIELDS, NO WBC FIELD IN FECALYSIS
+        
+        form.getTextField('Color_Fecal').setText(String(color === -1 ? '' : color || ''));
+        form.getTextField('Pus_Fecal').setText(String(pus === -1 ? '' : pus || ''));
+        form.getTextField('RBC_Fecal').setText(String(rbc === -1 ? '' : rbc || ''));
+        form.getTextField('Bacteria_Fecal').setText(String(bacteria === -1 ? '' : bacteria || ''));
+        form.getTextField('Consistency').setText(String(consistency === -1 ? '' : consistency || ''));
+        form.getTextField('Ova').setText(String(ovaParasite === -1 ? '' : ovaParasite || ''));
+        form.getTextField('Fat_Globule').setText(String(fatGlobule === -1 ? '' : fatGlobule || ''));
+        form.getTextField('Bile_Crystal').setText(String(bileCrystal === -1 ? '' : bileCrystal || ''));
+        form.getTextField('Vegetable_Fiber').setText(String(vegetableFiber === -1 ? '' : vegetableFiber || ''));
+        form.getTextField('Meat_Fiber').setText(String(meatFiber === -1 ? '' : meatFiber || ''));
+        form.getTextField('Pus_Cells').setText(String(pus === -1 ? '' : pus || '')); // Redundant field?
+        form.getTextField('Erythrocyte').setText(String(erythrocyte === -1 ? '' : erythrocyte || ''));
+        form.getTextField('Yeast_Cells').setText(String(yeastCell === -1 ? '' : yeastCell || ''));
+      }
+    
+
+      fields.forEach(field => {
+          field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
+      });
+
+      form.getTextField('AgeSex').updateAppearances(timesNewRoman);
+      form.getTextField('Date').updateAppearances(timesNewRoman);
+      form.getTextField('Physician').updateAppearances(timesNewRoman);
+
+      // Flatten the form to make fields non-editable and set appearances
+      form.flatten();
+
+      // Save the filled and flattened PDF
+      const pdfBytes = await pdfDoc.save();
+
+      // Set response to download the generated PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Result_test.pdf`);
+      res.send(Buffer.from(pdfBytes));
+
+      console.log('PDF generated successfully');  // Log successful generation
+    } catch (error) {
+      console.log('Error generating PDF:', error);  // Log any errors
+      res.status(500).send('Error generating PDF');
+    }
+  }
+
+  if(req.body.category == 'Chemistry'){
+    let fbs = req.body.fbs;
+    let rbs = req.body.rbs;
+    let creatinine = req.body.creatinine;
+    let uricAcid = req.body.uricAcid;
+    let cholesterol = req.body.cholesterol;
+    let triglycerides = req.body.triglycerides;
+    let hdl = req.body.hdl;
+    let ldl = req.body.ldl;
+    let vldl = req.body.vldl;
+    let bun = req.body.bun;
+    let sgpt = req.body.sgpt;
+    let sgot = req.body.sgot;
+    let hba1c = req.body.hba1c;
+
+    try {
+      const pdfDoc = await PDFDocument.load(await fs.readFile(dir + 'ChemistryTemplate.pdf'));
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+      console.log(fields.map(field => field.getName())); 
+
+      const today = new Date();
+
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let year = today.getFullYear();
+      
+      form.getTextField('Name').setText(requestName.toUpperCase());
+      form.getTextField('Name').defaultUpdateAppearances(timesBold);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Date').setText(month+ "/" + day + "/" + year);
+
+      //let lastName = JSON.stringify(global.userFname[0]);
+      //let firstName = JSON.stringify(global.userFname[1]);
+      //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
+      //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
+
+      form.getTextField('Physician').setText(physName);
+      // Set values for specific fields by their names
+      form.getTextField('FBS').setText(String(fbs || ''));
+      form.getTextField('RBS').setText(String(rbs || ''));
+      form.getTextField('Creatinine').setText(String(creatinine || ''));
+      form.getTextField('Uric_Acid').setText(String(uricAcid || ''));
+      form.getTextField('Cholesterol_Total').setText(String(cholesterol || ''));
+      form.getTextField('Triglycerides').setText(String(triglycerides || ''));
+      form.getTextField('Cholesterol_HDL').setText(String(hdl || ''));
+      form.getTextField('Cholesterol_LDL').setText(String(ldl || ''));
+      form.getTextField('VLDL').setText(String(vldl || ''));
+      form.getTextField('BUN').setText(String(bun || ''));
+      form.getTextField('SGPT').setText(String(sgpt || ''));
+      form.getTextField('SGOT').setText(String(sgot || ''));
+      form.getTextField('HBA1C').setText(String(hba1c || ''));
+
+      fields.forEach(field => {
+          field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
+      });
+
+      form.getTextField('AgeSex').updateAppearances(timesNewRoman);
+      form.getTextField('Date').updateAppearances(timesNewRoman);
+      form.getTextField('Physician').updateAppearances(timesNewRoman);
+
+      // Flatten the form to make fields non-editable and set appearances
+      form.flatten();
+
+      // Save the filled and flattened PDF
+      const pdfBytes = await pdfDoc.save();
+
+      // Set response to download the generated PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Result_test.pdf`);
+      res.send(Buffer.from(pdfBytes));
+
+      console.log('PDF generated successfully');  // Log successful generation
+    } catch (error) {
+      console.log('Error generating PDF:', error);  // Log any errors
+      res.status(500).send('Error generating PDF');
+    }
+  }
+
+  if(req.body.category == 'Serology'){
+    let hbsAg = req.body.hbsAg;
+    let rprVdrl = req.body.rprVdrl;
+    let pregnancyTestSerum = req.body.pregnancyTestSerum;
+    let pregnancyTestUrine = req.body.pregnancyTestUrine;
+    let dengueNs1 = req.body.dengueNs1;
+    let dengueDuo = req.body.dengueDuo;
+
+    try {
+      const pdfDoc = await PDFDocument.load(await fs.readFile(dir + 'SerologyTemplate.pdf'));
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+      console.log(fields.map(field => field.getName())); 
+
+      const today = new Date();
+
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let year = today.getFullYear();
+      
+      form.getTextField('Name').setText(requestName.toUpperCase());
+      form.getTextField('Name').defaultUpdateAppearances(timesBold);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Date').setText(month+ "/" + day + "/" + year);
+
+      //let lastName = JSON.stringify(global.userFname[0]);
+      //let firstName = JSON.stringify(global.userFname[1]);
+      //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
+      //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
+
+      form.getTextField('Physician').setText(physName);
+      // Set values for specific fields by their names
+      form.getTextField('HbsAg').setText(hbsAg);
+      form.getTextField('RPR').setText(rprVdrl);
+      form.getTextField('Serum').setText(pregnancyTestSerum);
+      form.getTextField('Urine').setText(pregnancyTestUrine);
+      form.getTextField('NS1').setText(dengueNs1);
+      form.getTextField('Duo').setText(dengueDuo);
+
+      fields.forEach(field => {
+          field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
+      });
+
+      form.getTextField('AgeSex').updateAppearances(timesNewRoman);
+      form.getTextField('Date').updateAppearances(timesNewRoman);
+      form.getTextField('Physician').updateAppearances(timesNewRoman);
+
+      // Flatten the form to make fields non-editable and set appearances
+      form.flatten();
+
+      // Save the filled and flattened PDF
+      const pdfBytes = await pdfDoc.save();
+
+      // Set response to download the generated PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Result_test.pdf`);
+      res.send(Buffer.from(pdfBytes));
+
+      console.log('PDF generated successfully');  // Log successful generation
+    } catch (error) {
+      console.log('Error generating PDF:', error);  // Log any errors
+      res.status(500).send('Error generating PDF');
+    }
+  }
+  
 });
 
 const server = app.listen(port, () => {
