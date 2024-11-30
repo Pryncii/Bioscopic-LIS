@@ -130,6 +130,31 @@ app.get("/patients", async (req, res) => {
   }
 });
 
+app.get("/patienthistory", async (req, res) => {
+  try {
+    const { patientID } = req.query;
+    const patient = await patientModel.findOne({ patientID: patientID }); // Retrieve patient data from DB
+
+    if (!patient) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    const requests = await requestModel.find({ patientID: patientID });
+
+    // if (!requests || requests.length === 0) {
+    //   return res.status(404).json({ error: "No requests found for this patient" });
+    // }
+    
+    res.json({
+      patient: patient,
+      requests: requests
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 app.get("/request", async (req, res) => {
   try {
     const patients = await patientModel.find(
