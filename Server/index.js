@@ -5,6 +5,8 @@ const connectDB = require("./db.js");
 const { appdata } = require("./models/data");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const multer = require("multer");
 
 const { PDFDocument, StandardFonts } = require('pdf-lib');
 const fs = require('fs').promises;
@@ -28,6 +30,7 @@ const {
 } = appdata;
 
 const app = express();
+const upload = multer();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
@@ -124,6 +127,76 @@ app.get("/patients", async (req, res) => {
     }
 
     res.json(patientData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/patienthistory", async (req, res) => {
+  try {
+    const { patientID } = req.query;
+    const patient = await patientModel.findOne({ patientID: patientID }); // Retrieve patient data from DB
+    let requestData = [[]];
+    let i = 0;
+
+    if (!patient) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    const requests = await requestModel.find({ patientID: patientID });
+
+    // if (!requests || requests.length === 0) {
+    //   return res.status(404).json({ error: "No requests found for this patient" });
+    // }
+
+    const getDate = (request) => new Date(request.dateEnd || request.dateStart);
+
+      // Sort requests by dateEnd or dateStart (latest first)
+    requests.sort((a, b) => getDate(b) - getDate(a));
+    
+    const formatDateTime = (date) =>
+      date
+        ? new Date(date).toLocaleString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+        : "";
+
+    for (const request of requests) {
+      
+
+      // Push formatted request data into the nested arrays
+      requestData[i].push({
+        requestID: request.requestID,
+        patientID: request.patientID,
+        category: request.category,
+        tests: request.test,
+        remarks: request.remarks,
+        dateRequested: formatDateTime(request.dateStart),
+        dateCompleted: formatDateTime(request.dateEnd),
+      });
+
+      // Split into groups of 5
+      if (requestData[i].length === 5) {
+        i++;
+        requestData[i] = [];
+      }
+    }
+
+    // If the last subarray is empty, remove it
+    if (requestData[requestData.length - 1].length === 0) {
+      requestData.pop();
+    }
+    
+    res.json({
+      patient: patient,
+      requestData: requestData
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
@@ -249,8 +322,10 @@ app.get("/requests", async (req, res) => {
 
     // Create a map of patient IDs to patient names for quick lookups
     const patientMap = {};
+    const emailMap = {};
     patients.forEach((patient) => {
       patientMap[patient.patientID] = patient.name;
+      emailMap[patient.patientID] = patient.email;
     });
 
     // Iterate over each request to format the data
@@ -290,6 +365,7 @@ app.get("/requests", async (req, res) => {
         paymentStatus: request.payStatus,
         dateRequested: formatDateTime(request.dateStart),
         dateCompleted: formatDateTime(request.dateEnd),
+        email: emailMap[request.patientID]
       });
 
       // Split into groups of 5
@@ -310,6 +386,25 @@ app.get("/requests", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+app.get("/requests/:requestID", async (req, res) => {
+  try {
+    const { requestID } = req.params;
+    // Fetch the request by its requestID
+    const request = await requestModel.findOne({ requestID });
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    // Return the request data
+    res.json(request);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 app.post("/register", async (req, res) => {
   const {
@@ -349,6 +444,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await userModel.findOne({ username });
+  console.log(user);
   if (!user) {
     return res.status(400).json({ message: "Account does not exist" });
   }
@@ -357,6 +453,7 @@ app.post("/login", async (req, res) => {
     return res.status(400).json({ message: "Incorrect password" });
   }
   req.session.ID = req.sessionID;
+  req.session.medtechID = user.medtechID;
   if (req.body.remember) {
     req.session.cookie.maxAge = 21 * 24 * 60 * 60 * 1000;
   } else {
@@ -364,6 +461,27 @@ app.post("/login", async (req, res) => {
   }
   res.status(200).json("Login successful!");
 });
+
+app.get('/api/user', (req, res) => {
+  if (req.session.medtechID) {
+    // Fetch the user details based on medtechID stored in the session
+    userModel.findOne({ medtechID: req.session.medtechID })
+      .then(user => {
+        if (user) {
+          return res.json({ medtechID: user.medtechID });
+        } else {
+          return res.status(404).json({ message: "User not found" });
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching user", err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  } else {
+    res.status(401).json({ message: "User not logged in" });
+  }
+});
+
 
 app.get("/logout", function (req, res) {
   req.session.destroy(function (err) {
@@ -673,9 +791,9 @@ app.post("/api/requests", async (req, res) => {
 
 app.put("/api/requests/:requestID", async (req, res) => {
   const { requestID } = req.params;
-  const { status, payStatus, remarks } = req.body;
+  const { status, payStatus, remarks, medtechID } = req.body;
 
-  console.log(status, payStatus, remarks);
+  console.log(status, payStatus, remarks, medtechID);
 
   try {
     // console.log("Received PUT request to update requestID:", requestID);
@@ -701,6 +819,9 @@ app.put("/api/requests/:requestID", async (req, res) => {
     }
     if (remarks !== undefined) {
         updateData.remarks = remarks;
+    }
+    if (medtechID !== undefined) {
+      updateData.medtechID = medtechID;
     }
 
     const updatedRequest = await requestModel.findOneAndUpdate(
@@ -1034,19 +1155,19 @@ app.post('/generate-pdf', async (req, res) => {
 
       form.getTextField('Physician').setText(physName);
       // Set values for specific fields by their names
-      form.getTextField('FBS').setText(String(fbs || ''));
-      form.getTextField('RBS').setText(String(rbs || ''));
-      form.getTextField('Creatinine').setText(String(creatinine || ''));
-      form.getTextField('Uric_Acid').setText(String(uricAcid || ''));
-      form.getTextField('Cholesterol_Total').setText(String(cholesterol || ''));
-      form.getTextField('Triglycerides').setText(String(triglycerides || ''));
-      form.getTextField('Cholesterol_HDL').setText(String(hdl || ''));
-      form.getTextField('Cholesterol_LDL').setText(String(ldl || ''));
-      form.getTextField('VLDL').setText(String(vldl || ''));
-      form.getTextField('BUN').setText(String(bun || ''));
-      form.getTextField('SGPT').setText(String(sgpt || ''));
-      form.getTextField('SGOT').setText(String(sgot || ''));
-      form.getTextField('HBA1C').setText(String(hba1c || ''));
+      form.getTextField('FBS').setText(String(fbs === -1 ? '' : fbs || ''));
+      form.getTextField('RBS').setText(String(rbs === -1 ? '' : rbs || ''));
+      form.getTextField('Creatinine').setText(String(creatinine === -1 ? '' : creatinine || ''));
+      form.getTextField('Uric_Acid').setText(String(uricAcid === -1 ? '' : uricAcid || ''));
+      form.getTextField('Cholesterol_Total').setText(String(cholesterol === -1 ? '' : cholesterol || ''));
+      form.getTextField('Triglycerides').setText(String(triglycerides === -1 ? '' : triglycerides || ''));
+      form.getTextField('Cholesterol_HDL').setText(String(hdl === -1 ? '' : hdl || ''));
+      form.getTextField('Cholesterol_LDL').setText(String(ldl === -1 ? '' : ldl || ''));
+      form.getTextField('VLDL').setText(String(vldl === -1 ? '' : vldl || ''));
+      form.getTextField('BUN').setText(String(bun === -1 ? '' : bun || ''));
+      form.getTextField('SGPT').setText(String(sgpt === -1 ? '' : sgpt || ''));
+      form.getTextField('SGOT').setText(String(sgot === -1 ? '' : sgot || ''));
+      form.getTextField('HBA1C').setText(String(hba1c === -1 ? '' : hba1c || ''));
 
       fields.forEach(field => {
           field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
@@ -1142,6 +1263,52 @@ app.post('/generate-pdf', async (req, res) => {
     }
   }
   
+});
+
+// Handle the /send-pdf-email POST request
+app.post("/send-pdf-email", upload.single("pdf"), async (req, res) => {
+  try {
+    // Access form data and the file
+    const { email } = req.body;
+    const formData = JSON.parse(req.body.formData); // Parse formData from string to object
+    const pdfBuffer = req.file.buffer; // Access the uploaded PDF file buffer
+
+    // Check if email and formData exist
+    if (!email || !formData) {
+      return res.status(400).send("Email or form data is missing.");
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "bioscopicdiagnosticlaboratory@gmail.com",
+        pass: "ceht usoq zmxc gckd",
+      },
+    });
+
+    // Prepare email content and attachment
+    let nameParts = formData.requestName.split(", ");
+    let formattedName = nameParts[0] + nameParts[1].charAt(0); // Format the name for the attachment filename
+
+    const mailOptions = {
+      from: '"Bioscopic Diagnostic Laboratory" <bioscopicdiagnosticlaboratory@gmail.com>',
+      to: email, // Send email to the recipient
+      subject: `${nameParts[1]} ${nameParts[0]} ${formData.category} Test Results`,
+      text: `Hello Mx. ${nameParts[0]},\n\nAttached in this email are your ${formData.category.toLowerCase()} test results.`,
+      attachments: [
+        {
+          filename: `${formattedName}_${formData.category}.pdf`, // PDF file name
+          content: pdfBuffer, // Attach the PDF file from the buffer
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).send("Email sent successfully.");
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).send("Failed to send email.");
+  }
 });
 
 const server = app.listen(port, () => {
