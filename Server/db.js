@@ -9,5 +9,5 @@ const connectDB = async () => {
         process.exit(1);
     }
 };
-//travis
+
 module.exports = connectDB
