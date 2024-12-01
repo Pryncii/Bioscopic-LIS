@@ -57,14 +57,14 @@ function ModalEditStatus({ patient, show, handleClose, onStatusUpdate }) {
             <h4>{patient.name}</h4>
             <h5>Patient ID: {patient.patientID}</h5>
             <h5>Request ID: {patient.requestID}</h5>
-            <Form.Label className="mt-3">Payment Status</Form.Label>
-            <Form.Select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
+            <Form.Label className="mt-3" htmlFor="paymentStatus">Payment Status</Form.Label>
+            <Form.Select id="paymentStatus" value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
               <option>Paid</option>
               <option>Unpaid</option>
             </Form.Select>
             <Form.Group className="mt-3">
-              <Form.Label>Medical Technologist's Remarks</Form.Label>
-              <Form.Control as="textarea" rows={5} value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+              <Form.Label htmlFor="remarks" >Medical Technologist's Remarks</Form.Label>
+              <Form.Control id="remarks" as="textarea" rows={5} value={remarks} onChange={(e) => setRemarks(e.target.value)} />
             </Form.Group>
           </>
         )}
