@@ -311,6 +311,25 @@ app.get("/requests", async (req, res) => {
   }
 });
 
+app.get("/requests/:requestID", async (req, res) => {
+  try {
+    const { requestID } = req.params;
+    // Fetch the request by its requestID
+    const request = await requestModel.findOne({ requestID });
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    // Return the request data
+    res.json(request);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 app.post("/register", async (req, res) => {
   const {
     firstName,
@@ -349,6 +368,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await userModel.findOne({ username });
+  console.log(user);
   if (!user) {
     return res.status(400).json({ message: "Account does not exist" });
   }
@@ -357,6 +377,7 @@ app.post("/login", async (req, res) => {
     return res.status(400).json({ message: "Incorrect password" });
   }
   req.session.ID = req.sessionID;
+  req.session.medtechID = user.medtechID;
   if (req.body.remember) {
     req.session.cookie.maxAge = 21 * 24 * 60 * 60 * 1000;
   } else {
@@ -364,6 +385,27 @@ app.post("/login", async (req, res) => {
   }
   res.status(200).json("Login successful!");
 });
+
+app.get('/api/user', (req, res) => {
+  if (req.session.medtechID) {
+    // Fetch the user details based on medtechID stored in the session
+    userModel.findOne({ medtechID: req.session.medtechID })
+      .then(user => {
+        if (user) {
+          return res.json({ medtechID: user.medtechID });
+        } else {
+          return res.status(404).json({ message: "User not found" });
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching user", err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  } else {
+    res.status(401).json({ message: "User not logged in" });
+  }
+});
+
 
 app.get("/logout", function (req, res) {
   req.session.destroy(function (err) {
@@ -673,9 +715,9 @@ app.post("/api/requests", async (req, res) => {
 
 app.put("/api/requests/:requestID", async (req, res) => {
   const { requestID } = req.params;
-  const { status, payStatus, remarks } = req.body;
+  const { status, payStatus, remarks, medtechID } = req.body;
 
-  console.log(status, payStatus, remarks);
+  console.log(status, payStatus, remarks, medtechID);
 
   try {
     // console.log("Received PUT request to update requestID:", requestID);
@@ -701,6 +743,9 @@ app.put("/api/requests/:requestID", async (req, res) => {
     }
     if (remarks !== undefined) {
         updateData.remarks = remarks;
+    }
+    if (medtechID !== undefined) {
+      updateData.medtechID = medtechID;
     }
 
     const updatedRequest = await requestModel.findOneAndUpdate(
