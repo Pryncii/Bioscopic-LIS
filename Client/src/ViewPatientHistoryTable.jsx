@@ -1,10 +1,13 @@
+import { useState, useEffect } from "react";
 import './styles/Table.css';
 import ModalShowPDFPatient from "./ModalShowPDFPatient.jsx";
-import { useState } from 'react';
 
-function ViewPatientHistoryTable({ requests, tests, patientName}) {
+function ViewPatientHistoryTable({ data, tests, patientName}) {
+    const [tableData, setTableData] = useState(data);
     const [formData, setFormData] = useState(null);
     const [showModal, setShowModal] = useState(false); // Track modal visibility
+
+    console.log(tableData);
 
     const handleShowPDF = (request) => {
         const test = tests.find(test => test.requestID === request.requestID);  
@@ -22,6 +25,10 @@ function ViewPatientHistoryTable({ requests, tests, patientName}) {
         setShowModal(false);  // Hide the modal when closed
         setFormData(null);  // Clear the formData when modal is closed
     };
+
+    useEffect(() => {
+        setTableData(data);
+    }, [data]);
 
     return (
         <>
@@ -46,17 +53,17 @@ function ViewPatientHistoryTable({ requests, tests, patientName}) {
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.isArray(requests) && requests.length > 0 ? (
-                        requests.map((request, index) => (
-                            <tr key={index} onClick={() => handleShowPDF(request)} style={{ cursor: 'pointer' }}>
+                    {tableData.length > 0 ? (
+                        tableData.map((item, index) => (
+                            <tr key={index} onClick={() => handleShowPDF(item)} style={{ cursor: 'pointer' }}>
                                 <td className="item-container number"><h6>{index + 1}</h6></td>
-                                <td className="item-container"><h6>{request.test}</h6></td>
-                                <td className="item-container date"><h6>{request.dateStart}</h6></td>
-                                <td className="item-container date"><h6>{request.dateEnd}</h6></td>
-                                <td className="item-container"><h6>{request.remarks}</h6></td>
-                            </tr>
-                        ))
-                    ) : (
+                                    <td className="item-container"><h6>{item.tests}</h6></td>
+                                    <td className="item-container date"><h6>{item.dateRequested}</h6></td>
+                                    <td className="item-container date"><h6>{item.dateCompleted}</h6></td>
+                                    <td className="item-container"><h6>{item.remarks}</h6></td>
+                                </tr>
+                            ))
+                        ) : (
                         <tr>
                             <td colSpan="5" className="item-container"><h6>No requests found</h6></td>
                         </tr>

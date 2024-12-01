@@ -134,6 +134,8 @@ app.get("/patienthistory", async (req, res) => {
   try {
     const { patientID } = req.query;
     const patient = await patientModel.findOne({ patientID: patientID }); // Retrieve patient data from DB
+    let requestData = [[]];
+    let i = 0;
 
     if (!patient) {
       return res.status(404).json({ error: "Patient not found" });
@@ -144,10 +146,46 @@ app.get("/patienthistory", async (req, res) => {
     // if (!requests || requests.length === 0) {
     //   return res.status(404).json({ error: "No requests found for this patient" });
     // }
+
+    for (const request of requests) {
+      const formatDateTime = (date) =>
+        date
+          ? new Date(date).toLocaleString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          })
+          : "";
+
+      // Push formatted request data into the nested arrays
+      requestData[i].push({
+        requestID: request.requestID,
+        patientID: request.patientID,
+        category: request.category,
+        tests: request.test,
+        remarks: request.remarks,
+        dateRequested: formatDateTime(request.dateStart),
+        dateCompleted: formatDateTime(request.dateEnd),
+      });
+
+      // Split into groups of 5
+      if (requestData[i].length === 5) {
+        i++;
+        requestData[i] = [];
+      }
+    }
+
+    // If the last subarray is empty, remove it
+    if (requestData[requestData.length - 1].length === 0) {
+      requestData.pop();
+    }
     
     res.json({
       patient: patient,
-      requests: requests
+      requestData: requestData
     });
   } catch (err) {
     console.error(err);
@@ -1059,19 +1097,19 @@ app.post('/generate-pdf', async (req, res) => {
 
       form.getTextField('Physician').setText(physName);
       // Set values for specific fields by their names
-      form.getTextField('FBS').setText(String(fbs || ''));
-      form.getTextField('RBS').setText(String(rbs || ''));
-      form.getTextField('Creatinine').setText(String(creatinine || ''));
-      form.getTextField('Uric_Acid').setText(String(uricAcid || ''));
-      form.getTextField('Cholesterol_Total').setText(String(cholesterol || ''));
-      form.getTextField('Triglycerides').setText(String(triglycerides || ''));
-      form.getTextField('Cholesterol_HDL').setText(String(hdl || ''));
-      form.getTextField('Cholesterol_LDL').setText(String(ldl || ''));
-      form.getTextField('VLDL').setText(String(vldl || ''));
-      form.getTextField('BUN').setText(String(bun || ''));
-      form.getTextField('SGPT').setText(String(sgpt || ''));
-      form.getTextField('SGOT').setText(String(sgot || ''));
-      form.getTextField('HBA1C').setText(String(hba1c || ''));
+      form.getTextField('FBS').setText(String(fbs === -1 ? '' : fbs || ''));
+      form.getTextField('RBS').setText(String(rbs === -1 ? '' : rbs || ''));
+      form.getTextField('Creatinine').setText(String(creatinine === -1 ? '' : creatinine || ''));
+      form.getTextField('Uric_Acid').setText(String(uricAcid === -1 ? '' : uricAcid || ''));
+      form.getTextField('Cholesterol_Total').setText(String(cholesterol === -1 ? '' : cholesterol || ''));
+      form.getTextField('Triglycerides').setText(String(triglycerides === -1 ? '' : triglycerides || ''));
+      form.getTextField('Cholesterol_HDL').setText(String(hdl === -1 ? '' : hdl || ''));
+      form.getTextField('Cholesterol_LDL').setText(String(ldl === -1 ? '' : ldl || ''));
+      form.getTextField('VLDL').setText(String(vldl === -1 ? '' : vldl || ''));
+      form.getTextField('BUN').setText(String(bun === -1 ? '' : bun || ''));
+      form.getTextField('SGPT').setText(String(sgpt === -1 ? '' : sgpt || ''));
+      form.getTextField('SGOT').setText(String(sgot === -1 ? '' : sgot || ''));
+      form.getTextField('HBA1C').setText(String(hba1c === -1 ? '' : hba1c || ''));
 
       fields.forEach(field => {
           field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
