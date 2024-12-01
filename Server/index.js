@@ -147,18 +147,25 @@ app.get("/patienthistory", async (req, res) => {
     //   return res.status(404).json({ error: "No requests found for this patient" });
     // }
 
+    const getDate = (request) => new Date(request.dateEnd || request.dateStart);
+
+      // Sort requests by dateEnd or dateStart (latest first)
+    requests.sort((a, b) => getDate(b) - getDate(a));
+    
+    const formatDateTime = (date) =>
+      date
+        ? new Date(date).toLocaleString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+        : "";
+
     for (const request of requests) {
-      const formatDateTime = (date) =>
-        date
-          ? new Date(date).toLocaleString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          })
-          : "";
+      
 
       // Push formatted request data into the nested arrays
       requestData[i].push({
