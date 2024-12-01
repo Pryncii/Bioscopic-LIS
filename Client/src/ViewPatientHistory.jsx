@@ -123,7 +123,7 @@ function ViewPatientHistory() {
         <hr/>
       </div>
       <div className='table-body'>
-        <ViewPatientHistoryTable data={data.requestData[currentPage - 1] || []} tests={tests} patientName={patient.name}/>
+        <ViewPatientHistoryTable data={data.requestData[currentPage - 1] || []} tests={tests} patientName={patient.name} patientEmail={patient.email}/>
         <hr />
         <div className="button-page">
             <button className="btn-item btn btn-primary btn-lg" onClick={handleBack} disabled={currentPage === 1}>
