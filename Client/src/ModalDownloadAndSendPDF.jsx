@@ -2,7 +2,7 @@ import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
 import Form from "react-bootstrap/Form";
 
-function ModalSendEmail({formData, email, onClose, pdfBlob}) {
+function ModalSendEmail({formData, email, pdfUrl, pdfBlob, onClose}) {
 
   const sendToEmail = async (email) => {
     // Regular expression for email validation
@@ -59,6 +59,25 @@ function ModalSendEmail({formData, email, onClose, pdfBlob}) {
             Send to Other
           </Button>
         </InputGroup>
+        <Button
+          variant="primary"
+          onClick={() => {
+            if (pdfUrl) {
+              const link = document.createElement("a");
+              link.href = pdfUrl;
+
+              let nameParts = formData.requestName.split(", "); // Split by comma and space
+              let formattedName = nameParts[0] + nameParts[1].charAt(0); // Combine last name with the first initial
+
+              link.download = `${formattedName}_${formData.category}.pdf`; // formatted file name
+              link.click();
+            } else {
+              alert("No PDF available to download.");
+            }
+          }}
+        >
+          Download PDF
+        </Button>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import ModalSendEmail from "./ModalSendEmail.jsx";
+import ModalDownloadAndSendPDF from "./ModalDownloadAndSendPDF.jsx";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -78,26 +78,7 @@ const handleShow = async () => {
           )}
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
-        <ModalSendEmail formData={formData} email={email} onClose={handleCloseAll} pdfBlob={pdfBlob}/>
-        <Button
-          variant="primary"
-          onClick={() => {
-            if (pdfUrl) {
-              const link = document.createElement("a");
-              link.href = pdfUrl;
-
-              let nameParts = formData.requestName.split(", "); // Split by comma and space
-              let formattedName = nameParts[0] + nameParts[1].charAt(0); // Combine last name with the first initial
-
-              link.download = `${formattedName}_${formData.category}.pdf`; // formatted file name
-              link.click();
-            } else {
-              alert("No PDF available to download.");
-            }
-          }}
-        >
-          Download PDF
-        </Button>
+        <ModalDownloadAndSendPDF formData={formData} email={email} pdfUrl={pdfUrl} pdfBlob={pdfBlob} onClose={handleCloseAll}/>
         </Modal.Footer>
       </Modal>
     </>
