@@ -5,6 +5,8 @@ const connectDB = require("./db.js");
 const { appdata } = require("./models/data");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const multer = require("multer");
 
 const { PDFDocument, StandardFonts } = require('pdf-lib');
 const fs = require('fs').promises;
@@ -28,6 +30,7 @@ const {
 } = appdata;
 
 const app = express();
+const upload = multer();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
@@ -319,8 +322,10 @@ app.get("/requests", async (req, res) => {
 
     // Create a map of patient IDs to patient names for quick lookups
     const patientMap = {};
+    const emailMap = {};
     patients.forEach((patient) => {
       patientMap[patient.patientID] = patient.name;
+      emailMap[patient.patientID] = patient.email;
     });
 
     // Iterate over each request to format the data
@@ -360,6 +365,7 @@ app.get("/requests", async (req, res) => {
         paymentStatus: request.payStatus,
         dateRequested: formatDateTime(request.dateStart),
         dateCompleted: formatDateTime(request.dateEnd),
+        email: emailMap[request.patientID]
       });
 
       // Split into groups of 5
@@ -1257,6 +1263,52 @@ app.post('/generate-pdf', async (req, res) => {
     }
   }
   
+});
+
+// Handle the /send-pdf-email POST request
+app.post("/send-pdf-email", upload.single("pdf"), async (req, res) => {
+  try {
+    // Access form data and the file
+    const { email } = req.body;
+    const formData = JSON.parse(req.body.formData); // Parse formData from string to object
+    const pdfBuffer = req.file.buffer; // Access the uploaded PDF file buffer
+
+    // Check if email and formData exist
+    if (!email || !formData) {
+      return res.status(400).send("Email or form data is missing.");
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "bioscopicdiagnosticlaboratory@gmail.com",
+        pass: "ceht usoq zmxc gckd",
+      },
+    });
+
+    // Prepare email content and attachment
+    let nameParts = formData.requestName.split(", ");
+    let formattedName = nameParts[0] + nameParts[1].charAt(0); // Format the name for the attachment filename
+
+    const mailOptions = {
+      from: '"Bioscopic Diagnostic Laboratory" <bioscopicdiagnosticlaboratory@gmail.com>',
+      to: email, // Send email to the recipient
+      subject: `${nameParts[1]} ${nameParts[0]} ${formData.category} Test Results`,
+      text: `Hello Mx. ${nameParts[0]},\n\nAttached in this email are your ${formData.category.toLowerCase()} test results.`,
+      attachments: [
+        {
+          filename: `${formattedName}_${formData.category}.pdf`, // PDF file name
+          content: pdfBuffer, // Attach the PDF file from the buffer
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).send("Email sent successfully.");
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).send("Failed to send email.");
+  }
 });
 
 const server = app.listen(port, () => {

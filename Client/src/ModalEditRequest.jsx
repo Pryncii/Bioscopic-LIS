@@ -297,7 +297,7 @@ function ModalEditRequest(props) {
           </div>
           <Modal.Footer className="justify-content-center">
             <Button variant="primary" type="submit" onClick={() => { handleSubmit(); handleClose(); }}>Submit</Button>
-            <ModalShowPDF formData={formData}/>
+            <ModalShowPDF formData={formData} email={props.patient.email} onClose={handleClose} />
           </Modal.Footer>
       </Modal.Body>
     </Modal>
