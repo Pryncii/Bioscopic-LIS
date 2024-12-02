@@ -14,7 +14,7 @@ import { CardText } from "react-bootstrap";
 function ModalEditRequest(props) {
   const [show, setShow] = useState(props.show); // Initialize based on props
   const [medtechID, setMedtechID] = useState(props.users[0].medtechID);
-  const numberTypeTests = [ 'ESR', 'Blood with RH', 'Clotting Time', 
+  const numberTypeTests = [ 'ESR', 'Blood Type with RH', 'Clotting Time', 
                             'Bleeding Time', 'FBS', 'RBS', 'Creatinine',
                             'Uric Acid', 'Cholesterol', 'Triglycerides',
                             'HDL', 'LDL', 'VLDL', 'BUN', 'SGPT', 'SGOT',
@@ -41,7 +41,7 @@ function ModalEditRequest(props) {
           withPlateletCount: testValues.plateletCount !== -1, /////////////////
           plateletCount: testValues.plateletCount,
           esr: testValues.esr,
-          bloodWithRh: testValues.bloodWithRh,
+          bloodTypeWithRh: testValues.bloodTypeWithRh,
           clottingTime: testValues.clottingTime,
           bleedingTime: testValues.bleedingTime,
           category: props.category,
@@ -95,7 +95,7 @@ function ModalEditRequest(props) {
           bun: testValues.bun,
           sgpt: testValues.sgpt,
           sgot: testValues.sgot,
-          hba1c: testValues.hba1c,
+          hbA1c: testValues.hbA1c,
           category: props.category,
         };
       case 'Serology':
