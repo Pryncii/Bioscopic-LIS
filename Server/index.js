@@ -444,7 +444,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await userModel.findOne({ username });
-  console.log(user);
+  //console.log(user);
   if (!user) {
     return res.status(400).json({ message: "Account does not exist" });
   }
@@ -907,7 +907,7 @@ app.get("/tests", async (req, res) => {
 });
 
 app.post('/generate-pdf', async (req, res) => {
-  console.log('Received data:', req.body);  
+  //console.log('Received data:', req.body);  
   const dir = '../Client/src/assets/PDFTemplates/';
 
   const request = await requestModel.findOne({ requestID: req.body.requestID });
@@ -943,7 +943,6 @@ app.post('/generate-pdf', async (req, res) => {
 
       const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
       const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
-      console.log(fields.map(field => field.getName())); 
 
       const today = new Date();
 
@@ -1032,7 +1031,6 @@ app.post('/generate-pdf', async (req, res) => {
 
       const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
       const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
-      console.log(fields.map(field => field.getName())); 
 
       const today = new Date();
 
@@ -1125,7 +1123,6 @@ app.post('/generate-pdf', async (req, res) => {
 
       const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
       const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
-      console.log(fields.map(field => field.getName())); 
 
       const today = new Date();
 
@@ -1137,11 +1134,6 @@ app.post('/generate-pdf', async (req, res) => {
       form.getTextField('Name').defaultUpdateAppearances(timesBold);
       form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
       form.getTextField('Date').setText(month+ "/" + day + "/" + year);
-
-      //let lastName = JSON.stringify(global.userFname[0]);
-      //let firstName = JSON.stringify(global.userFname[1]);
-      //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
-      //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
 
       form.getTextField('Physician').setText(physName);
       // Set values for specific fields by their names
@@ -1200,7 +1192,6 @@ app.post('/generate-pdf', async (req, res) => {
 
       const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
       const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
-      console.log(fields.map(field => field.getName())); 
 
       const today = new Date();
 
@@ -1212,11 +1203,6 @@ app.post('/generate-pdf', async (req, res) => {
       form.getTextField('Name').defaultUpdateAppearances(timesBold);
       form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
       form.getTextField('Date').setText(month+ "/" + day + "/" + year);
-
-      //let lastName = JSON.stringify(global.userFname[0]);
-      //let firstName = JSON.stringify(global.userFname[1]);
-      //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
-      //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
 
       form.getTextField('Physician').setText(physName);
       // Set values for specific fields by their names
