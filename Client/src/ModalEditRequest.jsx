@@ -104,7 +104,7 @@ function ModalEditRequest(props) {
           physName: props.users.name,
           requestID: props.patient.requestID,
           hbsAg: testValues.hbsAg,
-          rprVdrl: testValues.rprVdrl,
+          rPROrVdrl: testValues.rPROrVdrl,
           pregnancyTestSerum: testValues.pregnancyTestSerum,
           pregnancyTestUrine: testValues.pregnancyTestUrine,
           dengueNs1: testValues.dengueNs1,

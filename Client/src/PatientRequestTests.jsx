@@ -55,7 +55,7 @@ function PatientRequestTests({ onCheckboxChange, selectedTests }) {
               <tr><h4 className='_title'><b>Serotology</b></h4></tr>
               <tr>
                   <td><input class="Serology form-check-input" id="S-1" type="checkbox" checked={!!selectedTests["HbsAg"]} onChange={() => onCheckboxChange("HbsAg", "Serology")} /> HbsAg</td>
-                  <td><input class="Serology form-check-input" id="S-2" type="checkbox" checked={!!selectedTests["RPR/VDRL"]} onChange={() => onCheckboxChange("RPR/VDRL", "Serology")} /> RPR/VDRL</td>
+                  <td><input class="Serology form-check-input" id="S-2" type="checkbox" checked={!!selectedTests["RPR or VDRL"]} onChange={() => onCheckboxChange("RPR or VDRL", "Serology")} /> RPR or VDRL</td>
                   <td><input class="Serology form-check-input" id="S-3" type="checkbox" checked={!!selectedTests["Pregnancy Test Serum"]} onChange={() => onCheckboxChange("Pregnancy Test Serum", "Serology")} /> Serum Pregnancy Test</td>
               </tr>
               <tr>

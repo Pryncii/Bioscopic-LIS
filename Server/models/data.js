@@ -145,7 +145,7 @@ const serologySchema = new mongoose.Schema(
     {
         requestID: { type: Number },
         hbsAg: { type: String },
-        rprVdrl: { type: String },
+        rPROrVdrl: { type: String },
         pregnancyTestSerum: { type: String },
         pregnancyTestUrine: { type: String },
         dengueNs1: { type: String },

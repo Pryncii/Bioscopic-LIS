@@ -752,8 +752,8 @@ app.post("/api/requests", async (req, res) => {
               case "HbsAg":
                 newTest.hbsAg = "";
                 break;
-              case "RPR/VDRL":
-                newTest.rprVdrl = "";
+              case "RPR or VDRL":
+                newTest.rPROrVdrl = "";
                 break;
               case "Pregnancy Test Serum":
                 newTest.pregnancyTestSerum = "";
@@ -1187,7 +1187,7 @@ app.post('/generate-pdf', async (req, res) => {
 
   if(req.body.category == 'Serology'){
     let hbsAg = req.body.hbsAg;
-    let rprVdrl = req.body.rprVdrl;
+    let rprVdrl = req.body.rprOrVdrl;
     let pregnancyTestSerum = req.body.pregnancyTestSerum;
     let pregnancyTestUrine = req.body.pregnancyTestUrine;
     let dengueNs1 = req.body.dengueNs1;
