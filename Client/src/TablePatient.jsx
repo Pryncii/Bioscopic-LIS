@@ -8,7 +8,7 @@ function TablePatient({ data = [] }) {
     const handleViewPatientHistory = (patient) => {
         navigate(`/patienthistory?patientID=${patient.patientID}`);
     };
-
+    
     return (
 
         <table className="test-items patient-table">

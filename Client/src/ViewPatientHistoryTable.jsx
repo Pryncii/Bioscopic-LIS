@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import './styles/Table.css';
 import ModalShowPDFPatient from "./ModalShowPDFPatient.jsx";
 
-function ViewPatientHistoryTable({ data, tests, patientName}) {
+function ViewPatientHistoryTable({ data, tests, patientName, patientEmail }) {
     const [tableData, setTableData] = useState(data);
     const [formData, setFormData] = useState(null);
     const [showModal, setShowModal] = useState(false); // Track modal visibility
@@ -17,6 +17,7 @@ function ViewPatientHistoryTable({ data, tests, patientName}) {
             requestName: patientName,
             category: request.category,
         };
+        
         setFormData(updatedTest);
         setShowModal(true); // Show the modal when formData is set
     };
@@ -74,6 +75,7 @@ function ViewPatientHistoryTable({ data, tests, patientName}) {
             {formData && showModal && (
                 <ModalShowPDFPatient 
                     formData={formData}
+                    email={patientEmail}
                     show={showModal}
                     handleClose={handleCloseModal}  // Pass close function to Modal
                 />

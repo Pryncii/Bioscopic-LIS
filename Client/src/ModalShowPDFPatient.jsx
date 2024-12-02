@@ -1,11 +1,12 @@
-import ModalSendEmail from "./ModalDownloadAndSendPDF.jsx";
+import ModalDownloadAndSendPDF from "./ModalDownloadAndSendPDF.jsx";
 import { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-function ModalShowPDFPatient({ formData, show, handleClose }) {
+function ModalShowPDFPatient({ formData, email, show, handleClose }) {
     const [pdfUrl, setPdfUrl] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [pdfBlob, setPdfBlob] = useState(null);
 
     useEffect(() => {
         if (show) {
@@ -29,6 +30,7 @@ function ModalShowPDFPatient({ formData, show, handleClose }) {
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             setPdfUrl(url);
+            setPdfBlob(blob);
         } catch (error) {
             console.error("Error generating PDF:", error);
             alert("Failed to generate PDF. Please try again.");
@@ -63,8 +65,7 @@ function ModalShowPDFPatient({ formData, show, handleClose }) {
                 )}
             </Modal.Body>
             <Modal.Footer className="justify-content-center">
-                <Button variant="primary">Download PDF</Button>
-                <ModalSendEmail />
+                <ModalDownloadAndSendPDF formData={formData} email={email} pdfUrl={pdfUrl} pdfBlob={pdfBlob} onClose={handleClose}/>
             </Modal.Footer>
         </Modal>
     );
