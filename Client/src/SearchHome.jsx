@@ -136,8 +136,8 @@ function SearchHome( { onSearch }) {
                     <option value="HbA1c">HbA1c</option>
                     <option value="HbsAg">HbsAg</option>
                     <option value="RPR/VDRL">RPR/VDRL</option>
-                    <option value="Serum Pregnancy Test">Serum Pregnancy Test</option>
-                    <option value="Urine Pregnancy Test">Urine Pregnancy Test</option>
+                    <option value="Pregnancy Test Serum">Pregnancy Test Serum</option>
+                    <option value="Pregnancy Test Urine">Pregnancy Test Urine</option>
                     <option value="Dengue NS1">Dengue NS1</option>
                     <option value="Dengue Duo">Dengue Duo</option>
                   </select>

@@ -755,10 +755,10 @@ app.post("/api/requests", async (req, res) => {
               case "RPR/VDRL":
                 newTest.rprVdrl = "";
                 break;
-              case "Serum Pregnancy Test":
+              case "Pregnancy Test Serum":
                 newTest.pregnancyTestSerum = "";
                 break;
-              case "Urine Pregnancy Test":
+              case "Pregnancy Test Urine":
                 newTest.pregnancyTestUrine = "";
                 break;
               case "Dengue NS1":

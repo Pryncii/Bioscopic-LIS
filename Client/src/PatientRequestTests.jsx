@@ -56,10 +56,10 @@ function PatientRequestTests({ onCheckboxChange, selectedTests }) {
               <tr>
                   <td><input class="Serology form-check-input" id="S-1" type="checkbox" checked={!!selectedTests["HbsAg"]} onChange={() => onCheckboxChange("HbsAg", "Serology")} /> HbsAg</td>
                   <td><input class="Serology form-check-input" id="S-2" type="checkbox" checked={!!selectedTests["RPR/VDRL"]} onChange={() => onCheckboxChange("RPR/VDRL", "Serology")} /> RPR/VDRL</td>
-                  <td><input class="Serology form-check-input" id="S-3" type="checkbox" checked={!!selectedTests["Serum Pregnancy Test"]} onChange={() => onCheckboxChange("Serum Pregnancy Test", "Serology")} /> Serum Pregnancy Test</td>
+                  <td><input class="Serology form-check-input" id="S-3" type="checkbox" checked={!!selectedTests["Pregnancy Test Serum"]} onChange={() => onCheckboxChange("Pregnancy Test Serum", "Serology")} /> Serum Pregnancy Test</td>
               </tr>
               <tr>
-                  <td><input class="Serology form-check-input" id="S-4" type="checkbox" checked={!!selectedTests["Urine Pregnancy Test"]} onChange={() => onCheckboxChange("Urine Pregnancy Test", "Serology")} /> Urine Pregnancy Test</td>
+                  <td><input class="Serology form-check-input" id="S-4" type="checkbox" checked={!!selectedTests["Pregnancy Test Urine"]} onChange={() => onCheckboxChange("Pregnancy Test Urine", "Serology")} /> Urine Pregnancy Test</td>
                   <td><input class="Serology form-check-input" id="S-5" type="checkbox" checked={!!selectedTests["Dengue NS1"]} onChange={() => onCheckboxChange("Dengue NS1", "Serology")} /> Dengue NS1</td>
                   <td><input class="Serology form-check-input" id="S-6" type="checkbox" checked={!!selectedTests["Dengue Duo"]} onChange={() => onCheckboxChange("Dengue Duo", "Serology")} /> Dengue Duo</td>
               </tr>
