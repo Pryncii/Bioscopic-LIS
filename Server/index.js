@@ -662,7 +662,7 @@ app.post("/api/requests", async (req, res) => {
               case "Clotting Time":
                 newTest.clottingTime = -1;
                 break;
-              case "Breeding Time":
+              case "Bleeding Time":
                 newTest.bleedingTime = -1;
                 break;
               default:

@@ -14,7 +14,7 @@ function PatientRequestTests({ onCheckboxChange, selectedTests }) {
               <tr>
                   <td><input class="Hematology form-check-input" id="H-4" type="checkbox" checked={!!selectedTests["Blood Type with Rh"]} onChange={() => onCheckboxChange("Blood Type with Rh", "Hematology")} /> Blood Type with Rh</td>
                   <td><input class="Hematology form-check-input" id="H-5" type="checkbox" checked={!!selectedTests["Clotting Time"]} onChange={() => onCheckboxChange("Clotting Time", "Hematology")} /> Clotting Time</td>
-                  <td><input class="Hematology form-check-input" id="H-6" type="checkbox" checked={!!selectedTests["Breeding Time"]} onChange={() => onCheckboxChange("Breeding Time", "Hematology")} /> Bleeding Time</td>
+                  <td><input class="Hematology form-check-input" id="H-6" type="checkbox" checked={!!selectedTests["Bleeding Time"]} onChange={() => onCheckboxChange("Bleeding Time", "Hematology")} /> Bleeding Time</td>
               </tr>
               <tr><td colSpan="3"><hr /></td></tr>
   
