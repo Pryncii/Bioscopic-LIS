@@ -142,8 +142,8 @@ function PatientRegistration() {
                                 />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Sex</label>
-                            <select className="form-select" name="sex" required value={formData.sex} onChange={handleChange}>
+                            <label className="form-label" for = "sex">Sex</label>
+                            <select className="form-select" name="sex" id = "sex" required value={formData.sex} onChange={handleChange}>
                                 <option value="">--Please choose an option--</option>
                                 <option value="M">Male</option>
                                 <option value="F">Female</option>
@@ -152,6 +152,7 @@ function PatientRegistration() {
                         <div className="mb-3">
                             <label for="date" className="form-label">Birthdate</label>
                             <input type="date" 
+                            id = "date"
                             className="form-control"  
                             name="birthday"
                             value={formData.birthday} 
@@ -162,6 +163,7 @@ function PatientRegistration() {
                             <input type="number" 
                             className ="form-control" 
                             name="age"  required
+                            id = "age"
                             min = "0"
                             value={formData.age} 
                             onChange={handleChange}/>
@@ -170,7 +172,8 @@ function PatientRegistration() {
                             <label for="phoneNumber" className ="form-label">Phone Number *</label>
                             <input type="text" 
                             className ="form-control" 
-                            name="phoneNumber" required 
+                            name="phoneNumber" required
+                            id = "phoneNumber" 
                             pattern = "\d{11}"
                             title = "Please enter 11 digits (09xxxxxxxxx)"
                             value={formData.phoneNumber} 
@@ -181,6 +184,7 @@ function PatientRegistration() {
                             <input type="email" 
                             className="form-control" 
                             name="email" 
+                            id = "email"
                             placeholder="username@bioscopic.com" 
                             pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required
                             value={formData.email} 
@@ -212,7 +216,7 @@ function PatientRegistration() {
                         </div>)}
                         
                     </div>
-                    {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error message */}
+                    {error && <p role = "alert" style={{ color: 'red' }}>{error}</p>} {/* Display error message */}
                     <div class="d-flex justify-content-center mb-3">
                         <button type="submit" class="btn btn-primary btn-lg">Submit Data</button>
                     </div>

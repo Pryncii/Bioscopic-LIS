@@ -32,7 +32,7 @@ describe("POST /login", () => {
         await userModel.deleteMany();
     });
 
-    /*
+    
     it("should login successfully with valid credentials and remember session", async () => {
         const hashedPassword = await bcrypt.hash("password", 10);
         const user = {
@@ -64,7 +64,7 @@ describe("POST /login", () => {
         expect(response.status).toBe(200);
         expect(response.headers["set-cookie"][0]).not.toContain("Expires");
     });
-    */
+    
 
     it("should return an error if the account does not exist", async () => {
         const response = await request(app)
@@ -92,7 +92,7 @@ describe("POST /login", () => {
     });
 });
 
-/*
+
 describe("GET /logout", () => {
     it("should logout successfully", async () => {
         const response = await request(app).get("/logout");
@@ -118,4 +118,4 @@ describe("GET /auth", () => {
         expect(response.body.isAuthenticated).toBe(false);
     });
 });
-*/
+

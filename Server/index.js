@@ -956,11 +956,6 @@ app.post('/generate-pdf', async (req, res) => {
       form.getTextField('Age/Sex').setText(requestAge + "/" + requestSex);
       form.getTextField('Date').setText(month+ "/" + day + "/" + year);
 
-      //let lastName = JSON.stringify(global.userFname[0]);
-      //let firstName = JSON.stringify(global.userFname[1]);
-      //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
-      //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
-
       form.getTextField('Physician').setText(physName);
       // Set values for specific fields by their names
       form.getTextField('Hemoglobin').setText(String(hemoglobin === -1 ? '' : hemoglobin || ''));
@@ -1049,11 +1044,6 @@ app.post('/generate-pdf', async (req, res) => {
       form.getTextField('Name').defaultUpdateAppearances(timesBold);
       form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
       form.getTextField('Date').setText(month+ "/" + day + "/" + year);
-
-      //let lastName = JSON.stringify(global.userFname[0]);
-      //let firstName = JSON.stringify(global.userFname[1]);
-      //lastName = lastName.replace("\"", "").replace(",", "").replace("\"", "");
-      //firstName = firstName.replace("\"", "").replace(",", "").replace("\"", "");
 
       form.getTextField('Physician').setText(physName);
       if (transparency || pH || specificGravity) {
