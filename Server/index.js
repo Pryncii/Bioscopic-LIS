@@ -36,7 +36,7 @@ const port = process.env.PORT || 4000;
 app.use(express.json());
 
 app.use(cors({
-  origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com"],
+  origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com", "http://localhost:4000"],
   credentials: true
 }));
 
