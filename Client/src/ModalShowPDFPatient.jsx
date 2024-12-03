@@ -2,7 +2,7 @@ import ModalDownloadAndSendPDF from "./ModalDownloadAndSendPDF.jsx";
 import { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { URL } from './constants'
+import { LINKURL } from './constantspdf'
 
 function ModalShowPDFPatient({ formData, email, show, handleClose }) {
     const [pdfUrl, setPdfUrl] = useState(null);
@@ -19,7 +19,7 @@ function ModalShowPDFPatient({ formData, email, show, handleClose }) {
         setLoading(true);
 
         try {
-            const response = await fetch(`${URL}/generate-pdf`, {
+            const response = await fetch(`${LINKURL}/generate-pdf`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),

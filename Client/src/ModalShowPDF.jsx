@@ -2,7 +2,7 @@ import ModalDownloadAndSendPDF from "./ModalDownloadAndSendPDF.jsx";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { URL } from './constants'
+import { LINKURL } from './constantspdf'
 
 function ModalShowPDF({formData, email, onClose}) {
 const [pdfUrl, setPdfUrl] = useState(null);
@@ -28,7 +28,7 @@ const handleShow = async () => {
   setLoading(true);
 
   try {
-    const response = await fetch(`${URL}/generate-pdf`, {
+    const response = await fetch(`${LINKURL}/generate-pdf`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
