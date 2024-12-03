@@ -493,7 +493,7 @@ app.get("/auth", (req, res) => {
   if (req.session.ID) {
     return res.status(200).json({ isAuthenticated: true });
   } else {
-    return res.status(200).json({ isAuthenticated: false });
+    return res.status(200).json({ isAuthenticated: true }); // REMEMBER TO CHANGE TO FALSE WHEN DOING ACTUAL STRONGER LOG IN
   }
 });
 
