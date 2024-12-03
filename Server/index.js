@@ -36,7 +36,7 @@ const port = process.env.PORT || 4000;
 app.use(express.json());
 
 app.use(cors({
-  origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com"],
+  origin: ['http://localhost:3000', 'https://bioscopic-lis.onrender.com'],
   credentials: true, // Allow cookies and credentials
 }));
 
@@ -60,7 +60,7 @@ app.use(
 );
 
 app.get("/patients", async (req, res) => {
-  try {
+  try { 
     // Fetch data from all patients
     const patients = await patientModel.find();
     const requests = await requestModel.find();
@@ -1291,7 +1291,7 @@ app.post("/send-pdf-email", upload.single("pdf"), async (req, res) => {
   }
 });
 
-const server = app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, () => {
   console.log(`Listening at port ${port}`);
 });
 
