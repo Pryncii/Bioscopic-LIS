@@ -5,6 +5,15 @@ const connectDB = require("./db.js");
 const { appdata } = require("./models/data");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const multer = require("multer");
+
+const { PDFDocument, StandardFonts } = require('pdf-lib');
+const fs = require('fs').promises;
+
+const session = require("express-session");
+const mongoStore = require("connect-mongodb-session")(session);
+
 const {
   userModel,
   patientModel,
@@ -21,42 +30,30 @@ const {
 } = appdata;
 
 const app = express();
+const upload = multer();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
-app.use(cors());
+
+app.use(cors({
+  origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com"],
+  credentials: true
+}));
+
 connectDB();
 
-app.get("/", async (req, res) => {
-  try {
-    // Fetch data from all models
-    const users = await userModel.find();
-    const patients = await patientModel.find();
-    const requests = await requestModel.find();
-    const hematologyTests = await hematologyModel.find();
-    const clinicalMicroscopyTests = await clinicalMicroscopyModel.find();
-    const chemistryTests = await chemistryModel.find();
-    const serologyTests = await serologyModel.find();
-    const testOptions = await testOptionsModel.find();
-    const allTests = await allTestModel.find();
-
-    // Return the combined data as an object
-    res.json({
-      users,
-      patients,
-      requests,
-      hematologyTests,
-      clinicalMicroscopyTests,
-      chemistryTests,
-      serologyTests,
-      testOptions,
-      allTests,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+app.use(
+  session({
+    secret: "DLSU",
+    saveUninitialized: false,
+    resave: false,
+    store: new mongoStore({
+      uri: "mongodb+srv://princebuencamino:LIS092901@lis.1ioj1.mongodb.net/labDB?retryWrites=true&w=majority&appName=LIS", // Replace with your actual connection string
+      collection: "sessions",
+      expires: 21 * 24 * 60 * 60 * 1000,
+    }),
+  })
+);
 
 app.get("/patients", async (req, res) => {
   try {
@@ -130,6 +127,76 @@ app.get("/patients", async (req, res) => {
     }
 
     res.json(patientData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/patienthistory", async (req, res) => {
+  try {
+    const { patientID } = req.query;
+    const patient = await patientModel.findOne({ patientID: patientID }); // Retrieve patient data from DB
+    let requestData = [[]];
+    let i = 0;
+
+    if (!patient) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    const requests = await requestModel.find({ patientID: patientID });
+
+    // if (!requests || requests.length === 0) {
+    //   return res.status(404).json({ error: "No requests found for this patient" });
+    // }
+
+    const getDate = (request) => new Date(request.dateEnd || request.dateStart);
+
+      // Sort requests by dateEnd or dateStart (latest first)
+    requests.sort((a, b) => getDate(b) - getDate(a));
+    
+    const formatDateTime = (date) =>
+      date
+        ? new Date(date).toLocaleString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+        : "";
+
+    for (const request of requests) {
+      
+
+      // Push formatted request data into the nested arrays
+      requestData[i].push({
+        requestID: request.requestID,
+        patientID: request.patientID,
+        category: request.category,
+        tests: request.test,
+        remarks: request.remarks,
+        dateRequested: formatDateTime(request.dateStart),
+        dateCompleted: formatDateTime(request.dateEnd),
+      });
+
+      // Split into groups of 5
+      if (requestData[i].length === 5) {
+        i++;
+        requestData[i] = [];
+      }
+    }
+
+    // If the last subarray is empty, remove it
+    if (requestData[requestData.length - 1].length === 0) {
+      requestData.pop();
+    }
+    
+    res.json({
+      patient: patient,
+      requestData: requestData
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
@@ -255,8 +322,10 @@ app.get("/requests", async (req, res) => {
 
     // Create a map of patient IDs to patient names for quick lookups
     const patientMap = {};
+    const emailMap = {};
     patients.forEach((patient) => {
       patientMap[patient.patientID] = patient.name;
+      emailMap[patient.patientID] = patient.email;
     });
 
     // Iterate over each request to format the data
@@ -296,6 +365,7 @@ app.get("/requests", async (req, res) => {
         paymentStatus: request.payStatus,
         dateRequested: formatDateTime(request.dateStart),
         dateCompleted: formatDateTime(request.dateEnd),
+        email: emailMap[request.patientID]
       });
 
       // Split into groups of 5
@@ -317,6 +387,25 @@ app.get("/requests", async (req, res) => {
   }
 });
 
+app.get("/requests/:requestID", async (req, res) => {
+  try {
+    const { requestID } = req.params;
+    // Fetch the request by its requestID
+    const request = await requestModel.findOne({ requestID });
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    // Return the request data
+    res.json(request);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 app.post("/register", async (req, res) => {
   const {
     firstName,
@@ -330,52 +419,81 @@ app.post("/register", async (req, res) => {
     prc,
   } = req.body;
 
-  try {
-    const existingUser = await userModel.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: "Username already exists!" });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const userCount = await userModel.countDocuments();
-    const medtechID = userCount + 1;
-    const newUser = new userModel({
-      medtechID: medtechID,
-      name: `${lastName}, ${firstName} ${middleName}`,
-      username,
-      email,
-      phoneNo: phoneNumber,
-      sex,
-      password: hashedPassword,
-      prcno: prc,
-      isMedtech: !!prc,
-    });
-    await newUser.save();
-    res.status(201).json({ message: "User registered successfully!" });
-  } catch (error) {
-    console.error("Registration error:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+  const existingUser = await userModel.findOne({ username });
+  if (existingUser) {
+    return res.status(400).json({ message: "Username already exists!" });
+  }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const userCount = await userModel.countDocuments();
+  const medtechID = userCount + 1;
+  const newUser = new userModel({
+    medtechID: medtechID,
+    name: `${lastName}, ${firstName} ${middleName}`,
+    username,
+    email,
+    phoneNo: phoneNumber,
+    sex,
+    password: hashedPassword,
+    prcno: prc,
+    isMedtech: !!prc,
+  });
+  await newUser.save();
+  res.status(201).json({ message: "User registered successfully!" });
+});
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  const user = await userModel.findOne({ username });
+  //console.log(user);
+  if (!user) {
+    return res.status(400).json({ message: "Account does not exist" });
+  }
+  const isPasswordIncorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordIncorrect) {
+    return res.status(400).json({ message: "Incorrect password" });
+  }
+  req.session.ID = req.sessionID;
+  req.session.medtechID = user.medtechID;
+  if (req.body.remember) {
+    req.session.cookie.maxAge = 21 * 24 * 60 * 60 * 1000;
+  } else {
+    req.session.cookie.expires = false;
+  }
+  res.status(200).json("Login successful!");
+});
+
+app.get('/api/user', (req, res) => {
+  if (req.session.medtechID) {
+    // Fetch the user details based on medtechID stored in the session
+    userModel.findOne({ medtechID: req.session.medtechID })
+      .then(user => {
+        if (user) {
+          return res.json({ medtechID: user.medtechID });
+        } else {
+          return res.status(404).json({ message: "User not found" });
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching user", err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  } else {
+    res.status(401).json({ message: "User not logged in" });
   }
 });
 
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
 
-  try {
-      const user = await userModel.findOne({ username });
-      if (!user) {
-          return res.status(400).json({ message: 'Account does not exist' });
-      }
+app.get("/logout", function (req, res) {
+  req.session.destroy(function (err) {
+    res.status(204).send();
+  });
+});
 
-      const isPasswordIncorrect = await bcrypt.compare(password, user.password);
-      if (!isPasswordIncorrect) {
-          return res.status(400).json({ message: 'Incorrect password' });
-      }
-      res.status(200).json({ message: 'Login successful'});
-  } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+app.get("/auth", (req, res) => {
+  if (req.session.ID) {
+    return res.status(200).json({ isAuthenticated: true });
+  } else {
+    return res.status(200).json({ isAuthenticated: false });
   }
 });
 
@@ -515,13 +633,11 @@ app.post("/api/requests", async (req, res) => {
           payStatus: payment,
         });
 
-
         // create the new test for every test in tests
         let newTest = {
           requestID: newReqId,
         };
         for (const test of tests) {
-
           if (category == "Hematology") {
             switch (test) {
               case "CBC with Platelet Count":
@@ -546,7 +662,7 @@ app.post("/api/requests", async (req, res) => {
               case "Clotting Time":
                 newTest.clottingTime = -1;
                 break;
-              case "Breeding Time":
+              case "Bleeding Time":
                 newTest.bleedingTime = -1;
                 break;
               default:
@@ -631,25 +747,24 @@ app.post("/api/requests", async (req, res) => {
                 console.log("Unknown test key: ", test);
                 break;
             }
-          }
-          else if (category == "Serology") {
-            switch(test){
-              case "HbsAg": 
+          } else if (category == "Serology") {
+            switch (test) {
+              case "HbsAg":
                 newTest.hbsAg = "";
                 break;
-              case "RPR/VDRL": 
-                newTest.rprVdrl = "";
+              case "RPR or VDRL":
+                newTest.rPROrVdrl = "";
                 break;
-              case "Serum Pregnancy Test": 
+              case "Pregnancy Test Serum":
                 newTest.pregnancyTestSerum = "";
                 break;
-              case "Urine Pregnancy Test": 
+              case "Pregnancy Test Urine":
                 newTest.pregnancyTestUrine = "";
                 break;
-              case "Dengue NS1": 
+              case "Dengue NS1":
                 newTest.dengueNs1 = "";
                 break;
-              case "Dengue Duo": 
+              case "Dengue Duo":
                 newTest.dengueDuo = "";
                 break;
               default:
@@ -664,12 +779,10 @@ app.post("/api/requests", async (req, res) => {
         newReqId++; //  increment internal counter for request ID
       }
     }
-    res
-      .status(201)
-      .json({
-        message: "Requests created successfully with latest ID",
-        newReqId,
-      }); // Respond with success message
+    res.status(201).json({
+      message: "Requests created successfully with latest ID",
+      newReqId,
+    }); // Respond with success message
   } catch (error) {
     console.error("Failed to create request:", error);
     res.status(500).json({ error: "Failed to create request" }); // Respond with an error message
@@ -678,24 +791,37 @@ app.post("/api/requests", async (req, res) => {
 
 app.put("/api/requests/:requestID", async (req, res) => {
   const { requestID } = req.params;
-  const { status, payStatus, remarks } = req.body;
+  const { status, payStatus, remarks, medtechID } = req.body;
+
+  console.log(status, payStatus, remarks, medtechID);
 
   try {
     // console.log("Received PUT request to update requestID:", requestID);
     // console.log("New data:", { status, payStatus, remarks });
 
-    // Prepare the update data
-    const updateData = {
-      status,
-      payStatus,
-      remarks,
-    };
+    const updateData = {};
 
-    // Set dateEnd to current date if status is "Completed", or remove it otherwise
-    if (status === "Completed") {
-      updateData.dateEnd = new Date(); // Set dateEnd to current date
-    } else {
-      updateData.dateEnd = null; // Remove dateEnd for other statuses
+    // Conditionally add `status` to `updateData` if it is not null
+    if (status !== undefined) {
+      updateData.status = status;
+
+      // Handle `dateEnd` based on `status`
+      if (status === "Completed") {
+          updateData.dateEnd = new Date(); // Set dateEnd to current date if status is "Completed"
+      } else {
+          updateData.dateEnd = null; // Remove dateEnd for other statuses
+      }
+    }
+    
+    // Conditionally add `payStatus` and `remarks` if they are not null
+    if (payStatus !== undefined) {
+        updateData.payStatus = payStatus;
+    }
+    if (remarks !== undefined) {
+        updateData.remarks = remarks;
+    }
+    if (medtechID !== undefined) {
+      updateData.medtechID = medtechID;
     }
 
     const updatedRequest = await requestModel.findOneAndUpdate(
@@ -724,26 +850,31 @@ app.post("/testvalues", async (req, res) => {
   try {
     const models = {
       Hematology: hematologyModel,
-      'Clinical Microscopy': clinicalMicroscopyModel,
+      "Clinical Microscopy": clinicalMicroscopyModel,
       Chemistry: chemistryModel,
       Serology: serologyModel,
     };
-    
+
     const Model = models[data.category];
-    const updatedRequest = await Model.findOneAndUpdate( // Filter for the document to update
+    const updatedRequest = await Model.findOneAndUpdate(
+      // Filter for the document to update
       { requestID: data.requestID },
       { $set: data },
-      { new: true } 
+      { new: true }
     );
     console.log(updatedRequest);
     if (updatedRequest) {
       res.status(200).json({ message: "Test values updated successfully!" });
     } else {
-      res.status(404).json({ message: "Document not found, no update performed." });
+      res
+        .status(404)
+        .json({ message: "Document not found, no update performed." });
     }
   } catch (error) {
     console.error("Registration error:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 });
 
@@ -766,12 +897,393 @@ app.get("/testoptions", async (req, res) => {
   }
 });
 
-app.get('/tests', async (req, res) => {
+app.get("/tests", async (req, res) => {
   try {
-      const allTests = await allTestModel.find();
-      res.json(allTests);
+    const allTests = await allTestModel.find();
+    res.json(allTests);
   } catch (err) {
-      res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+app.post('/generate-pdf', async (req, res) => {
+  //console.log('Received data:', req.body);  
+  const dir = '../Client/src/assets/PDFTemplates/';
+
+  const request = await requestModel.findOne({ requestID: req.body.requestID });
+  const patient = await patientModel.findOne({ patientID: request.patientID });
+  const physician = await userModel.findOne({ medtechID: request.medtechID });
+
+  let requestName = req.body.requestName;
+  let physName = physician.name;
+  let requestAge = patient.age;
+  let requestSex = patient.sex;
+
+  if(req.body.category == 'Hematology'){
+    let hemoglobin = req.body.hemoglobin;
+    let hematocrit = req.body.hematocrit;
+    let rbcCount = req.body.rbcCount;
+    let wbcCount = req.body.wbcCount;
+    let neutrophil = req.body.neutrophil;
+    let lymphocyte = req.body.lymphocyte;
+    let monocyte = req.body.monocyte;
+    let eosinophil = req.body.eosinophil;
+    let basophil = req.body.basophil;
+    let withPlateletCount = req.body.plateletCount;
+    let plateletCount = req.body.plateletCount;
+    let esr = req.body.esr;
+    let bloodWithRh = req.body.bloodWithRh;
+    let clottingTime = req.body.clottingTime;
+    let bleedingTime = req.body.bleedingTime;
+
+    try {
+      const pdfDoc = await PDFDocument.load(await fs.readFile(dir + 'HematologyTemplate.pdf'));
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+
+      const today = new Date();
+
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let year = today.getFullYear();
+      
+      form.getTextField('Name').setText(requestName.toUpperCase());
+      form.getTextField('Name').defaultUpdateAppearances(timesBold);
+      form.getTextField('Age/Sex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Date').setText(month+ "/" + day + "/" + year);
+
+      form.getTextField('Physician').setText(physName);
+      // Set values for specific fields by their names
+      form.getTextField('Hemoglobin').setText(String(hemoglobin === -1 ? '' : hemoglobin || ''));
+      form.getTextField('Hematocrit').setText(String(hematocrit === -1 ? '' : hematocrit || ''));
+      form.getTextField('RBC Count').setText(String(rbcCount === -1 ? '' : rbcCount || ''));
+      form.getTextField('WBC Count').setText(String(wbcCount === -1 ? '' : wbcCount || ''));
+      form.getTextField('Neutrophil').setText(String(neutrophil === -1 ? '' : neutrophil || ''));
+      form.getTextField('Lymphocyte').setText(String(lymphocyte === -1 ? '' : lymphocyte || ''));
+      form.getTextField('Eosinophil').setText(String(eosinophil === -1 ? '' : eosinophil || ''));
+      form.getTextField('Basophil').setText(String(basophil === -1 ? '' : basophil || ''));
+      form.getTextField('Monocyte').setText(String(monocyte === -1 ? '' : monocyte || ''));
+      form.getTextField('Platelet Count').setText(String(plateletCount === -1 ? '' : plateletCount || ''));
+
+
+// DEV NOTE: NEED TO UPDATE PDF, NO ESR, BLOODWITHRH, CLOTTING TIME, BLEEDING TIME
+
+      fields.forEach(field => {
+          field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
+      });
+
+      form.getTextField('Age/Sex').updateAppearances(timesNewRoman);
+      form.getTextField('Date').updateAppearances(timesNewRoman);
+      form.getTextField('Physician').updateAppearances(timesNewRoman);
+
+      // Flatten the form to make fields non-editable and set appearances
+      form.flatten();
+
+      // Save the filled and flattened PDF
+      const pdfBytes = await pdfDoc.save();
+
+      // Set response to download the generated PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Result_test.pdf`);
+      res.send(Buffer.from(pdfBytes));
+
+      console.log('PDF generated successfully');  // Log successful generation
+    } catch (error) {
+      console.log('Error generating PDF:', error);  // Log any errors
+      res.status(500).send('Error generating PDF');
+    }
+  }
+
+  if(req.body.category == 'Clinical Microscopy'){
+    // Common fields
+    let color = req.body.color;
+    let bacteria = req.body.bacteria;
+    let rbc = req.body.rbc;
+    let pus = req.body.pus;
+
+    // Urinalysis-specific fields
+    let transparency = req.body.transparency;
+    let pH = req.body.pH;
+    let specificGravity = req.body.specificGravity;
+    let sugar = req.body.sugar;
+    let protein = req.body.protein;
+    let epithelialCells = req.body.epithelialCells;
+    let mucusThread = req.body.mucusThread;
+
+    // Fecalysis-specific fields
+    let consistency = req.body.consistency;
+    let wbc = req.body.wbc;
+    let ovaParasite = req.body.ovaParasite;
+    let fatGlobule = req.body.fatGlobule;
+    let bileCrystal = req.body.bileCrystal;
+    let vegetableFiber = req.body.vegetableFiber;
+    let meatFiber = req.body.meatFiber;
+    let erythrocyte = req.body.erythrocyte;
+    let yeastCell = req.body.yeastCell;
+
+    try {
+      const pdfDoc = await PDFDocument.load(await fs.readFile(dir + 'ClinicalMicroscopyTemplate.pdf'));
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+
+      const today = new Date();
+
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let year = today.getFullYear();
+      
+      form.getTextField('Name').setText(requestName.toUpperCase());
+      form.getTextField('Name').defaultUpdateAppearances(timesBold);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Date').setText(month+ "/" + day + "/" + year);
+
+      form.getTextField('Physician').setText(physName);
+      if (transparency || pH || specificGravity) {
+        form.getTextField('Color_Urinal').setText(String(color === -1 ? '' : color || ''));
+        form.getTextField('Pus_Urinal').setText(String(pus === -1 ? '' : pus || ''));
+        form.getTextField('RBC_Urinal').setText(String(rbc === -1 ? '' : rbc || ''));
+        form.getTextField('Bacteria_Urinal').setText(String(bacteria === -1 ? '' : bacteria || ''));
+        form.getTextField('Transparency').setText(String(transparency === -1 ? '' : transparency || ''));
+        form.getTextField('pH').setText(String(pH === -1 ? '' : pH || ''));
+        form.getTextField('Specific_Gravity').setText(String(specificGravity === -1 ? '' : specificGravity || ''));
+        form.getTextField('Sugar').setText(String(sugar === -1 ? '' : sugar || ''));
+        form.getTextField('Protein').setText(String(protein === -1 ? '' : protein || ''));
+        form.getTextField('Epithelial_Cells').setText(String(epithelialCells === -1 ? '' : epithelialCells || ''));
+        form.getTextField('Mucus_Thread').setText(String(mucusThread === -1 ? '' : mucusThread || ''));
+      } else if (consistency || ovaParasite || bileCrystal || vegetableFiber || meatFiber || erythrocyte || yeastCell) {
+// DEV NOTES: TWO PUS FIELDS, NO WBC FIELD IN FECALYSIS
+        
+        form.getTextField('Color_Fecal').setText(String(color === -1 ? '' : color || ''));
+        form.getTextField('Pus_Fecal').setText(String(pus === -1 ? '' : pus || ''));
+        form.getTextField('RBC_Fecal').setText(String(rbc === -1 ? '' : rbc || ''));
+        form.getTextField('Bacteria_Fecal').setText(String(bacteria === -1 ? '' : bacteria || ''));
+        form.getTextField('Consistency').setText(String(consistency === -1 ? '' : consistency || ''));
+        form.getTextField('Ova').setText(String(ovaParasite === -1 ? '' : ovaParasite || ''));
+        form.getTextField('Fat_Globule').setText(String(fatGlobule === -1 ? '' : fatGlobule || ''));
+        form.getTextField('Bile_Crystal').setText(String(bileCrystal === -1 ? '' : bileCrystal || ''));
+        form.getTextField('Vegetable_Fiber').setText(String(vegetableFiber === -1 ? '' : vegetableFiber || ''));
+        form.getTextField('Meat_Fiber').setText(String(meatFiber === -1 ? '' : meatFiber || ''));
+        form.getTextField('Pus_Cells').setText(String(pus === -1 ? '' : pus || '')); // Redundant field?
+        form.getTextField('Erythrocyte').setText(String(erythrocyte === -1 ? '' : erythrocyte || ''));
+        form.getTextField('Yeast_Cells').setText(String(yeastCell === -1 ? '' : yeastCell || ''));
+      }
+    
+
+      fields.forEach(field => {
+          field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
+      });
+
+      form.getTextField('AgeSex').updateAppearances(timesNewRoman);
+      form.getTextField('Date').updateAppearances(timesNewRoman);
+      form.getTextField('Physician').updateAppearances(timesNewRoman);
+
+      // Flatten the form to make fields non-editable and set appearances
+      form.flatten();
+
+      // Save the filled and flattened PDF
+      const pdfBytes = await pdfDoc.save();
+
+      // Set response to download the generated PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Result_test.pdf`);
+      res.send(Buffer.from(pdfBytes));
+
+      console.log('PDF generated successfully');  // Log successful generation
+    } catch (error) {
+      console.log('Error generating PDF:', error);  // Log any errors
+      res.status(500).send('Error generating PDF');
+    }
+  }
+
+  if(req.body.category == 'Chemistry'){
+    let fbs = req.body.fbs;
+    let rbs = req.body.rbs;
+    let creatinine = req.body.creatinine;
+    let uricAcid = req.body.uricAcid;
+    let cholesterol = req.body.cholesterol;
+    let triglycerides = req.body.triglycerides;
+    let hdl = req.body.hdl;
+    let ldl = req.body.ldl;
+    let vldl = req.body.vldl;
+    let bun = req.body.bun;
+    let sgpt = req.body.sgpt;
+    let sgot = req.body.sgot;
+    let hba1c = req.body.hba1c;
+
+    try {
+      const pdfDoc = await PDFDocument.load(await fs.readFile(dir + 'ChemistryTemplate.pdf'));
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+
+      const today = new Date();
+
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let year = today.getFullYear();
+      
+      form.getTextField('Name').setText(requestName.toUpperCase());
+      form.getTextField('Name').defaultUpdateAppearances(timesBold);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Date').setText(month+ "/" + day + "/" + year);
+
+      form.getTextField('Physician').setText(physName);
+      // Set values for specific fields by their names
+      form.getTextField('FBS').setText(String(fbs === -1 ? '' : fbs || ''));
+      form.getTextField('RBS').setText(String(rbs === -1 ? '' : rbs || ''));
+      form.getTextField('Creatinine').setText(String(creatinine === -1 ? '' : creatinine || ''));
+      form.getTextField('Uric_Acid').setText(String(uricAcid === -1 ? '' : uricAcid || ''));
+      form.getTextField('Cholesterol_Total').setText(String(cholesterol === -1 ? '' : cholesterol || ''));
+      form.getTextField('Triglycerides').setText(String(triglycerides === -1 ? '' : triglycerides || ''));
+      form.getTextField('Cholesterol_HDL').setText(String(hdl === -1 ? '' : hdl || ''));
+      form.getTextField('Cholesterol_LDL').setText(String(ldl === -1 ? '' : ldl || ''));
+      form.getTextField('VLDL').setText(String(vldl === -1 ? '' : vldl || ''));
+      form.getTextField('BUN').setText(String(bun === -1 ? '' : bun || ''));
+      form.getTextField('SGPT').setText(String(sgpt === -1 ? '' : sgpt || ''));
+      form.getTextField('SGOT').setText(String(sgot === -1 ? '' : sgot || ''));
+      form.getTextField('HBA1C').setText(String(hba1c === -1 ? '' : hba1c || ''));
+
+      fields.forEach(field => {
+          field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
+      });
+
+      form.getTextField('AgeSex').updateAppearances(timesNewRoman);
+      form.getTextField('Date').updateAppearances(timesNewRoman);
+      form.getTextField('Physician').updateAppearances(timesNewRoman);
+
+      // Flatten the form to make fields non-editable and set appearances
+      form.flatten();
+
+      // Save the filled and flattened PDF
+      const pdfBytes = await pdfDoc.save();
+
+      // Set response to download the generated PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Result_test.pdf`);
+      res.send(Buffer.from(pdfBytes));
+
+      console.log('PDF generated successfully');  // Log successful generation
+    } catch (error) {
+      console.log('Error generating PDF:', error);  // Log any errors
+      res.status(500).send('Error generating PDF');
+    }
+  }
+
+  if(req.body.category == 'Serology'){
+    let hbsAg = req.body.hbsAg;
+    let rprVdrl = req.body.rprOrVdrl;
+    let pregnancyTestSerum = req.body.pregnancyTestSerum;
+    let pregnancyTestUrine = req.body.pregnancyTestUrine;
+    let dengueNs1 = req.body.dengueNs1;
+    let dengueDuo = req.body.dengueDuo;
+
+    try {
+      const pdfDoc = await PDFDocument.load(await fs.readFile(dir + 'SerologyTemplate.pdf'));
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const timesNewRoman = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+
+      const today = new Date();
+
+      let month = today.getMonth() + 1;
+      let day = today.getDate();
+      let year = today.getFullYear();
+      
+      form.getTextField('Name').setText(requestName.toUpperCase());
+      form.getTextField('Name').defaultUpdateAppearances(timesBold);
+      form.getTextField('AgeSex').setText(requestAge + "/" + requestSex);
+      form.getTextField('Date').setText(month+ "/" + day + "/" + year);
+
+      form.getTextField('Physician').setText(physName);
+      // Set values for specific fields by their names
+      form.getTextField('HbsAg').setText(hbsAg);
+      form.getTextField('RPR').setText(rprVdrl);
+      form.getTextField('Serum').setText(pregnancyTestSerum);
+      form.getTextField('Urine').setText(pregnancyTestUrine);
+      form.getTextField('NS1').setText(dengueNs1);
+      form.getTextField('Duo').setText(dengueDuo);
+
+      fields.forEach(field => {
+          field.defaultUpdateAppearances(timesBold, '/F1 13 Tf 0 g');
+      });
+
+      form.getTextField('AgeSex').updateAppearances(timesNewRoman);
+      form.getTextField('Date').updateAppearances(timesNewRoman);
+      form.getTextField('Physician').updateAppearances(timesNewRoman);
+
+      // Flatten the form to make fields non-editable and set appearances
+      form.flatten();
+
+      // Save the filled and flattened PDF
+      const pdfBytes = await pdfDoc.save();
+
+      // Set response to download the generated PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=Result_test.pdf`);
+      res.send(Buffer.from(pdfBytes));
+
+      console.log('PDF generated successfully');  // Log successful generation
+    } catch (error) {
+      console.log('Error generating PDF:', error);  // Log any errors
+      res.status(500).send('Error generating PDF');
+    }
+  }
+  
+});
+
+// Handle the /send-pdf-email POST request
+app.post("/send-pdf-email", upload.single("pdf"), async (req, res) => {
+  try {
+    // Access form data and the file
+    const { email } = req.body;
+    const formData = JSON.parse(req.body.formData); // Parse formData from string to object
+    const pdfBuffer = req.file.buffer; // Access the uploaded PDF file buffer
+
+    // Check if email and formData exist
+    if (!email || !formData) {
+      return res.status(400).send("Email or form data is missing.");
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "bioscopicdiagnosticlaboratory@gmail.com",
+        pass: "ceht usoq zmxc gckd",
+      },
+    });
+
+    // Prepare email content and attachment
+    let nameParts = formData.requestName.split(", ");
+    let formattedName = nameParts[0] + nameParts[1].charAt(0); // Format the name for the attachment filename
+
+    const mailOptions = {
+      from: '"Bioscopic Diagnostic Laboratory" <bioscopicdiagnosticlaboratory@gmail.com>',
+      to: email, // Send email to the recipient
+      subject: `${nameParts[1]} ${nameParts[0]} ${formData.category} Test Results`,
+      text: `Hello Mx. ${nameParts[0]},\n\nAttached in this email are your ${formData.category.toLowerCase()} test results.`,
+      attachments: [
+        {
+          filename: `${formattedName}_${formData.category}.pdf`, // PDF file name
+          content: pdfBuffer, // Attach the PDF file from the buffer
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).send("Email sent successfully.");
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).send("Failed to send email.");
   }
 });
 

@@ -13,7 +13,8 @@ import { CardText } from "react-bootstrap";
 
 function ModalEditRequest(props) {
   const [show, setShow] = useState(props.show); // Initialize based on props
-  const numberTypeTests = [ 'ESR', 'Blood with RH', 'Clotting Time', 
+  const [medtechID, setMedtechID] = useState(props.users[0].medtechID);
+  const numberTypeTests = [ 'ESR', 'Blood Type with RH', 'Clotting Time', 
                             'Bleeding Time', 'FBS', 'RBS', 'Creatinine',
                             'Uric Acid', 'Cholesterol', 'Triglycerides',
                             'HDL', 'LDL', 'VLDL', 'BUN', 'SGPT', 'SGOT',
@@ -25,6 +26,8 @@ function ModalEditRequest(props) {
     switch (props.category) {
       case 'Hematology':
         return {
+          requestName: props.patient.name,
+          physName: props.users.name,
           requestID: props.patient.requestID,
           hemoglobin: testValues.hemoglobin,
           hematocrit: testValues.hematocrit,
@@ -38,13 +41,15 @@ function ModalEditRequest(props) {
           withPlateletCount: testValues.plateletCount !== -1, /////////////////
           plateletCount: testValues.plateletCount,
           esr: testValues.esr,
-          bloodWithRh: testValues.bloodWithRh,
+          bloodTypeWithRh: testValues.bloodTypeWithRh,
           clottingTime: testValues.clottingTime,
           bleedingTime: testValues.bleedingTime,
           category: props.category,
         };
       case 'Clinical Microscopy':
         return {
+          requestName: props.patient.name,
+          physName: props.users.name,
           requestID: props.patient.requestID,
           // Common fields
           color: testValues.color,
@@ -75,6 +80,8 @@ function ModalEditRequest(props) {
         };
       case 'Chemistry':
         return {
+          requestName: props.patient.name,
+          physName: props.users.name,
           requestID: props.patient.requestID,
           fbs: testValues.fbs,
           rbs: testValues.rbs,
@@ -88,14 +95,16 @@ function ModalEditRequest(props) {
           bun: testValues.bun,
           sgpt: testValues.sgpt,
           sgot: testValues.sgot,
-          hba1c: testValues.hba1c,
+          hbA1c: testValues.hbA1c,
           category: props.category,
         };
       case 'Serology':
         return {
+          requestName: props.patient.name,
+          physName: props.users.name,
           requestID: props.patient.requestID,
           hbsAg: testValues.hbsAg,
-          rprVdrl: testValues.rprVdrl,
+          rPROrVdrl: testValues.rPROrVdrl,
           pregnancyTestSerum: testValues.pregnancyTestSerum,
           pregnancyTestUrine: testValues.pregnancyTestUrine,
           dengueNs1: testValues.dengueNs1,
@@ -121,9 +130,7 @@ function ModalEditRequest(props) {
   };
 
   const handleSubmit = () => {
-    alert("Request Updated!")
-    props.handleSubmit(formData); // Call the passed in handleClose function from parent
-    window.location.reload();
+    props.handleSubmit(formData, medtechID); // Call the passed in handleClose function from parent
   };
 
   const tests = [];
@@ -248,6 +255,7 @@ function ModalEditRequest(props) {
 
   function handleUserChange(event) {
     const user = props.users.find((user) => user.name === event.target.value);
+    setMedtechID(user.medtechID);
     inputRef.current.value = user.prcno;
   }
   return (
@@ -289,7 +297,7 @@ function ModalEditRequest(props) {
           </div>
           <Modal.Footer className="justify-content-center">
             <Button variant="primary" type="submit" onClick={() => { handleSubmit(); handleClose(); }}>Submit</Button>
-            <ModalShowPDF />
+            <ModalShowPDF formData={formData} email={props.patient.email} onClose={handleClose} />
           </Modal.Footer>
       </Modal.Body>
     </Modal>

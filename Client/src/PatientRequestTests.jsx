@@ -14,7 +14,7 @@ function PatientRequestTests({ onCheckboxChange, selectedTests }) {
               <tr>
                   <td><input class="Hematology form-check-input" id="H-4" type="checkbox" checked={!!selectedTests["Blood Type with Rh"]} onChange={() => onCheckboxChange("Blood Type with Rh", "Hematology")} /> Blood Type with Rh</td>
                   <td><input class="Hematology form-check-input" id="H-5" type="checkbox" checked={!!selectedTests["Clotting Time"]} onChange={() => onCheckboxChange("Clotting Time", "Hematology")} /> Clotting Time</td>
-                  <td><input class="Hematology form-check-input" id="H-6" type="checkbox" checked={!!selectedTests["Breeding Time"]} onChange={() => onCheckboxChange("Breeding Time", "Hematology")} /> Bleeding Time</td>
+                  <td><input class="Hematology form-check-input" id="H-6" type="checkbox" checked={!!selectedTests["Bleeding Time"]} onChange={() => onCheckboxChange("Bleeding Time", "Hematology")} /> Bleeding Time</td>
               </tr>
               <tr><td colSpan="3"><hr /></td></tr>
   
@@ -55,11 +55,11 @@ function PatientRequestTests({ onCheckboxChange, selectedTests }) {
               <tr><h4 className='_title'><b>Serotology</b></h4></tr>
               <tr>
                   <td><input class="Serology form-check-input" id="S-1" type="checkbox" checked={!!selectedTests["HbsAg"]} onChange={() => onCheckboxChange("HbsAg", "Serology")} /> HbsAg</td>
-                  <td><input class="Serology form-check-input" id="S-2" type="checkbox" checked={!!selectedTests["RPR/VDRL"]} onChange={() => onCheckboxChange("RPR/VDRL", "Serology")} /> RPR/VDRL</td>
-                  <td><input class="Serology form-check-input" id="S-3" type="checkbox" checked={!!selectedTests["Serum Pregnancy Test"]} onChange={() => onCheckboxChange("Serum Pregnancy Test", "Serology")} /> Serum Pregnancy Test</td>
+                  <td><input class="Serology form-check-input" id="S-2" type="checkbox" checked={!!selectedTests["RPR or VDRL"]} onChange={() => onCheckboxChange("RPR or VDRL", "Serology")} /> RPR or VDRL</td>
+                  <td><input class="Serology form-check-input" id="S-3" type="checkbox" checked={!!selectedTests["Pregnancy Test Serum"]} onChange={() => onCheckboxChange("Pregnancy Test Serum", "Serology")} /> Serum Pregnancy Test</td>
               </tr>
               <tr>
-                  <td><input class="Serology form-check-input" id="S-4" type="checkbox" checked={!!selectedTests["Urine Pregnancy Test"]} onChange={() => onCheckboxChange("Urine Pregnancy Test", "Serology")} /> Urine Pregnancy Test</td>
+                  <td><input class="Serology form-check-input" id="S-4" type="checkbox" checked={!!selectedTests["Pregnancy Test Urine"]} onChange={() => onCheckboxChange("Pregnancy Test Urine", "Serology")} /> Urine Pregnancy Test</td>
                   <td><input class="Serology form-check-input" id="S-5" type="checkbox" checked={!!selectedTests["Dengue NS1"]} onChange={() => onCheckboxChange("Dengue NS1", "Serology")} /> Dengue NS1</td>
                   <td><input class="Serology form-check-input" id="S-6" type="checkbox" checked={!!selectedTests["Dengue Duo"]} onChange={() => onCheckboxChange("Dengue Duo", "Serology")} /> Dengue Duo</td>
               </tr>

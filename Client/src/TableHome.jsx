@@ -16,7 +16,69 @@ function TableHome({ data, onUpdate }) {
           month: '2-digit', day: '2-digit', year: 'numeric',
           hour: '2-digit', minute: '2-digit', hour12: true
         }) : "";
+    
+    const fetchMedtechID = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/api/user', {
+            method: 'GET',
+            credentials: 'include',  // This ensures the session cookie is sent with the request
+            });
+            if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+            }
+            const data = await response.json();
+            return data.medtechID;
+        } catch (error) {
+            console.error('Error fetching medtechID:', error);
+            return null;
+        }
+    };
 
+    const handleStatusChange = async (e, item) => {
+        const updatedStatus = e.target.value;
+        
+        try {
+            const medtechID = await fetchMedtechID();
+            const response = await fetch(`http://localhost:4000/api/requests/${item.requestID}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: updatedStatus, // Pass the updated status
+                    medtechID
+                }),
+            });
+            
+            if (!response.ok) {
+                throw new Error("Failed to update request");
+            }
+    
+            const updatedPatient = await response.json();
+            // console.log(updatedPatient);
+
+            setTableData(prevData =>
+                prevData.map(row =>
+                    row.requestID === item.requestID
+                        ? {
+                            ...row,
+                            requestStatus: updatedPatient.status,
+                            barColor: updatedPatient.status === "Completed" ? "c"
+                                    : updatedPatient.status === "In Progress" ? "ip" : "req",
+                            dateCompleted: formatDateTime(updatedPatient.dateEnd) || ""
+                        }
+                        : row
+                )
+            );
+        } catch (error) {
+            console.error("Failed to update request:", error);
+        }
+
+        if (onUpdate) {
+            onUpdate();
+        }
+    };        
+        
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -78,10 +140,29 @@ function TableHome({ data, onUpdate }) {
         setModalType("status"); // Set modal type to status
     };
 
-    const handleShowRequestModal = (patient) => {
+    const handleShowRequestModal = async (patient) => {
         setSelectedPatient(patient);
-        setModalType("request"); // Set modal type to request
-    };
+        try {
+          const response = await fetch(`http://localhost:4000/requests/${patient.requestID}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch request data');
+          }
+      
+          const requestData = await response.json(); // Get the request data, including medtechID
+          const medtechID = requestData.medtechID;
+      
+          const updatedUsers = users.filter(user => user.medtechID === medtechID);
+          const otherUsers = users.filter(user => user.medtechID !== medtechID);
+          const sortedOtherUsers = otherUsers.sort((a, b) => a.name.localeCompare(b.name));
+      
+          setUsers([updatedUsers[0], ...sortedOtherUsers]);
+      
+          setModalType("request"); // Set modal type to request
+        } catch (error) {
+          console.error('Error fetching request data:', error);
+        }
+      };
+      
 
     const handleCloseModal = () => {
         setModalType(null); // Reset modal type to close any modal
@@ -95,12 +176,8 @@ function TableHome({ data, onUpdate }) {
                 row.requestID === updatedPatient.requestID
                     ? {
                         ...row,
-                        requestStatus: updatedPatient.status,
                         remarks: updatedPatient.remarks,
-                        paymentStatus: updatedPatient.payStatus,
-                        barColor: updatedPatient.status === "Completed" ? "c"
-                                  : updatedPatient.status === "In Progress" ? "ip" : "req",
-                        dateCompleted: formatDateTime(updatedPatient.dateEnd) || ""
+                        paymentStatus: updatedPatient.payStatus
                     }
                     : row
             )
@@ -111,7 +188,7 @@ function TableHome({ data, onUpdate }) {
         }
     };
 
-    const handleSubmit = async (formData) => {
+    const handleSubmit = async (formData, medtechID) => {
     
         console.log(formData); // Log the form data for debugging
     
@@ -129,14 +206,35 @@ function TableHome({ data, onUpdate }) {
                 console.error('Error response:', response.status, errorText);
                 return; 
             } else {
-              const responseData = await response.json(); 
-              console.log('Response Data:', responseData); 
+                const { requestID } = formData; 
+                const requestIndex = testValues.findIndex(item => item.requestID === requestID);
+                testValues[requestIndex] = { ...testValues[requestIndex], ...formData };
+                const responseData = await response.json(); 
+                console.log('Response Data:', responseData); 
             }
     
         } catch (error) {
             // Handle fetch errors
             console.error('Error during submission:', error);
             setErrorMessage('An error occurred while submitting the form. Please try again.'); // Set a generic error message
+        }
+
+        try {
+            const response = await fetch(`http://localhost:4000/api/requests/${formData.requestID}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    medtechID
+                }),
+            });
+            
+            if (!response.ok) {
+                throw new Error("Failed to update request");
+            }
+        } catch (error) {
+            console.error("Failed to update request:", error);
         }
     };
 
@@ -186,8 +284,12 @@ function TableHome({ data, onUpdate }) {
                             <td className="item-container"><h6>{item.patientID}</h6></td>
                             <td className="item-container"><h6>{item.name}</h6></td>
                             <td className="item-container"><h6>{item.tests}</h6></td>
-                            <td className="item-container status" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
-                                <h6 className={`status-item ${item.barColor}`}>{item.requestStatus}</h6>
+                            <td className="item-container status" role="button" onClick={(e) => { e.stopPropagation(); }}>
+                                <select className={`status-item ${item.barColor}`} value={item.requestStatus} onChange={(e) => handleStatusChange(e, item)}>                               
+                                    <option value="Requested">Requested</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
                             </td>
                             <td className="item-container" role="button" onClick={(e) => { e.stopPropagation(); handleShowStatusModal(item); }}>
                                 <h6>{item.remarks}</h6>
