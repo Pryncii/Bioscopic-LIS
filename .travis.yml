@@ -50,6 +50,7 @@ install:
 script:
   - cd ../$FRONTEND_DIR
   - npm run build
+  - npx vitest
 
   - cd ../$BACKEND_DIR
   - chmod +x node_modules/.bin/jest
