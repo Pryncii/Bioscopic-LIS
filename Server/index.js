@@ -60,7 +60,7 @@ app.use(
 );
 
 app.get("/patients", async (req, res) => {
-  try {
+  try { 
     // Fetch data from all patients
     const patients = await patientModel.find();
     const requests = await requestModel.find();
