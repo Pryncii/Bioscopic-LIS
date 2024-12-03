@@ -36,7 +36,7 @@ const port = process.env.PORT || 4000;
 app.use(express.json());
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://bioscopic-lis.onrender.com'],
+  origin: port,
   credentials: true, // Allow cookies and credentials
 }));
 
@@ -51,11 +51,7 @@ app.use(
       uri: "mongodb+srv://princebuencamino:LIS092901@lis.1ioj1.mongodb.net/labDB?retryWrites=true&w=majority&appName=LIS",
       collection: "sessions",
       expires: 21 * 24 * 60 * 60 * 1000,
-    }),
-    cookie: {
-      secure: true, // Use HTTPS in production
-      sameSite: "none", // Required for cross-origin cookies
-    },
+    })
   })
 );
 
