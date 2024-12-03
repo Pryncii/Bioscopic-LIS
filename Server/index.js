@@ -32,11 +32,12 @@ const {
 const app = express();
 const upload = multer();
 const port = process.env.PORT || 4000;
+const allowedOrigin = process.env.CLIENT_URL || 'http://localhost:3000';
 
 app.use(express.json());
 
 app.use(cors({
-  origin: port,
+  origin: allowedOrigin,
   credentials: true, // Allow cookies and credentials
 }));
 
@@ -493,7 +494,7 @@ app.get("/auth", (req, res) => {
   if (req.session.ID) {
     return res.status(200).json({ isAuthenticated: true });
   } else {
-    return res.status(200).json({ isAuthenticated: true }); // REMEMBER TO CHANGE TO FALSE WHEN DOING ACTUAL STRONGER LOG IN
+    return res.status(200).json({ isAuthenticated: false }); // REMEMBER TO CHANGE TO FALSE WHEN DOING ACTUAL STRONGER LOG IN
   }
 });
 
