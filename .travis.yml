@@ -4,7 +4,7 @@ node_js:
 
 dist: focal
 
-# Only build on pull requests or the main branch
+# Only build on pull requests or the main branchh
 branches:
   only:
     - /^feature-\S+$/ # Matches any branch starting with "feature-" followed by a description
