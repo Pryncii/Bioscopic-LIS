@@ -32,12 +32,11 @@ const {
 const app = express();
 const upload = multer();
 const port = process.env.PORT || 4000;
-const allowedOrigin = process.env.CLIENT_URL || 'http://localhost:3000';
 
 app.use(express.json());
 
 app.use(cors({
-  origin: allowedOrigin,
+  origin: ['http://localhost:3000', 'https://bioscopic-lis.onrender.com'],
   credentials: true, // Allow cookies and credentials
 }));
 
