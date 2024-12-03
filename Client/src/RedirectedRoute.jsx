@@ -1,3 +1,4 @@
+/*
 import { useState, useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { URL } from './constants'
@@ -37,3 +38,4 @@ const RedirectedRoute = () => {
 };
 
 export default RedirectedRoute;
+*/

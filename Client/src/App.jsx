@@ -11,8 +11,8 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute.jsx";
-import RedirectedRoute from "./RedirectedRoute.jsx";
+//import ProtectedRoute from "./ProtectedRoute.jsx";
+//import RedirectedRoute from "./RedirectedRoute.jsx";
 
 function App() {
   return (
@@ -20,12 +20,12 @@ function App() {
       <Router>
         <div>
           <Routes>
-            <Route element={<RedirectedRoute />}>
+            <Route>
               <Route path="/" element={<Navigate to="/login" />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
             </Route>
-            <Route element={<ProtectedRoute />}>
+            <Route>
               <Route path="/home" element={<Home />} />
               <Route path="/addpatient" element={<PatientRegistration />} />
               <Route path="/request" element={<PatientRequest />} />
