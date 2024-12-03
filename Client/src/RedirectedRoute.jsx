@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import { URL } from './constants'
 
 const RedirectedRoute = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -8,7 +9,7 @@ const RedirectedRoute = () => {
     useEffect(() => {
         const checkSession = async () => {
             try {
-                const response = await fetch("http://localhost:4000/auth", {
+                const response = await fetch(`${URL}/auth`, {
                     method: "GET",
                     credentials: "include",
                 });

@@ -4,6 +4,7 @@ import SearchHome from './SearchHome.jsx'
 import TableHome from './TableHome.jsx'
 import './styles/Table.css';
 import {useEffect, useState} from 'react'
+import { URL } from './constants'
 
 function Home() {
   const [data, setData] = useState({});
@@ -13,7 +14,7 @@ function Home() {
   const fetchData = async (params = {}) => {
     try {
       const query = new URLSearchParams(params).toString();
-      const res = await fetch(`http://localhost:4000/requests?${query}`);
+      const res = await fetch(`${URL}/requests?${query}`);
       const jsonData = await res.json();
       setData(jsonData);
       setCurrentPage(currentPage);

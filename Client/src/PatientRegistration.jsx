@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import './styles/Register.css'
 import Header from './Header.jsx'
+import { URL } from './constants'
 
 
 function PatientRegistration() {
@@ -76,7 +77,7 @@ function PatientRegistration() {
         
         try{
             if(!validate()){ //if age and birthday match
-                const res = await fetch('http://localhost:4000/addpatient', {
+                const res = await fetch(`${URL}/addpatient`, {
                     method: 'POST',
                     headers:{
                         'Content-Type': 'application/json'
@@ -94,7 +95,7 @@ function PatientRegistration() {
                 }
             }
             else{ //age and birthday does not match
-                const res = await fetch('http://localhost:4000/addpatient', {
+                const res = await fetch(`${URL}/addpatient`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

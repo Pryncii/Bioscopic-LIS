@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Row, Col, Alert } from "react-bootstrap";
 import "./styles/Register.css";
+import { URL } from './constants'
 
 function Register() {
     const [validated, setValidated] = useState(false);
@@ -67,7 +68,7 @@ function Register() {
                 lastName: capitalizeName(formData.lastName),
             };
             try {
-                const response = await fetch("http://localhost:4000/register", {
+                const response = await fetch(`${URL}/register`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

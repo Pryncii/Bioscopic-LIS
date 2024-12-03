@@ -3,6 +3,7 @@ import "./styles/Register.css";
 import logo2 from "./assets/logo2.png";
 import { useNavigate } from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
+import { URL } from './constants'
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -42,7 +43,7 @@ function Login() {
         setValidated(true);
         if (form.checkValidity()) {
             try {
-                const response = await fetch("http://localhost:4000/login", {
+                const response = await fetch(`${URL}/login`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
