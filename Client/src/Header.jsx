@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import "./styles/Header.css";
 import logoPic from "./assets/header_logo.png";
+import { URL } from './constants'
 
 function Header() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:4000/logout", {
+      const response = await fetch(`${URL}/logout`, {
         method: "GET",
         credentials: "include",
       });

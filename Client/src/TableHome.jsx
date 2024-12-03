@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ModalEditStatus from "./ModalEditStatus";
 import ModalEditRequest from "./ModalEditRequest"; // Import the edit request modal
 import './styles/Table.css';
+import { URL } from './constants'
 //commit
 function TableHome({ data, onUpdate }) {
     const [tableData, setTableData] = useState(data);
@@ -19,7 +20,7 @@ function TableHome({ data, onUpdate }) {
     
     const fetchMedtechID = async () => {
         try {
-            const response = await fetch('http://localhost:4000/api/user', {
+            const response = await fetch(`${URL}/api/user`, {
             method: 'GET',
             credentials: 'include',  // This ensures the session cookie is sent with the request
             });
@@ -39,7 +40,7 @@ function TableHome({ data, onUpdate }) {
         
         try {
             const medtechID = await fetchMedtechID();
-            const response = await fetch(`http://localhost:4000/api/requests/${item.requestID}`, {
+            const response = await fetch(`${URL}/api/requests/${item.requestID}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -82,7 +83,7 @@ function TableHome({ data, onUpdate }) {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch('http://localhost:4000/users'); // Adjust the URL as necessary
+                const response = await fetch(`${URL}/users`); // Adjust the URL as necessary
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -99,7 +100,7 @@ function TableHome({ data, onUpdate }) {
     useEffect(() => {
         const fetchTestOptions = async () => {
             try {
-                const response = await fetch('http://localhost:4000/testoptions');
+                const response = await fetch(`${URL}/testoptions`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -116,7 +117,7 @@ function TableHome({ data, onUpdate }) {
     useEffect(() => {
         const fetchTestValues = async () => {
             try {
-                const response = await fetch('http://localhost:4000/tests');
+                const response = await fetch(`${URL}/tests`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -143,7 +144,7 @@ function TableHome({ data, onUpdate }) {
     const handleShowRequestModal = async (patient) => {
         setSelectedPatient(patient);
         try {
-          const response = await fetch(`http://localhost:4000/requests/${patient.requestID}`);
+          const response = await fetch(`${URL}/requests/${patient.requestID}`);
           if (!response.ok) {
             throw new Error('Failed to fetch request data');
           }
@@ -193,7 +194,7 @@ function TableHome({ data, onUpdate }) {
         console.log(formData); // Log the form data for debugging
     
         try {
-            const response = await fetch('http://localhost:4000/testvalues', {
+            const response = await fetch(`${URL}/testvalues`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
@@ -220,7 +221,7 @@ function TableHome({ data, onUpdate }) {
         }
 
         try {
-            const response = await fetch(`http://localhost:4000/api/requests/${formData.requestID}`, {
+            const response = await fetch(`${URL}/api/requests/${formData.requestID}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

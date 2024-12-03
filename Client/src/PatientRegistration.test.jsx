@@ -2,6 +2,7 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import PatientRegistration from './PatientRegistration';
+import { URL } from './constants'
 
 // Mock fetch API
 global.fetch = vi.fn();
@@ -82,7 +83,7 @@ describe('PatientRegistration Component', () => {
 
     // Wait for fetch to resolve and check for navigation
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('http://localhost:4000/addpatient', expect.any(Object));
+      expect(fetch).toHaveBeenCalledWith(`${URL}/addpatient`, expect.any(Object));
       expect(fetch).toHaveBeenCalledTimes(1);
     });
   });

@@ -6,6 +6,7 @@ import ViewPatientHistoryTable from './ViewPatientHistoryTable.jsx'
 import './styles/Table.css';
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { URL } from './constants'
 
 function ViewPatientHistory() {
   const [data, setData] = useState({});
@@ -19,7 +20,7 @@ function ViewPatientHistory() {
   useEffect(() => {
     const fetchPatientData = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/patienthistory?patientID=${patientID}`);
+        const res = await fetch(`${URL}/patienthistory?patientID=${patientID}`);
         if (!res.ok) {
           throw new Error('Failed to fetch patient data');
         }
@@ -67,7 +68,7 @@ function ViewPatientHistory() {
   useEffect(() => {
     const fetchTestValues = async () => {
         try {
-            const response = await fetch('http://localhost:4000/tests');
+            const response = await fetch(`${URL}/tests`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }

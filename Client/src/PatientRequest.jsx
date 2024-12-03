@@ -7,6 +7,7 @@ import DateTime from './DateTime.jsx';
 import ModalConfirmRequest from './ModalConfirmRequest.jsx';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { URL } from './constants'
 
 
 function PatientRequest() {
@@ -19,7 +20,7 @@ function PatientRequest() {
   useEffect(() => {   //  fetch all of the patients' information
     const fetchPatients = async () => {
       try {
-        const res = await fetch('http://localhost:4000/request');
+        const res = await fetch(`${URL}/request`);
         if (!res.ok) {
           throw new Error('Network response was not ok');
         }
@@ -82,7 +83,7 @@ function PatientRequest() {
     };
 
     try {
-      const res = await fetch('http://localhost:4000/api/requests', {
+      const res = await fetch(`${URL}/api/requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

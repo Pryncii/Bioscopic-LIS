@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
+import { URL } from './constants'
 
 function ModalEditStatus({ patient, show, handleClose, onStatusUpdate }) {
   const [paymentStatus, setPaymentStatus] = useState(patient?.paymentStatus || "");
@@ -13,7 +14,7 @@ function ModalEditStatus({ patient, show, handleClose, onStatusUpdate }) {
         // console.log("Saving changes for patient:", patient);
         // console.log("Status:", requestStatus, "Payment:", paymentStatus, "Remarks:", remarks);
 
-        const response = await fetch(`http://localhost:4000/api/requests/${patient.requestID}`, {
+        const response = await fetch(`${URL}/api/requests/${patient.requestID}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

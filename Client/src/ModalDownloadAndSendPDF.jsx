@@ -1,6 +1,7 @@
 import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
 import Form from "react-bootstrap/Form";
+import { URL } from './constants'
 
 function ModalSendEmail({formData, email, pdfUrl, pdfBlob, onClose}) {
 
@@ -25,7 +26,7 @@ function ModalSendEmail({formData, email, pdfUrl, pdfBlob, onClose}) {
     formDataToSend.append("pdf", pdfBlob, "document.pdf"); // Append the PDF Blob with filename
   
     try {
-      const response = await fetch("http://localhost:4000/send-pdf-email", {
+      const response = await fetch(`${URL}/send-pdf-email`, {
         method: "POST",
         body: formDataToSend, // Send FormData including the PDF file
       });

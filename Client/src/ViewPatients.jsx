@@ -3,6 +3,7 @@ import DateTime from './DateTime.jsx'
 import SearchPatient from './SearchPatient.jsx'
 import TablePatient from './TablePatient.jsx'
 import {useEffect, useState} from 'react'
+import { URL } from './constants'
 
 function ViewPatients() {
     const [data, setData] = useState([]);
@@ -10,7 +11,7 @@ function ViewPatients() {
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const res = await fetch('http://localhost:4000/patients');
+            const res = await fetch(`${URL}/patients`);
             const jsonData = await res.json();
             setData(jsonData); // Save all data to state
             console.log(jsonData); // Log to check if data is fetched correctly
