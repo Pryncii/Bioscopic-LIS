@@ -37,7 +37,9 @@ app.use(express.json());
 
 app.use(cors({
   origin: ["http://localhost:3000", "https://bioscopic-lis.onrender.com"],
-  credentials: true
+  credentials: true, // Allow cookies and credentials
+  methods: ["GET", "POST", "OPTIONS"], // Allowed HTTP methods
+  allowedHeaders: ["Content-Type"], // Specify allowed headers
 }));
 
 connectDB();
