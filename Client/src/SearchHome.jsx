@@ -146,15 +146,17 @@ function SearchHome( { onSearch }) {
             </div>
           </div>
 
+{/*
           <div className="adv-icon">
             <h5 className="adv-icon">
               Sort by
-              <a className="link-underline-primary" href="/"> Request ID (Descending) </a>
-              / <a className="link-underline-primary" href="/"> Last Name A-Z </a>
-              / <a className="link-underline-primary" href="/"> Requests A-Z </a>
-              / <a className="link-underline-primary" href="/"> Reset</a>
+              <a className="link-underline-primary" href="/home"> Request ID (Descending) </a>
+              / <a className="link-underline-primary" href="/home"> Last Name A-Z </a>
+              / <a className="link-underline-primary" href="/home"> Requests A-Z </a>
+              / <a className="link-underline-primary" href="/home"> Reset</a>
             </h5>
           </div>
+*/}
         </div>
       </div>
     </form>
