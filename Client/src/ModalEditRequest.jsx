@@ -13,7 +13,7 @@ import { CardText } from "react-bootstrap";
 
 function ModalEditRequest(props) {
   const [show, setShow] = useState(props.show); // Initialize based on props
-  //const [medtechID, setMedtechID] = useState(props.users[0].medtechID);
+  const [medtechID, setMedtechID] = useState(props.users[0].medtechID);
   const numberTypeTests = [ 'ESR', 'Blood Type with RH', 'Clotting Time', 
                             'Bleeding Time', 'FBS', 'RBS', 'Creatinine',
                             'Uric Acid', 'Cholesterol', 'Triglycerides',
@@ -130,7 +130,7 @@ function ModalEditRequest(props) {
   };
 
   const handleSubmit = () => {
-    props.handleSubmit(formData/* medtechID*/); // Call the passed in handleClose function from parent
+    props.handleSubmit(formData, medtechID); // Call the passed in handleClose function from parent
   };
 
   const tests = [];
@@ -255,7 +255,7 @@ function ModalEditRequest(props) {
 
   function handleUserChange(event) {
     const user = props.users.find((user) => user.name === event.target.value);
-    setMedtechID(/*user.medtechID*/10);
+    setMedtechID(user.medtechID);
     inputRef.current.value = user.prcno;
   }
   return (
