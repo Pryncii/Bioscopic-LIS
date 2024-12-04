@@ -1,3 +1,4 @@
+/*
 import { useState, useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { URL } from './constants'
@@ -38,3 +39,4 @@ const ProtectedRoute = () => {
 };
 
 export default ProtectedRoute;
+*/

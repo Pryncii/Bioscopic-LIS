@@ -18,6 +18,8 @@ function TableHome({ data, onUpdate }) {
           hour: '2-digit', minute: '2-digit', hour12: true
         }) : "";
 
+
+    /*
     
     const fetchMedtechID = async () => {
         try {
@@ -36,12 +38,13 @@ function TableHome({ data, onUpdate }) {
         }
     };
 
+    */ 
     const handleStatusChange = async (e, item) => {
         const updatedStatus = e.target.value;
         
         try {
-            //const medtechID = 10;
-            const medtechID = await fetchMedtechID();
+            const medtechID = 10;
+            //const medtechID = await fetchMedtechID();
             const response = await fetch(`${URL}/api/requests/${item.requestID}`, {
                 method: "PUT",
                 headers: {
