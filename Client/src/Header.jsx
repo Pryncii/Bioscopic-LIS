@@ -77,17 +77,14 @@ function Header() {
                 aria-haspopup="true"
                 aria-expanded="false"
               >
-                Name Here
+                Logout
               </a>
               <div
                 className="dropdown-menu dropdown-menu-end"
                 aria-labelledby="navbarDropdown"
               >
-                <a className="dropdown-item" href="/">
-                  View Profile
-                </a>
                 <a className="dropdown-item" href="#" onClick={handleLogout}>
-                  Log Out
+                  Confirm
                 </a>
               </div>
             </li>

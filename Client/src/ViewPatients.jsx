@@ -65,7 +65,7 @@ function ViewPatients() {
             <h1 className='_title'>View All Patients</h1>
             <DateTime/>
         </div>
-        <SearchPatient/>
+        {/*<SearchPatient/>*/}
         <div className='table-body'>
             <TablePatient data={data[currentPage-1]}/>
             <div className="button-page">
